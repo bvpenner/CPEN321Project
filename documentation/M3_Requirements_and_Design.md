@@ -1,124 +1,174 @@
 # M3 - Requirements and Design
 
 ## 1. Change History
-<!-- Leave blank for M3 -->
+
+| Version | Date       | Description    | Author       |
+|---------|------------|----------------|--------------|
+| 1.0     | 2025-01-31 | Initial Draft  | Team (4 Coordinates) |
 
 ## 2. Project Description
 
+Managing daily tasks efficiently can be challenging, especially when dealing with multiple locations and deadlines. **GeoTask** is a smart task management app that leverages real-time location data, intelligent scheduling, and AI-powered recommendations to help users organize their tasks seamlessly.
+
+### **Key Features:**
+- **Location-Aware Task Management**: Tasks are mapped to specific locations, providing better visualization and enabling more efficient organization.
+- **Smart Notifications**: Users receive timely reminders based on proximity, deadlines, and priority, utilizing real-time geofencing and scheduling algorithms.
+- **Route and Schedule Optimization**: Automatically generates the most efficient task sequence and route based on the user's task list.
+- **Efficient Task Generation**: Users can create tasks by simply writing a short text message with details like time, location, and frequency, eliminating the need for manual input.
 
 ## 3. Requirements Specification
+
 ### **3.1. Use-Case Diagram**
-
-
+![Use-Case Diagram](./Use_Case_Diagram.drawio.png)
 ### **3.2. Actors Description**
-1. **[WRITE_NAME_HERE]**: ...
-2. **[WRITE_NAME_HERE]**: ...
-
+1. **End User**: Can log in, manage their tasks, and receive notifications about their tasks when they are within a certain proximity based on set priority, as well as receive notifications about tasks our app recommends they do based on prior history.
+2. **Google Maps API**: The API the app will use to handle location data and distance to certain tasks, as well as be called upon for navigation.
+3. **Google Calendar API**: The API the app will use to store and handle calendar and task data. 
 
 ### **3.3. Functional Requirements**
-<a name="fr1"></a>
 
-1. **[WRITE_FUNCTIONAL_REQUIREMENT_1_NAME_HERE]** 
-    - **Overview**:
-        1. [WRITE_FUNCTIONAL_REQUIREMENT_1_1_NAME_HERE]
-        2. ...
-    
-    - **Detailed Flow for Each Independent Scenario**: 
-        1. **[WRITE_FUNCTIONAL_REQUIREMENT_1_1_NAME_HERE]**:
-            - **Description**: ...
-            - **Primary actor(s)**: ... 
-            - **Main success scenario**:
-                1. ...
-                2. ...
-            - **Failure scenario(s)**:
-                - 1a. ...
-                    - 1a1. ...
-                    - 1a2. ...
-                - 1b. ...
-                    - 1b1. ...
-                    - 1b2. ...
-                - 2a. ...
-                    - 2a1. ...
-                    - 2a2. ...
+#### **1. User Login/Secure User Authentication**
+- **Description**: Users log in via Google authentication and are able to retrieve previously stored tasks.
+- **Primary Actor**: End User
+- **Success Scenarios:**
+    1. The user provides valid Google credentials and successfully logs in.
+    2. The system retrieves and displays the user's stored tasks.
+- **Failure Scenarios:**
+    1. Incorrect login credentials result in authentication failure.
+    2. Google authentication service is unavailable.
 
-        2. ...
-    
-2. ...
+#### **2. Task Notifications**
+- **Description**: Send push notifications to alert the user when a task deadline is approaching or when they enter a task’s designated area (geographical circles).
+- **Primary Actor**: End User
+- **Success Scenarios:**
+    1. The system detects an upcoming task deadline and sends a notification.
+    2. The user enters a predefined task location, triggering a notification.
+- **Failure Scenarios:**
+    1. Notification service failure prevents alerts from being sent.
+    2. The system fails to detect the user's location due to GPS issues.
 
+#### **3. Task Management System**
+- **Description**:  Create/delete/modify a task with information such as deadline, location, priority level, frequency and a short description.
+Primary actor: End User
+- **Primary Actor**: End User
+- **Success Scenarios:**
+    1. The user successfully creates a new task with required details.
+    2. The user edits and saves an existing task.
+    3. The user deletes a task successfully.
+- **Failure Scenarios:**
+    1. Task creation fails due to missing or invalid input.
+    2. Task update fails due to network or system errors.
 
-### **3.4. Screen Mockups**
+#### **4. Intelligent Route Scheduling**
+- **Description**: Create a viable route schedule using selected tasks based on deadline, location, and priority level.
+- **Primary Actor**: End User
+- **Success Scenarios:**
+    1. The user selects tasks, and the system generates an optimized route.
+    2. The system considers time, distance, and priority while creating the schedule.
+- **Failure Scenarios:**
+    1. The system fails to generate a route due to incomplete task details.
+    2. The route optimization service is unavailable.
 
+#### **5. Dynamic Geofencing for Task Alerts**
+- **Description**:  Dynamically adjust geofences (circular regions) on a map based on task locations, priority levels and proximity. If a user enters the geofenced area, they receive a task reminder notification. Users do not need to manually adjust geofences, as the system intelligently adapts based on the importance of the task.
+- **Primary Actor**: End User
+- **Success Scenarios:**
+    1. The system continuously monitors task locations and priority levels, dynamically adjusting the geofence radius in real-time.
+    2. The system updates the map and recalculates proximity alerts accordingly
+- **Failure Scenarios:**
+    1. The system encounters an algorithmic failure, preventing geofence updates.
+    2. The modification is not saved due to an internal system issue.
 
-### **3.5. Non-Functional Requirements**
-<a name="nfr1"></a>
+#### **6. Map View for Tasks**
+- **Description**: Displays tasks on a map with deadline, priority level, and frequency details.
+- **Primary Actor**: End User
+- **Success Scenarios:**
+    1. The system displays tasks on the map with relevant information.
+    2. Geofencing is seamlessly integrated into the map.
+- **Failure Scenarios:**
+    1. The system fails to load the map due to API or service issues.
 
-1. **[WRITE_NAME_HERE]**
-    - **Description**: ...
-    - **Justification**: ...
-2. ...
-
+### **3.4. Non-Functional Requirements**
+1. **Scalability**: The system must support at least **1,000 concurrent requests** while maintaining a response time of under **2 seconds**. This is critical to ensure smooth performance as the number of users grows, preventing slowdowns and crashes under high load.
+2. **Real-Time Location Processing**: The application must process **location updates in the background** with minimal battery consumption. This is essential to provide accurate and timely notifications to users while ensuring the app does not drain device resources excessively.
+3. **Notification Accuracy**: The system must deliver push notifications to users within **2 seconds** of detecting task deadlines or proximity triggers. This ensures timely alerts, which are critical for user engagement and task management efficiency.
+4. **Location Accuracy**: The app must use location data with an accuracy of at least **10 meters** to ensure proximity-based notifications and route planning are reliable and useful for the user.
 
 ## 4. Designs Specification
-### **4.1. Main Components**
-1. **[WRITE_NAME_HERE]**
-    - **Purpose**: ...
-    - **Interfaces**: 
-        1. ...
-            - **Purpose**: ...
-        2. ...
-2. ...
 
+### **4.1. Main Components**
+1. **User**
+    - **Description**: Handles user authentication, account management, and interaction with the Android UI. Users log in via Google Authentication, manage their accounts, and access their cloud-saved tasks.
+    - **Purpose**: Ensures secure access, allowing users to manage their profiles and seamlessly interact with the app. Google Authentication API was chosen for enhanced security and to reduce development overhead. User login information is also linked to database organization, serving as labels for storing and retrieving user-specific task data. 
+2. **Task**
+    - **Description**: Provides users with a comprehensive system to create, modify, and delete tasks while optimizing task execution through real-time geofencing and dynamic scheduling. The system continuously tracks user location to determine proximity to task locations, dynamically adjusting task order based on real-time conditions such as distance, priority levels, and deadlines.
+    - **Purpose**: Enhances productivity by minimizing travel time and ensuring efficient task execution. Real-time geofencing defines virtual boundaries around task locations and triggers alerts when users enter or leave task zones, ensuring location-based task reminders. Task scheduling intelligently arranges tasks based on their geographic distribution and urgency, providing users with an optimized route for task completion. Automated notifications ensure that tasks are pushed to users at the right time, reducing manual intervention and improving overall efficiency. This was chosen because alternatives like an automated task system don't provide users with direct control over their tasks.
 
 ### **4.2. Databases**
-1. **[WRITE_NAME_HERE]**
-    - **Purpose**: ...
-2. ...
+- **MongoDB**
+    - Description: A NoSQL Database
+    - Purpose: Store user-created tasks so that the user can access their tasks across multiple devices. This was chosen because of its simplicity compared to relational databases as well as the resiliency NoSQL can provide against network interruptions.
 
 
 ### **4.3. External Modules**
-1. **[WRITE_NAME_HERE]** 
-    - **Purpose**: ...
-2. ...
-
+1. **Google Map API**
+    - Purpose: Handles location data, calculates distance, and aids navigation.
+2. **Google Calendar API**
+    - Purpose: Stores/manages the task scheduling and check scheduling conflict
 
 ### **4.4. Frameworks**
-1. **[WRITE_NAME_HERE]**
-    - **Purpose**: ...
-    - **Reason**: ...
-2. ...
-
+1. **AWS**
+    - AWS offers high availability and pre-configured tools, and AWS EC2 reduces infrastructure management overhead.
+2. **Docker**
+    -   Docker ensures that the application runs consistently across different environments. It also reduces deployment times and optimizes resource usage.
 
 ### **4.5. Dependencies Diagram**
-
-
+![Dependencies Diagram](./design_diagram.png)
 ### **4.6. Functional Requirements Sequence Diagram**
-1. [**[WRITE_NAME_HERE]**](#fr1)\
-[SEQUENCE_DIAGRAM_HERE]
-2. ...
-
-
+![Sequence Diagram 1](./Map_View_For_Tasks-REST.drawio.png)
+![Sequence Diagram 1](./Task_Notifications-REST.drawio.png)
+![Sequence Diagram 1](./User_Login-REST.drawio.png)
+![Sequence Diagram 1](./Task_Management-REST.drawio.png)
 ### **4.7. Non-Functional Requirements Design**
-1. [**[WRITE_NAME_HERE]**](#nfr1)
-    - **Validation**: ...
-2. ...
-
+1. **Scalability**: The system will be deployed on a cloud-based infrastructure with efficient logic and auto-scaling mechanisms to handle up to 1,000 concurrent requests. Efficient database indexing and caching techniques will be implemented to maintain response times under 2 seconds.
+2. **Real-Time Location Processing**: The application will use optimized background location tracking with adaptive update intervals, leveraging Google Map API on Android.
+3. **Notification Accuracy**: A real-time event-driven architecture with WebSockets will be used to ensure push notifications are delivered within 2 seconds. Task deadlines and proximity triggers will be preprocessed to reduce computation overhead during runtime.
+4. **Location Accuracy**: The app will integrate GPS, Wi-Fi, and cellular network data to achieve at least 10-meter accuracy.
 
 ### **4.8. Main Project Complexity Design**
-**[WRITE_NAME_HERE]**
-- **Description**: ...
-- **Why complex?**: ...
-- **Design**:
-    - **Input**: ...
-    - **Output**: ...
-    - **Main computational logic**: ...
-    - **Pseudo-code**: ...
-        ```
-        
-        ```
+#### **Task Scheduling with Deadline Constraints**
+- **Problem Definition**: Given a set of tasks with locations and deadlines, the system must find the optimal order of execution to minimize travel time while ensuring all tasks are completed before their deadlines.
+- **Challenges:**
+    - The problem resembles the Traveling Salesman Problem (TSP) with Time Windows, which is NP-hard.
+    - Tasks may have overlapping or conflicting deadlines, requiring dynamic adjustments.
+    - Real-time traffic data must be considered for accurate scheduling.
+- **Proposed Solution:**
+    - Use a **Greedy + Heuristic Approach**:
+    - Sort tasks by the **earliest deadline first (EDF)**.
+    - Use **Dijkstra’s Algorithm** (or **A* Search**) to find the shortest path between tasks, incorporating real-time traffic updates.
+    - Backtrack and re-optimize the schedule if a task cannot be reached before its deadline.
+    - **Ant Colony Optimization (ACO)** or **Genetic Algorithms** can be used for large-scale optimization for near-optimal solutions.
 
+#### **Geofencing and Real-Time Location Processing**
+- **Problem Definition**: The system must detect when a user enters/exits a geofenced task area and trigger notifications in real-time with minimal battery consumption.
+- **Challenges:**
+    - Processing location updates frequently drains the battery.
+    - Maintaining geofences efficiently in large areas requires optimized data structures.
+    - High precision is needed to avoid false positives.
+- **Proposed Solution:**
+    - Use **QuadTrees or R-trees** to efficiently store and query geofences based on user location.
+    - Implement **adaptive geofencing**:
+        - Reduce location update frequency when the user is far from any geofence.
+        - Increase frequency dynamically when near a task location.
+    - Use the **Haversine Distance Formula** for quick geofence boundary checks.
+    - Use **Android’s Geofencing API** / **iOS Core Location Region Monitoring** for event-driven location updates.
 
 ## 5. Contributions
-- ...
-- ...
-- ...
-- ...
+- **Patrick Chen**: I identified the Main Project Complexity Design, addressing scalability, concurrency, and performance challenges, defining Non-Functional Requirements, and identifying the main components together with the team.
+- **Jingyang Cui**: I worked on creating a draft for functional requirements and a dependency diagram. I also assisted in making the use-case diagram, and slides, as well as participated in discussion for other segments.
+- **Amaan Siddiqi**: I mainly worked on the Project Description while also making final edits to the whole file, as well as participating in discussions for all segments.
+- **Misty Penner**: Create the use-case diagram and sequence diagrams, and significant contribution to summarizing functional requirements.
+
+
+
+
