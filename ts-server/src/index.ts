@@ -46,13 +46,33 @@ interface RouteRequestBody {
 interface AddTaskRequestBody {
 	_id?: string;
 	name: string;
-	start: string;
-	end: string;
+	start_time: string;
+	end_time: string;
 	duration: number,
 	location_lat: number;
 	location_lng: number;
 	priority: number;
 	description: string;
+}
+
+class Task {
+    public start_time: number;  
+    public end_time: number;    // latest time to reach a task
+    public duration: number;    // in minutes
+    public location_lat: number;
+    public location_lng: number;
+    public priority: number;
+    public description: string;
+
+    constructor(start_time: number, end_time: number, duration: number, location_lat: number, location_lng: number, priority: number, description: string) {
+        this.start_time = start_time;
+        this.end_time = end_time;
+        this.duration = duration;
+        this.location_lat = location_lat;
+		this.location_lng = location_lng;
+		this.priority = priority;
+		this.description = description;
+    }
 }
 
 /**
@@ -165,6 +185,132 @@ function computePolygonCoordinates(points: SimpleLatLng[]): SimpleLatLng[] {
 	return sortedPoints;
 }
 
+/***************************************************
+ * Find optimal route
+ ***************************************************/
+
+/**
+ * Find a viable sequence of tasks that yields the lowest total time cost.
+ *
+ * @param tasksArr - Array of Task objects (NOT including "current location")
+ * @param taskDistanceGraph - Pairwise distances matrix. The 0th row/col is for "current location"
+ * @returns [sequenceOfTasks, totalTimeCost], or [[], -1] if none.
+ *
+ * If multiple sequences have the same time cost, it arbitrarily picks one.
+ */
+function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][]): [number[], number] {
+    // tasksArr has length N, we label them 1..N in the distance graph
+    const tasksSet: Set<number> = new Set(
+        Array.from({ length: tasksArr.length }, (_, i) => i + 1)
+    );
+    const startTimeStr = "09:00";
+    let timeCounter = timeToMinutes(startTimeStr);
+
+    // "resultTracking" will hold multiple possible results
+    // each entry is [timeCost, sequence[]]
+    const resultTracking: Array<[number, number[]]> = [];
+
+    // First: verify if all tasks are reachable at all from the current location
+    for (let i = 1; i < taskDistanceGraph.length; i++) {
+        const e_0i = taskDistanceGraph[0][i];
+        if (timeCounter + e_0i + Math.max(0, tasksArr[i - 1].start_time - (timeCounter + e_0i)) > tasksArr[i - 1].end_time) {
+            return [[], -1];
+        }
+    }
+
+    // Explore all possible first-tasks
+    for (let i = 1; i < taskDistanceGraph.length; i++) {
+        const e_0i = taskDistanceGraph[0][i];
+        const waitingTime = Math.max(0, tasksArr[i - 1].start_time - (timeCounter + e_0i));
+        const timeCost = e_0i + tasksArr[i - 1].duration + waitingTime;
+
+        const unfinishedTaskSet = new Set(tasksSet);
+        unfinishedTaskSet.delete(i);
+
+        findOptimalRouteHelper(tasksArr, taskDistanceGraph, unfinishedTaskSet, [i], timeCounter + timeCost, timeCost, resultTracking);
+    }
+
+    if (resultTracking.length === 0) {
+        return [[], -1];
+    }
+
+    // find the sequence with the minimal time cost
+    let selectedIndex = 0;
+    let minTimeCost = resultTracking[0][0];
+
+    for (let i = 1; i < resultTracking.length; i++) {
+        if (resultTracking[i][0] < minTimeCost) {
+            minTimeCost = resultTracking[i][0];
+            selectedIndex = i;
+        }
+    }
+
+    const bestRoute = resultTracking[selectedIndex][1]; // the sequence
+    const bestTimeCost = resultTracking[selectedIndex][0];
+    return [bestRoute, bestTimeCost];
+}
+
+/**
+ * Recursive helper that explores all ways to schedule the remaining tasks.
+ *
+ * @param tasksArr
+ * @param taskDistanceGraph
+ * @param unfinishedTaskSet - set of tasks not yet done
+ * @param finishedSequenceArr - array of tasks completed so far
+ * @param timeCounter - "current clock time" in minutes from midnight
+ * @param currTimeCost - total cost so far
+ * @param resultTracking - accumulates all viable schedules
+ */
+function findOptimalRouteHelper(
+    tasksArr: Task[],
+    taskDistanceGraph: number[][],
+    unfinishedTaskSet: Set<number>,
+    finishedSequenceArr: number[],
+    timeCounter: number,
+    currTimeCost: number,
+    resultTracking: Array<[number, number[]]>
+): void {
+    const lastTask = finishedSequenceArr[finishedSequenceArr.length - 1];
+
+    // Check if all remaining tasks are still reachable from the last task
+    for (const j of unfinishedTaskSet) {
+        const e_ij = taskDistanceGraph[lastTask][j];
+        const arrivalTime = timeCounter + e_ij;
+        const waitTime = Math.max(0, tasksArr[j - 1].start_time - arrivalTime);
+        if (arrivalTime + waitTime > tasksArr[j - 1].end_time) {
+            return;
+        }
+    }
+
+    // Explore next possible tasks
+    for (const j of unfinishedTaskSet) {
+        const e_ij = taskDistanceGraph[lastTask][j];
+        const waitTime = Math.max(0, tasksArr[j - 1].start_time - (timeCounter + e_ij));
+        const timeCost = e_ij + tasksArr[j - 1].duration + waitTime;
+
+        const nextUnfinishedTaskSet = new Set(unfinishedTaskSet);
+        nextUnfinishedTaskSet.delete(j);
+        const nextFinishedSequenceArr = [...finishedSequenceArr, j];
+
+        // If we've finished all tasks, record the result and stop recursion
+        if (nextFinishedSequenceArr.length === tasksArr.length) {
+            resultTracking.push([currTimeCost + timeCost, nextFinishedSequenceArr]);
+            return;
+        }
+
+        // Otherwise, recurse further
+        findOptimalRouteHelper(tasksArr, taskDistanceGraph, nextUnfinishedTaskSet, nextFinishedSequenceArr, timeCounter + timeCost, currTimeCost + timeCost, resultTracking);
+    }
+}
+
+/**
+ * Convert a 24-hour format time string (HH:MM) to absolute minutes since midnight.
+ */
+function timeToMinutes(timeStr: string): number {
+    const [hours, minutes] = timeStr.split(":").map((v) => parseInt(v, 10));
+    return hours * 60 + minutes;
+}
+
 // -------------------------
 // API Endpoint Definition
 // -------------------------
@@ -187,15 +333,15 @@ app.post('/fetchRoute', async (req: Request<{}, any, RouteRequestBody>, res: Res
 
 app.post('/addTask', async (req: Request<{}, any, AddTaskRequestBody>, res: Response): Promise<void> => {
 	try {
-		const { _id, name, start, end, duration, location_lat, location_lng, priority, description } = req.body
+		const { _id, name, start_time, end_time, duration, location_lat, location_lng, priority, description } = req.body
 		if(!_id){ // add new task
-			var new_task_id = dbService.addTask(name, start, end, duration, location_lat, location_lng, priority, description)
+			var new_task_id = dbService.addTask(name, start_time, end_time, duration, location_lat, location_lng, priority, description)
 			res.status(200).json({ 
 				"new_task_id": new_task_id 
 			});
 		}
 		else{ // modify existing task
-			var task_id = await dbService.modifyTask(_id, name, start, end, duration, location_lat, location_lng, priority, description)
+			var task_id = await dbService.modifyTask(_id, name, start_time, end_time, duration, location_lat, location_lng, priority, description)
 			if ( task_id == _id){
 				res.status(200).json({ 
 					"new_task_id": task_id 
@@ -216,6 +362,8 @@ app.post('/addTask', async (req: Request<{}, any, AddTaskRequestBody>, res: Resp
 // app.post('/fetchRoute', async (req: Request<{}, any, RouteRequestBody>, res: Response): Promise<void> => {
 // 
 // });
+
+// Another endpoint for findOptimalRoute
 
 
 app.listen(PORT, () => {
