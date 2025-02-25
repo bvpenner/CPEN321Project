@@ -7,10 +7,55 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/taskTitle"
+        android:id="@+id/taskId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/taskName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/taskDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/taskStart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/taskEnd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/taskLat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/taskLng"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/taskPriority"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"/>
+
 
 </LinearLayout>

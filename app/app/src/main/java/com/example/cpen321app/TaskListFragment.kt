@@ -29,9 +29,9 @@ class TaskListFragment : Fragment() {
 
         // Assuming you have acquired the tasks from the backend
         val tasks = listOf(
-            Task("Task 1"),
-            Task("Task 2"),
-            Task("Task 3")
+            Task("1", "Visit Canadian Tire", "15/03/2025", 4, 49.2099188, -123.1075474, 1, "Pick up new summer tires"),
+            Task("2", "Grocery Shopping", "28/02/2025", 4, 49.2085271,-123.0996029, 1, "Buy Groceries"),
+            Task("3", "CPEN 321 Midterm Pick Up", "28/02/2025", 4, 49.2624275, -123.2502343, 1, "Pick up my midterm 1 from Professor's office")
         )
 
         taskAdapter = TaskAdapter(tasks)
