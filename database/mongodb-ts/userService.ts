@@ -48,12 +48,13 @@ async function getTasks(): Promise<Task[]> {
     return usersCollection.find().toArray();
 }
 
-async function addTask(name: string, start: string, end: string, duration: number, location_lat: number, location_lng: number, priority: number, description: string): Promise<void> {
+async function addTask(name: string, start: string, end: string, duration: number, location_lat: number, location_lng: number, priority: number, description: string): Promise<string> {
     const db = await connectDB();
     const usersCollection: Collection<Task> = db.collection("tasks");
 
+    const new_task_id = uuidv4()
     const newTask: Task = {
-        _id: uuidv4(),
+        _id: new_task_id,
         name: name,
         start: start, 
         end: end, 
@@ -64,7 +65,57 @@ async function addTask(name: string, start: string, end: string, duration: numbe
         description: description
     };
     await usersCollection.insertOne(newTask);
+
+    return new_task_id;
 }
+
+async function modifyTask(
+    _id: string,
+    name: string,
+    start: string,
+    end: string,
+    duration: number,
+    location_lat: number,
+    location_lng: number,
+    priority: number,
+    description: string
+): Promise<string> {
+    const db = await connectDB();
+    const tasksCollection: Collection<Task> = db.collection("tasks");
+
+    try {
+        const existingTask = await tasksCollection.findOne({ _id: _id });
+
+        if (!existingTask) {
+            console.log(`[Error] Task not found with _id: ${_id}`);
+            return "Task not found";
+        }
+
+        // Update the task
+        await tasksCollection.updateOne(
+            { _id: _id },
+            {
+                $set: {
+                    name,
+                    start,
+                    end,
+                    duration,
+                    location_lat,
+                    location_lng,
+                    priority,
+                    description,
+                },
+            }
+        );
+
+        console.log(`Updated task: ${_id}`);
+        return _id; 
+    } catch (error) {
+        console.error("Error updating task:", error);
+        return "Error updating task";
+    }
+}
+
 
 
 async function deleteTaskById(id: string): Promise<void> {
@@ -85,4 +136,4 @@ async function deleteTaskById(id: string): Promise<void> {
 }
 
 
-export { getUsers, addUser, deleteUserByName };
+export { getUsers, addUser, deleteUserByName, addTask, getTasks, deleteTaskById, modifyTask};
