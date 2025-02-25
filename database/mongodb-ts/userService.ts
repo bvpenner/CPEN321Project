@@ -48,7 +48,7 @@ async function getTasks(): Promise<Task[]> {
     return usersCollection.find().toArray();
 }
 
-async function addTask(name: string, start: string, end: number, location_lat: number, location_lng: number, priority: number, description: string): Promise<void> {
+async function addTask(name: string, start: string, end: string, duration: number, location_lat: number, location_lng: number, priority: number, description: string): Promise<void> {
     const db = await connectDB();
     const usersCollection: Collection<Task> = db.collection("tasks");
 
@@ -57,6 +57,7 @@ async function addTask(name: string, start: string, end: number, location_lat: n
         name: name,
         start: start, 
         end: end, 
+        duration: duration,
         location_lat: location_lat, 
         location_lng: location_lng, 
         priority: priority, // 1 = High, 2 = Medium, 3 = Low
