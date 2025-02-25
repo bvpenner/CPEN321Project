@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/map_view_button"
+        android:title="Map"
+        android:icon="@drawable/map_temp_vector"/>
+    <item
+        android:id="@+id/list_view_button"
+        android:title="List View"
+        android:icon="@drawable/list_view"/>
+</menu>
