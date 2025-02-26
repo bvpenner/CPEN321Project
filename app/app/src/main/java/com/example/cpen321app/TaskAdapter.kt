@@ -1,5 +1,6 @@
 package com.example.cpen321app
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,9 +8,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 //    Copilot generated
-class TaskAdapter(private val tasks: List<Task>) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+class TaskAdapter(private val tasks: List<Task>, private val listener: OnItemLongClickListener, private val context: Context) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
-    class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    interface OnItemLongClickListener {
+        fun onItemLongClick(task: Task): Boolean
+    }
+
+    inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnLongClickListener {
         val taskId: TextView = itemView.findViewById(R.id.taskId)
         val taskName: TextView = itemView.findViewById(R.id.taskName)
         val taskStart: TextView = itemView.findViewById(R.id.taskStart)
@@ -18,6 +23,14 @@ class TaskAdapter(private val tasks: List<Task>) : RecyclerView.Adapter<TaskAdap
         val taskLng: TextView = itemView.findViewById(R.id.taskLng)
         val taskPriority: TextView = itemView.findViewById(R.id.taskPriority)
         val taskDescription: TextView = itemView.findViewById(R.id.taskDescription)
+
+        init {
+            itemView.setOnLongClickListener(this)
+        }
+
+        override fun onLongClick(v: View?): Boolean {
+            return listener.onItemLongClick(tasks[adapterPosition])
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {

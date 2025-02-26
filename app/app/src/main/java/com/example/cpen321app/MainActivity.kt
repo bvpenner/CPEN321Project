@@ -1,16 +1,20 @@
 package com.example.cpen321app
 
 import TaskListFragment
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.ViewCompat
@@ -195,6 +199,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.map_view_button -> {
+                    // Replace the container with MapViewFragment
                     supportFragmentManager.beginTransaction()
                         .replace(frameLayout.id, MapViewFragment())
                         .commit()
@@ -210,6 +215,33 @@ class MainActivity : AppCompatActivity() {
 
         // Select the map-view to start with.
         supportFragmentManager.beginTransaction().replace(frameLayout.id, MapViewFragment()).commit()
+
+        val addTaskButton = Button(this)
+        addTaskButton.text = "+"
+        addTaskButton.textSize = 24f
+        addTaskButton.layoutParams = ConstraintLayout.LayoutParams(
+            150,
+            150
+        )
+
+        addTaskButton.id = View.generateViewId()
+
+        addTaskButton.background = AppCompatResources.getDrawable(this, R.drawable.add_task_button)
+
+        constraintLayout.addView(addTaskButton)
+
+        val addTaskButtonConstraintSet = ConstraintSet()
+        addTaskButtonConstraintSet.clone(constraintLayout)
+        addTaskButtonConstraintSet.connect(addTaskButton.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 60)
+        addTaskButtonConstraintSet.connect(addTaskButton.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 60)
+        addTaskButtonConstraintSet.applyTo(constraintLayout)
+
+        addTaskButton.setOnClickListener {
+            val intent = Intent(this, AddTask::class.java)
+            startActivity(intent)
+        }
+
+
 
         val progressBar = findViewById<ProgressBar>(R.id.progressBar)
         constraintLayout.removeView(progressBar)
