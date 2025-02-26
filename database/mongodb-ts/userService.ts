@@ -12,16 +12,20 @@ async function getUsers(): Promise<User[]> {
     return usersCollection.find().toArray();
 }
 
-async function addUser(name: string, email: string): Promise<void> {
+async function addUser(name: string, email: string): Promise<string> {
     const db = await connectDB();
     const usersCollection: Collection<User> = db.collection("users");
+    const new_user_id = uuidv4()
+    
     const newUser: User = {
-        _id: uuidv4(),
+        _id: new_user_id,
         name: name,
         email: email,
-        tasks_list: ["task1_id_test", "task2_id_test", "task3_id_test"]
+        tasks_list: []
     };
     await usersCollection.insertOne(newUser);
+
+    return new_user_id;
 }
 
 async function deleteUserByName(name: string): Promise<void> {
@@ -44,13 +48,24 @@ async function deleteUserByName(name: string): Promise<void> {
 // TASK Management
 async function getTasks(): Promise<Task[]> {
     const db = await connectDB();
-    const usersCollection: Collection<Task> = db.collection("tasks");
-    return usersCollection.find().toArray();
+    const tasksCollection: Collection<Task> = db.collection("tasks");
+    return tasksCollection.find().toArray();
+}
+
+async function getTasksById(_id: string): Promise<Task> {
+    const db = await connectDB();
+    const tasksCollection: Collection<Task> = db.collection("tasks");
+
+    const found_tasks  = await tasksCollection.findOne({ _id: _id });
+    if (!found_tasks) {
+        throw new Error(`[Error] Task with id ${_id} not found`);
+    }
+    return found_tasks;
 }
 
 async function addTask(name: string, start: string, end: string, duration: number, location_lat: number, location_lng: number, priority: number, description: string): Promise<string> {
     const db = await connectDB();
-    const usersCollection: Collection<Task> = db.collection("tasks");
+    const tasksCollection: Collection<Task> = db.collection("tasks");
 
     const new_task_id = uuidv4()
     const newTask: Task = {
@@ -64,10 +79,26 @@ async function addTask(name: string, start: string, end: string, duration: numbe
         priority: priority, // 1 = High, 2 = Medium, 3 = Low
         description: description
     };
-    await usersCollection.insertOne(newTask);
+    await tasksCollection.insertOne(newTask);
 
     return new_task_id;
 }
+
+async function addTaskToUser(user_id: string, task_id: string): Promise<void> {
+    const db = await connectDB();
+    const usersCollection: Collection<Task> = db.collection("users");
+    const found_user = await usersCollection.findOne({ _id: user_id });
+    
+    if (!found_user) {
+        throw new Error(`User with id ${user_id} not found`);
+    }
+
+    await usersCollection.updateOne(
+        { _id: user_id }, 
+        { $addToSet: { tasks_list: task_id } }
+    );
+}
+
 
 async function modifyTask(
     _id: string,
@@ -121,9 +152,9 @@ async function modifyTask(
 async function deleteTaskById(id: string): Promise<void> {
     try {
         const db = await connectDB();
-        const usersCollection = db.collection<Task>("tasks");
+        const tasksCollection = db.collection<Task>("tasks");
 
-        const result = await usersCollection.deleteOne({ _id: id });
+        const result = await tasksCollection.deleteOne({ _id: id });
 
         if (result.deletedCount === 0) {
             console.log(`Task with id "${id}" not found.`);
@@ -136,4 +167,4 @@ async function deleteTaskById(id: string): Promise<void> {
 }
 
 
-export { getUsers, addUser, deleteUserByName, addTask, getTasks, deleteTaskById, modifyTask};
+export { getUsers, addUser, deleteUserByName, addTask, getTasks, deleteTaskById, modifyTask, getTasksById, addTaskToUser};

@@ -37,13 +37,14 @@ interface CompactRoute {
 	five_min_point: SimpleLatLng;
 }
 
-// Request body interface for /fetchRoute endpoint
+// Request body interface for /fetchGeofences endpoint
 interface RouteRequestBody {
 	origin: LatLng;
 	destination: LatLng;
 }
 
 interface AddTaskRequestBody {
+	owner_id: string;
 	_id?: string;
 	name: string;
 	start_time: string;
@@ -56,6 +57,7 @@ interface AddTaskRequestBody {
 }
 
 class Task {
+	public _id: string;
 	public start_time: number;
 	public end_time: number;    // latest time to reach a task
 	public duration: number;    // in minutes
@@ -64,7 +66,8 @@ class Task {
 	public priority: number;
 	public description: string;
 
-	constructor(start_time: number, end_time: number, duration: number, location_lat: number, location_lng: number, priority: number, description: string) {
+	constructor(_id: string, start_time: number, end_time: number, duration: number, location_lat: number, location_lng: number, priority: number, description: string) {
+		this._id = _id;
 		this.start_time = start_time;
 		this.end_time = end_time;
 		this.duration = duration;
@@ -73,17 +76,18 @@ class Task {
 		this.priority = priority;
 		this.description = description;
 	}
+
 }
 
 interface RouteTimeRequestBody {
-	allTasks: number[];
+	allTasksID: number[];
 	userLocation: LatLng;
 }
 
 /**
  * Calls the Google Directions API and processes the response.
  */
-async function fetchRoute(origin: LatLng, destination: LatLng): Promise<any> {
+async function fetchGeofences(origin: LatLng, destination: LatLng): Promise<any> {
 	const { default: fetch } = await import('node-fetch');
 
 	const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}` +
@@ -361,9 +365,9 @@ async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Pro
 	}
 	const jsonResponse = await response.json();
 	// console.log("jsonResponse:", jsonResponse);
-	const compactJson = parseAllTaskRouteTime(jsonResponse);
+	const timeDistanceMatrix = parseAllTaskRouteTime(jsonResponse);
 	// console.log("CompactJson:", compactJson);
-	return compactJson;
+	return timeDistanceMatrix;
 }
 
 function buildURL(allTask: Task[], userLocation: LatLng): any {
@@ -375,27 +379,44 @@ function buildURL(allTask: Task[], userLocation: LatLng): any {
 		.map(task => `${task.location_lat},${task.location_lng}`)
 		.join('|');
 
+	const allDestinationsParam = `${userLocation.latitude},${userLocation.longitude}|` + destinationsParam;
+
 	const originsParam = allTask
 		.map(task => `${task.location_lat},${task.location_lng}`)
 		.join('|');
 
+	const allOriginsParam = `${userLocation.latitude},${userLocation.longitude}|` + originsParam;
+
 	// Construct the final URL
 	const GMap_API_key = 'YOUR_API_KEY';
 	const url = `https://maps.googleapis.com/maps/api/distancematrix/json?` +
-		`origins=${originsParam}&destinations=${destinationsParam}` +
+		`origins=${allOriginsParam}&destinations=${allDestinationsParam}` +
 		`&key=${GMap_API_key}`;
 
 	return url;
 }
 
+// TODO: to be verified (logic)!!!
 
 function parseAllTaskRouteTime(jsonData: any): any {
-	for (const row of jsonData.rows) {
-		for (const element of row.elements) {
-			// Access the main duration
-			console.log("Duration value:", element.duration.value); // e.g. 1620
+	const durationsMatrix: number[][] = []; // 2D matrix to store durations
+
+	for (let i = 0; i < jsonData.rows.length; i++) {
+		const row = jsonData.rows[i];
+		const durationRow: number[] = []; // Store durations for this row
+
+		for (let j = 0; j < row.elements.length; j++) {
+			const element = row.elements[j];
+			durationRow.push(element.duration.value / 60); // Extracting duration value, original in second 
 		}
+
+		durationsMatrix.push(durationRow); // Add row to the matrix
 	}
+
+	// Print the 2D matrix
+	console.log(durationsMatrix);
+	return durationsMatrix
+
 }
 
 
@@ -403,15 +424,15 @@ function parseAllTaskRouteTime(jsonData: any): any {
 // API Endpoint Definition
 // -------------------------
 
-app.post('/fetchRoute', async (req: Request<{}, any, RouteRequestBody>, res: Response): Promise<void> => {
+app.post('/fetchGeofences', async (req: Request<{}, any, RouteRequestBody>, res: Response): Promise<void> => {
 	try {
 		const { origin, destination } = req.body;
 		if (!origin || !destination) {
 			res.status(400).json({ error: 'Missing origin or destination coordinates.' });
 			return;
 		}
-		console.log(`Received fetchRoute`);
-		const result = await fetchRoute(origin, destination);
+		console.log(`Received fetchGeofences`);
+		const result = await fetchGeofences(origin, destination);
 		res.json(result);
 	} catch (error: any) {
 		console.error(error);
@@ -419,11 +440,30 @@ app.post('/fetchRoute', async (req: Request<{}, any, RouteRequestBody>, res: Res
 	}
 });
 
+app.post('/addUser', async (req: Request<{}, any, {name: string, email: string}>, res: Response): Promise<void> => {
+	try {
+		const { name, email } = req.body
+		if (!name || !email) {
+			throw new Error("Missing or invalid _id in request body");
+		}
+		
+		var new_user_id = await dbService.addUser(name, email)
+		res.status(200).json({
+			"new_user_id": new_user_id
+		});
+	} catch (error: any) {
+		console.error(error);
+		res.status(500).json({ error: error.message });
+	}
+})
+
 app.post('/addTask', async (req: Request<{}, any, AddTaskRequestBody>, res: Response): Promise<void> => {
 	try {
-		const { _id, name, start_time, end_time, duration, location_lat, location_lng, priority, description } = req.body
+		const { owner_id, _id, name, start_time, end_time, duration, location_lat, location_lng, priority, description } = req.body
 		if (!_id) { // add new task
-			var new_task_id = dbService.addTask(name, start_time, end_time, duration, location_lat, location_lng, priority, description)
+			var new_task_id = await dbService.addTask(name, start_time, end_time, duration, location_lat, location_lng, priority, description)
+			dbService.addTaskToUser(owner_id, new_task_id);
+			
 			res.status(200).json({
 				"new_task_id": new_task_id
 			});
@@ -447,26 +487,48 @@ app.post('/addTask', async (req: Request<{}, any, AddTaskRequestBody>, res: Resp
 	}
 })
 
-// app.post('/fetchRoute', async (req: Request<{}, any, RouteRequestBody>, res: Response): Promise<void> => {
-// 
-// });
+app.post('/deleteTask', async (req: Request<{}, any, { _id: string }>, res: Response): Promise<void> => {
+	try {
+		const {_id} = req.body
+		if (!_id) {
+			throw new Error("Missing or invalid _id in request body");
+		}
+		
+		var new_task_id = dbService.deleteTaskById(_id)
+		res.status(200).json({
+			"new_task_id": new_task_id
+		});
+
+	} catch (error: any) {
+		console.error(error);
+		res.status(500).json({ error: error.message });
+	}
+})
+
 
 // Another endpoint for findOptimalRoute
 // user lat, lng, task array
 app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody>, res: Response): Promise<void> => {
 	try {
-		const { allTasks, userLocation } = req.body;
-		if (allTasks.length == 0 || !userLocation) {
+		const { allTasksID, userLocation } = req.body;
+		if (allTasksID.length == 0 || !userLocation) {
 			res.status(400).json({ error: 'Missing origin or destination coordinates.' });
 			return;
 		}
 		console.log(`Received fetchRoute`);
 
 		//TODO: need to query all the tasks first from data base
+		const allTasks: Task[] = []
+		for(var i = 0; i < allTasksID.length; i++){
+			const new_task = await dbService.getTasksById(`${allTasksID[i]}`);
+			const task = new Task(new_task._id, timeToMinutes(new_task.start), timeToMinutes(new_task.end), new_task.duration, new_task.location_lat, new_task.location_lng, new_task.priority, new_task.description)
+			allTasks.push(task);
+		}
 		
-		//const graph_matrix = await fetchAllTaskRouteTime(allTasks, userLocation);
-		//const result = findOptimalRoute(allTasks, graph_matrix)
-		//res.json(result);
+		const graph_matrix = await fetchAllTaskRouteTime(allTasks, userLocation);
+		const result = findOptimalRoute(allTasks, graph_matrix);
+		const taskIds: string[] = result[0].map(task_i => allTasks[task_i]._id);
+		res.json(taskIds);	
 	} catch (error: any) {
 		console.error(error);
 		res.status(500).json({ error: error.message });
