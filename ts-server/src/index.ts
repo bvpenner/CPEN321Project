@@ -388,7 +388,6 @@ function buildURL(allTask: Task[], userLocation: LatLng): any {
 	const allOriginsParam = `${userLocation.latitude},${userLocation.longitude}|` + originsParam;
 
 	// Construct the final URL
-	const GMap_API_key = 'YOUR_API_KEY';
 	const url = `https://maps.googleapis.com/maps/api/distancematrix/json?` +
 		`origins=${allOriginsParam}&destinations=${allDestinationsParam}` +
 		`&key=${GMap_API_key}`;
