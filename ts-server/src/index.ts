@@ -56,23 +56,28 @@ interface AddTaskRequestBody {
 }
 
 class Task {
-    public start_time: number;  
-    public end_time: number;    // latest time to reach a task
-    public duration: number;    // in minutes
-    public location_lat: number;
-    public location_lng: number;
-    public priority: number;
-    public description: string;
+	public start_time: number;
+	public end_time: number;    // latest time to reach a task
+	public duration: number;    // in minutes
+	public location_lat: number;
+	public location_lng: number;
+	public priority: number;
+	public description: string;
 
-    constructor(start_time: number, end_time: number, duration: number, location_lat: number, location_lng: number, priority: number, description: string) {
-        this.start_time = start_time;
-        this.end_time = end_time;
-        this.duration = duration;
-        this.location_lat = location_lat;
+	constructor(start_time: number, end_time: number, duration: number, location_lat: number, location_lng: number, priority: number, description: string) {
+		this.start_time = start_time;
+		this.end_time = end_time;
+		this.duration = duration;
+		this.location_lat = location_lat;
 		this.location_lng = location_lng;
 		this.priority = priority;
 		this.description = description;
-    }
+	}
+}
+
+interface RouteTimeRequestBody {
+	allTasks: number[];
+	userLocation: LatLng;
 }
 
 /**
@@ -199,55 +204,55 @@ function computePolygonCoordinates(points: SimpleLatLng[]): SimpleLatLng[] {
  * If multiple sequences have the same time cost, it arbitrarily picks one.
  */
 function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][]): [number[], number] {
-    // tasksArr has length N, we label them 1..N in the distance graph
-    const tasksSet: Set<number> = new Set(
-        Array.from({ length: tasksArr.length }, (_, i) => i + 1)
-    );
-    const startTimeStr = "09:00";
-    let timeCounter = timeToMinutes(startTimeStr);
+	// tasksArr has length N, we label them 1..N in the distance graph
+	const tasksSet: Set<number> = new Set(
+		Array.from({ length: tasksArr.length }, (_, i) => i + 1)
+	);
+	const startTimeStr = "09:00";
+	let timeCounter = timeToMinutes(startTimeStr);
 
-    // "resultTracking" will hold multiple possible results
-    // each entry is [timeCost, sequence[]]
-    const resultTracking: Array<[number, number[]]> = [];
+	// "resultTracking" will hold multiple possible results
+	// each entry is [timeCost, sequence[]]
+	const resultTracking: Array<[number, number[]]> = [];
 
-    // First: verify if all tasks are reachable at all from the current location
-    for (let i = 1; i < taskDistanceGraph.length; i++) {
-        const e_0i = taskDistanceGraph[0][i];
-        if (timeCounter + e_0i + Math.max(0, tasksArr[i - 1].start_time - (timeCounter + e_0i)) > tasksArr[i - 1].end_time) {
-            return [[], -1];
-        }
-    }
+	// First: verify if all tasks are reachable at all from the current location
+	for (let i = 1; i < taskDistanceGraph.length; i++) {
+		const e_0i = taskDistanceGraph[0][i];
+		if (timeCounter + e_0i + Math.max(0, tasksArr[i - 1].start_time - (timeCounter + e_0i)) > tasksArr[i - 1].end_time) {
+			return [[], -1];
+		}
+	}
 
-    // Explore all possible first-tasks
-    for (let i = 1; i < taskDistanceGraph.length; i++) {
-        const e_0i = taskDistanceGraph[0][i];
-        const waitingTime = Math.max(0, tasksArr[i - 1].start_time - (timeCounter + e_0i));
-        const timeCost = e_0i + tasksArr[i - 1].duration + waitingTime;
+	// Explore all possible first-tasks
+	for (let i = 1; i < taskDistanceGraph.length; i++) {
+		const e_0i = taskDistanceGraph[0][i];
+		const waitingTime = Math.max(0, tasksArr[i - 1].start_time - (timeCounter + e_0i));
+		const timeCost = e_0i + tasksArr[i - 1].duration + waitingTime;
 
-        const unfinishedTaskSet = new Set(tasksSet);
-        unfinishedTaskSet.delete(i);
+		const unfinishedTaskSet = new Set(tasksSet);
+		unfinishedTaskSet.delete(i);
 
-        findOptimalRouteHelper(tasksArr, taskDistanceGraph, unfinishedTaskSet, [i], timeCounter + timeCost, timeCost, resultTracking);
-    }
+		findOptimalRouteHelper(tasksArr, taskDistanceGraph, unfinishedTaskSet, [i], timeCounter + timeCost, timeCost, resultTracking);
+	}
 
-    if (resultTracking.length === 0) {
-        return [[], -1];
-    }
+	if (resultTracking.length === 0) {
+		return [[], -1];
+	}
 
-    // find the sequence with the minimal time cost
-    let selectedIndex = 0;
-    let minTimeCost = resultTracking[0][0];
+	// find the sequence with the minimal time cost
+	let selectedIndex = 0;
+	let minTimeCost = resultTracking[0][0];
 
-    for (let i = 1; i < resultTracking.length; i++) {
-        if (resultTracking[i][0] < minTimeCost) {
-            minTimeCost = resultTracking[i][0];
-            selectedIndex = i;
-        }
-    }
+	for (let i = 1; i < resultTracking.length; i++) {
+		if (resultTracking[i][0] < minTimeCost) {
+			minTimeCost = resultTracking[i][0];
+			selectedIndex = i;
+		}
+	}
 
-    const bestRoute = resultTracking[selectedIndex][1]; // the sequence
-    const bestTimeCost = resultTracking[selectedIndex][0];
-    return [bestRoute, bestTimeCost];
+	const bestRoute = resultTracking[selectedIndex][1]; // the sequence
+	const bestTimeCost = resultTracking[selectedIndex][0];
+	return [bestRoute, bestTimeCost];
 }
 
 /**
@@ -262,54 +267,137 @@ function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][]): [num
  * @param resultTracking - accumulates all viable schedules
  */
 function findOptimalRouteHelper(
-    tasksArr: Task[],
-    taskDistanceGraph: number[][],
-    unfinishedTaskSet: Set<number>,
-    finishedSequenceArr: number[],
-    timeCounter: number,
-    currTimeCost: number,
-    resultTracking: Array<[number, number[]]>
+	tasksArr: Task[],
+	taskDistanceGraph: number[][],
+	unfinishedTaskSet: Set<number>,
+	finishedSequenceArr: number[],
+	timeCounter: number,
+	currTimeCost: number,
+	resultTracking: Array<[number, number[]]>
 ): void {
-    const lastTask = finishedSequenceArr[finishedSequenceArr.length - 1];
+	const lastTask = finishedSequenceArr[finishedSequenceArr.length - 1];
 
-    // Check if all remaining tasks are still reachable from the last task
-    for (const j of unfinishedTaskSet) {
-        const e_ij = taskDistanceGraph[lastTask][j];
-        const arrivalTime = timeCounter + e_ij;
-        const waitTime = Math.max(0, tasksArr[j - 1].start_time - arrivalTime);
-        if (arrivalTime + waitTime > tasksArr[j - 1].end_time) {
-            return;
-        }
-    }
+	// Check if all remaining tasks are still reachable from the last task
+	for (const j of unfinishedTaskSet) {
+		const e_ij = taskDistanceGraph[lastTask][j];
+		const arrivalTime = timeCounter + e_ij;
+		const waitTime = Math.max(0, tasksArr[j - 1].start_time - arrivalTime);
+		if (arrivalTime + waitTime > tasksArr[j - 1].end_time) {
+			return;
+		}
+	}
 
-    // Explore next possible tasks
-    for (const j of unfinishedTaskSet) {
-        const e_ij = taskDistanceGraph[lastTask][j];
-        const waitTime = Math.max(0, tasksArr[j - 1].start_time - (timeCounter + e_ij));
-        const timeCost = e_ij + tasksArr[j - 1].duration + waitTime;
+	// Explore next possible tasks
+	for (const j of unfinishedTaskSet) {
+		const e_ij = taskDistanceGraph[lastTask][j];
+		const waitTime = Math.max(0, tasksArr[j - 1].start_time - (timeCounter + e_ij));
+		const timeCost = e_ij + tasksArr[j - 1].duration + waitTime;
 
-        const nextUnfinishedTaskSet = new Set(unfinishedTaskSet);
-        nextUnfinishedTaskSet.delete(j);
-        const nextFinishedSequenceArr = [...finishedSequenceArr, j];
+		const nextUnfinishedTaskSet = new Set(unfinishedTaskSet);
+		nextUnfinishedTaskSet.delete(j);
+		const nextFinishedSequenceArr = [...finishedSequenceArr, j];
 
-        // If we've finished all tasks, record the result and stop recursion
-        if (nextFinishedSequenceArr.length === tasksArr.length) {
-            resultTracking.push([currTimeCost + timeCost, nextFinishedSequenceArr]);
-            return;
-        }
+		// If we've finished all tasks, record the result and stop recursion
+		if (nextFinishedSequenceArr.length === tasksArr.length) {
+			resultTracking.push([currTimeCost + timeCost, nextFinishedSequenceArr]);
+			return;
+		}
 
-        // Otherwise, recurse further
-        findOptimalRouteHelper(tasksArr, taskDistanceGraph, nextUnfinishedTaskSet, nextFinishedSequenceArr, timeCounter + timeCost, currTimeCost + timeCost, resultTracking);
-    }
+		// Otherwise, recurse further
+		findOptimalRouteHelper(tasksArr, taskDistanceGraph, nextUnfinishedTaskSet, nextFinishedSequenceArr, timeCounter + timeCost, currTimeCost + timeCost, resultTracking);
+	}
 }
 
 /**
  * Convert a 24-hour format time string (HH:MM) to absolute minutes since midnight.
  */
 function timeToMinutes(timeStr: string): number {
-    const [hours, minutes] = timeStr.split(":").map((v) => parseInt(v, 10));
-    return hours * 60 + minutes;
+	const [hours, minutes] = timeStr.split(":").map((v) => parseInt(v, 10));
+	return hours * 60 + minutes;
 }
+
+/**
+ * Calls the Google Distance Matrix API to get time distance between 2 points.
+ */
+async function fetch2TaskRouteTime(originTask: Task, destinationTask: Task): Promise<any> {
+	const { default: fetch } = await import('node-fetch');
+
+	const url = `https://maps.googleapis.com/maps/api/distancematrix/json?` +
+		`&destinations=${destinationTask.location_lat}, ${destinationTask.location_lng}` +
+		`&origins=${originTask.location_lat}, ${originTask.location_lng}` +
+		`&key=${GMap_API_key}`;
+
+	const response = await fetch(url);
+	if (!response.ok) {
+		throw new Error(`Route Request Failed: ${response.statusText}`);
+	}
+	const jsonResponse = await response.json();
+	// console.log("jsonResponse:", jsonResponse);
+	const routeTime = parse2TaskRouteTime(jsonResponse);
+	// console.log("CompactJson:", compactJson);
+	return routeTime;
+}
+
+// TODO: maybe should do error check
+function parse2TaskRouteTime(jsonData: any): any {
+	return jsonData.rows[0].elements[0].duration.value;
+}
+
+
+// Alternative request formate to make fewer requests
+
+/**
+ * Calls the Google Distance Matrix API and processes the response.
+ */
+
+async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Promise<any> {
+	const { default: fetch } = await import('node-fetch');
+
+	const url = buildURL(allTask, userLocation)
+
+	const response = await fetch(url);
+	if (!response.ok) {
+		throw new Error(`Route Request Failed: ${response.statusText}`);
+	}
+	const jsonResponse = await response.json();
+	// console.log("jsonResponse:", jsonResponse);
+	const compactJson = parseAllTaskRouteTime(jsonResponse);
+	// console.log("CompactJson:", compactJson);
+	return compactJson;
+}
+
+function buildURL(allTask: Task[], userLocation: LatLng): any {
+
+	// TODO: must include user location too!!
+
+	// Convert this array into the parameter string required by the Distance Matrix API.
+	const destinationsParam = allTask
+		.map(task => `${task.location_lat},${task.location_lng}`)
+		.join('|');
+
+	const originsParam = allTask
+		.map(task => `${task.location_lat},${task.location_lng}`)
+		.join('|');
+
+	// Construct the final URL
+	const GMap_API_key = 'YOUR_API_KEY';
+	const url = `https://maps.googleapis.com/maps/api/distancematrix/json?` +
+		`origins=${originsParam}&destinations=${destinationsParam}` +
+		`&key=${GMap_API_key}`;
+
+	return url;
+}
+
+
+function parseAllTaskRouteTime(jsonData: any): any {
+	for (const row of jsonData.rows) {
+		for (const element of row.elements) {
+			// Access the main duration
+			console.log("Duration value:", element.duration.value); // e.g. 1620
+		}
+	}
+}
+
 
 // -------------------------
 // API Endpoint Definition
@@ -334,25 +422,25 @@ app.post('/fetchRoute', async (req: Request<{}, any, RouteRequestBody>, res: Res
 app.post('/addTask', async (req: Request<{}, any, AddTaskRequestBody>, res: Response): Promise<void> => {
 	try {
 		const { _id, name, start_time, end_time, duration, location_lat, location_lng, priority, description } = req.body
-		if(!_id){ // add new task
+		if (!_id) { // add new task
 			var new_task_id = dbService.addTask(name, start_time, end_time, duration, location_lat, location_lng, priority, description)
-			res.status(200).json({ 
-				"new_task_id": new_task_id 
+			res.status(200).json({
+				"new_task_id": new_task_id
 			});
 		}
-		else{ // modify existing task
+		else { // modify existing task
 			var task_id = await dbService.modifyTask(_id, name, start_time, end_time, duration, location_lat, location_lng, priority, description)
-			if ( task_id == _id){
-				res.status(200).json({ 
-					"new_task_id": task_id 
+			if (task_id == _id) {
+				res.status(200).json({
+					"new_task_id": task_id
 				});
-			}else{
-				res.status(500).json({ 
-					"error": "modifyTask failed, check server log" 
+			} else {
+				res.status(500).json({
+					"error": "modifyTask failed, check server log"
 				});
 			}
 		}
-		
+
 	} catch (error: any) {
 		console.error(error);
 		res.status(500).json({ error: error.message });
@@ -364,6 +452,26 @@ app.post('/addTask', async (req: Request<{}, any, AddTaskRequestBody>, res: Resp
 // });
 
 // Another endpoint for findOptimalRoute
+// user lat, lng, task array
+app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody>, res: Response): Promise<void> => {
+	try {
+		const { allTasks, userLocation } = req.body;
+		if (allTasks.length == 0 || !userLocation) {
+			res.status(400).json({ error: 'Missing origin or destination coordinates.' });
+			return;
+		}
+		console.log(`Received fetchRoute`);
+
+		//TODO: need to query all the tasks first from data base
+		
+		//const graph_matrix = await fetchAllTaskRouteTime(allTasks, userLocation);
+		//const result = findOptimalRoute(allTasks, graph_matrix)
+		//res.json(result);
+	} catch (error: any) {
+		console.error(error);
+		res.status(500).json({ error: error.message });
+	}
+});
 
 
 app.listen(PORT, () => {
