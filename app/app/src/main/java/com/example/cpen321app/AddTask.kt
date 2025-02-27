@@ -24,6 +24,8 @@ class AddTask : AppCompatActivity() {
             insets
         }
 
+        taskViewModel = (application as GeoTask).taskViewModel
+
         val buttonCreate = findViewById<Button>(R.id.button_taskCreate)
 
         buttonCreate.setOnClickListener {
@@ -43,9 +45,11 @@ class AddTask : AppCompatActivity() {
             // Send to backend and then update the list with the new task including the id.
 
             // temp code to add to list
-//            taskViewModel = ViewModelProvider(this).get(TaskViewModel::class.java)
-//
-//            taskViewModel.addTask(newTask)
+//            taskViewModel = ViewModelProvider(this)[TaskViewModel::class.java]
+
+            taskViewModel.addTask(newTask)
+
+            taskViewModel.logAllTasks()
 
             finish()
         }
