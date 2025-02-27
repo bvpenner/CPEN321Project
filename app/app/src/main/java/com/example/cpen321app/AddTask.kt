@@ -24,6 +24,15 @@ class AddTask : AppCompatActivity() {
             insets
         }
 
+        val editTextName = findViewById<EditText>(R.id.editTextName)
+        val editTextStart = findViewById<EditText>(R.id.editText_taskStart)
+        val editTextEnd = findViewById<EditText>(R.id.editText_taskEnd)
+        val editTextLocation_lat = findViewById<EditText>(R.id.editText_taskLat)
+        val editTextLocation_lng= findViewById<EditText>(R.id.editText_taskLng)
+        val editTextPriority = findViewById<EditText>(R.id.editText_taskPrio)
+        val editTextDescription = findViewById<EditText>(R.id.editText_description)
+
+
         taskViewModel = (application as GeoTask).taskViewModel
 
         val buttonCreate = findViewById<Button>(R.id.button_taskCreate)
@@ -31,21 +40,21 @@ class AddTask : AppCompatActivity() {
         buttonCreate.setOnClickListener {
 
             val id: String = "Placeholder"
-//            val name: String = findViewById<EditText>(R.id.taskName).text.toString()
-//            val start: String = findViewById<EditText>(R.id.taskStart).text.toString()
-//            val end: Int = findViewById<EditText>(R.id.taskEnd).text.toString().toInt()
-//            val location_lat: Double = findViewById<EditText>(R.id.taskLat).text.toString().toDouble()
-//            val location_lng: Double = findViewById<EditText>(R.id.taskLng).text.toString().toDouble()
-//            val priority: Int = findViewById<EditText>(R.id.taskPriority).text.toString().toInt()
-//            val description: String = findViewById<EditText>(R.id.taskDescription).text.toString()
+            val name: String = editTextName.text.toString()
+            val start: String = editTextStart.text.toString()
+            val end: Int = editTextEnd.text.toString().toInt()
+            val location_lat: Double = editTextLocation_lat.text.toString().toDouble()
+            val location_lng: Double = editTextLocation_lng.text.toString().toDouble()
+            val priority: Int = editTextPriority.text.toString().toInt()
+            val description: String = editTextDescription.text.toString()
 
-            val name: String = "Name"
-            val start: String = "Start"
-            val end: Int = 3
-            val location_lat: Double = 147.0
-            val location_lng: Double = 106.2
-            val priority: Int = 1
-            val description: String = "Description"
+//            val name: String = "Name"
+//            val start: String = "Start"
+//            val end: Int = 3
+//            val location_lat: Double = 147.0
+//            val location_lng: Double = 106.2
+//            val priority: Int = 1
+//            val description: String = "Description"
 
             val newTask = Task(id, name, start, end, location_lat, location_lng, priority, description)
 
