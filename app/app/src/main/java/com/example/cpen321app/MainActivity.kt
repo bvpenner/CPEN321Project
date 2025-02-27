@@ -33,6 +33,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cpen321app.TaskViewModel.Companion
+import com.example.cpen321app.TaskViewModel.Companion._taskList
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -403,9 +404,9 @@ class MainActivity : AppCompatActivity() {
                             priority = taskJson.getInt("priority"),
                             description = taskJson.getString("description")
                         )
-                        taskList.add(task)
+                        // taskList.add(task)
+                        _taskList.value?.add(task)
                     }
-
                 }
             }
         })
