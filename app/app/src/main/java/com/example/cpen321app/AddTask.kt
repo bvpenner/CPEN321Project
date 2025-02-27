@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -50,6 +51,13 @@ class AddTask : AppCompatActivity() {
             val priority: Int = editTextPriority.text.toString().toInt()
             val description: String = editTextDescription.text.toString()
 
+            // Sanity checking
+            if(location_lat > 90.0 || location_lat < -90.0) {
+                Toast.makeText(this, "Valid Latitude Required: Between -90 and 90 degrees", Toast.LENGTH_SHORT).show()
+            } else if(location_lng > 180.0 || location_lng < -180.0) {
+                Toast.makeText(this, "Valid Longitude Required: Between -180 and 180 degrees", Toast.LENGTH_SHORT).show()
+            } else {
+
 //            val name: String = "Name"
 //            val start: String = "Start"
 //            val end: Int = 3
@@ -58,18 +66,29 @@ class AddTask : AppCompatActivity() {
 //            val priority: Int = 1
 //            val description: String = "Description"
 
-            val newTask = Task(id, name, start, end, duration, location_lat, location_lng, priority, description)
+                val newTask = Task(
+                    id,
+                    name,
+                    start,
+                    end,
+                    duration,
+                    location_lat,
+                    location_lng,
+                    priority,
+                    description
+                )
 
-            // Send to backend and then update the list with the new task including the id.
+                // Send to backend and then update the list with the new task including the id.
 
-            // temp code to add to list
+                // temp code to add to list
 //            taskViewModel = ViewModelProvider(this)[TaskViewModel::class.java]
 
-            taskViewModel.addTask(newTask)
+                taskViewModel.addTask(newTask)
 
-            taskViewModel.logAllTasks()
+                taskViewModel.logAllTasks()
 
-            finish()
+                finish()
+            }
         }
 
     }
