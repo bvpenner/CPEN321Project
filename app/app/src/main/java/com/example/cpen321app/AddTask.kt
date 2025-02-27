@@ -24,27 +24,39 @@ class AddTask : AppCompatActivity() {
             insets
         }
 
+        taskViewModel = (application as GeoTask).taskViewModel
+
         val buttonCreate = findViewById<Button>(R.id.button_taskCreate)
 
         buttonCreate.setOnClickListener {
 
             val id: String = "Placeholder"
-            val name: String = findViewById<EditText>(R.id.taskName).text.toString()
-            val start: String = findViewById<EditText>(R.id.taskStart).text.toString()
-            val end: Int = findViewById<EditText>(R.id.taskEnd).text.toString().toInt()
-            val location_lat: Double = findViewById<EditText>(R.id.taskLat).text.toString().toDouble()
-            val location_lng: Double = findViewById<EditText>(R.id.taskLng).text.toString().toDouble()
-            val priority: Int = findViewById<EditText>(R.id.taskPriority).text.toString().toInt()
-            val description: String = findViewById<EditText>(R.id.taskDescription).text.toString()
+//            val name: String = findViewById<EditText>(R.id.taskName).text.toString()
+//            val start: String = findViewById<EditText>(R.id.taskStart).text.toString()
+//            val end: Int = findViewById<EditText>(R.id.taskEnd).text.toString().toInt()
+//            val location_lat: Double = findViewById<EditText>(R.id.taskLat).text.toString().toDouble()
+//            val location_lng: Double = findViewById<EditText>(R.id.taskLng).text.toString().toDouble()
+//            val priority: Int = findViewById<EditText>(R.id.taskPriority).text.toString().toInt()
+//            val description: String = findViewById<EditText>(R.id.taskDescription).text.toString()
+
+            val name: String = "Name"
+            val start: String = "Start"
+            val end: Int = 3
+            val location_lat: Double = 147.0
+            val location_lng: Double = 106.2
+            val priority: Int = 1
+            val description: String = "Description"
 
             val newTask = Task(id, name, start, end, location_lat, location_lng, priority, description)
 
             // Send to backend and then update the list with the new task including the id.
 
             // temp code to add to list
-//            taskViewModel = ViewModelProvider(this).get(TaskViewModel::class.java)
-//
-//            taskViewModel.addTask(newTask)
+//            taskViewModel = ViewModelProvider(this)[TaskViewModel::class.java]
+
+            taskViewModel.addTask(newTask)
+
+            taskViewModel.logAllTasks()
 
             finish()
         }
