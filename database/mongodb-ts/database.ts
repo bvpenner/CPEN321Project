@@ -9,7 +9,6 @@ const client = new MongoClient(Mongo_URL);
 async function connectDB() {
     try {
         await client.connect();
-        console.log("Connected to MongoDB");
         return client.db(); 
     } catch (error) {
         console.error("MongoDB connection error:", error);

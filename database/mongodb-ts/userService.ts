@@ -12,20 +12,26 @@ async function getUsers(): Promise<User[]> {
     return usersCollection.find().toArray();
 }
 
-async function addUser(name: string, email: string): Promise<string> {
+async function addUser(u_id: string, name: string, email: string): Promise<string> {
     const db = await connectDB();
     const usersCollection: Collection<User> = db.collection("users");
-    const new_user_id = uuidv4()
     
+    const existingUser = await usersCollection.findOne({ _id: u_id });
+
+    if (existingUser) {
+        return u_id; // User already exists, return the same `u_id`
+    }
+
+    // If not found, create a new user
     const newUser: User = {
-        _id: new_user_id,
+        _id: u_id,
         name: name,
         email: email,
         tasks_list: []
     };
-    await usersCollection.insertOne(newUser);
 
-    return new_user_id;
+    await usersCollection.insertOne(newUser);
+    return u_id;
 }
 
 async function deleteUserByName(name: string): Promise<void> {
@@ -147,6 +153,30 @@ async function modifyTask(
     }
 }
 
+async function getUserTasks(u_id: string): Promise<string[]> {
+    const db = await connectDB();
+    const usersCollection: Collection<User> = db.collection("users");
+
+    // Find the user by `_id`
+    const user = await usersCollection.findOne({ _id: u_id });
+
+    if (!user) {
+        console.log(`User with ID ${u_id} not found`);
+        return [];
+    }
+
+    return user.tasks_list;
+}
+
+
+async function getAllTasksInList(id_list: string[]): Promise<Task[]> {
+    const db = await connectDB();
+    const tasksCollection: Collection<Task> = db.collection("tasks");
+
+    const tasks = await tasksCollection.find({ _id: { $in: id_list } }).toArray();
+
+    return tasks;
+}
 
 
 async function deleteTaskById(id: string): Promise<void> {
@@ -167,4 +197,6 @@ async function deleteTaskById(id: string): Promise<void> {
 }
 
 
-export { getUsers, addUser, deleteUserByName, addTask, getTasks, deleteTaskById, modifyTask, getTasksById, addTaskToUser};
+export { getUsers, addUser, deleteUserByName, addTask, getTasks, deleteTaskById, modifyTask, getTasksById, addTaskToUser, getUserTasks,
+    getAllTasksInList
+};

@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const GMap_API_key = "AIzaSyBoG58gmt5sB4p6dmwZBz40Doa_xn8zkks"
 const db = connectDB();
-
+console.log("Connected to MongoDB");
 
 // npx nodemon --exec ts-node src/index.ts
 app.use(express.json());
@@ -439,14 +439,14 @@ app.post('/fetchGeofences', async (req: Request<{}, any, RouteRequestBody>, res:
 	}
 });
 
-app.post('/addUser', async (req: Request<{}, any, {name: string, email: string}>, res: Response): Promise<void> => {
+app.post('/login', async (req: Request<{}, any, {u_id:string, name: string, email: string}>, res: Response): Promise<void> => {
 	try {
-		const { name, email } = req.body
-		if (!name || !email) {
+		const {u_id, name, email } = req.body
+		if (!name || !email || !u_id) {
 			throw new Error("Missing or invalid _id in request body");
 		}
 		
-		var new_user_id = await dbService.addUser(name, email)
+		var new_user_id = await dbService.addUser(u_id, name, email)
 		res.status(200).json({
 			"new_user_id": new_user_id
 		});
@@ -485,6 +485,25 @@ app.post('/addTask', async (req: Request<{}, any, AddTaskRequestBody>, res: Resp
 		res.status(500).json({ error: error.message });
 	}
 })
+
+app.post('/getAllTasks', async (req: Request<{}, any, {u_id: string}>, res: Response): Promise<void> => {
+	try {
+		const { u_id } = req.body
+		if (!u_id) {
+			throw new Error("Missing or invalid _id in request body");
+		}
+		const task_id_list = await dbService.getUserTasks(u_id)
+		const task_list = await dbService.getAllTasksInList(task_id_list)
+
+		res.status(200).json({
+			"task_list": task_list || []
+		});
+	} catch (error: any) {
+		console.error(error);
+		res.status(500).json({ error: error.message });
+	}
+})
+
 
 app.post('/deleteTask', async (req: Request<{}, any, { _id: string }>, res: Response): Promise<void> => {
 	try {
