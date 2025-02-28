@@ -12,10 +12,10 @@ async function loguser() {
 
     const task_id_list = await getUserTasks("103042323293350711668")
     console.log(users);
-    console.log(task_id_list);
+    // console.log(task_id_list);
 
-    const task_list = await getAllTasksInList(task_id_list)
-    console.log(task_list);
+    // const task_list = await getAllTasksInList(task_id_list)
+    // console.log(task_list);
 }
 
 async function logTask() {
@@ -31,8 +31,8 @@ async function DeleteAll() {
 
 
 
-// loguser();
+loguser();
 // updateTaskStartDates();
-logTask();
+// logTask();
 
 // DeleteAll();

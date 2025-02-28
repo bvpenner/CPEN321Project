@@ -138,7 +138,7 @@ async function parseRoute(jsonData: any, destination: LatLng): Promise<any> {
 	}
 
 	const geofence = await generateGeofence(destinationLatLng);
-	console.log("geofence.length:" + geofence.length)
+	// console.log("geofence.length:" + geofence.length)
 	// return { routes: compactRoutes, polygon: geofence };
 	return { polygon: geofence };
 }
@@ -440,8 +440,8 @@ function parseAllTaskRouteTime(jsonData: any): any {
 	}
 
 	// Print the 2D matrix
-	console.log("durationsMatrix");
-	console.log(durationsMatrix);
+	// console.log("durationsMatrix");
+	// console.log(durationsMatrix);
 	return durationsMatrix
 }
 
@@ -457,7 +457,6 @@ app.post('/fetchGeofences', async (req: Request<{}, any, RouteRequestBody>, res:
 			res.status(400).json({ error: 'Missing origin or destination coordinates.' });
 			return;
 		}
-		console.log(`Received fetchGeofences`);
 		const result = await fetchGeofences(origin, destination);
 		res.json(result);
 	} catch (error: any) {
@@ -475,9 +474,10 @@ app.post('/login', async (req: Request<{}, any, {u_id:string, name: string, emai
 		
 		var new_user_id = await dbService.addUser(u_id, name, email)
 
-		console.log(`User Logged in: ${name} ${email} ${new_user_id}`);
+		console.log(`[Logged in] User: ${name} ${email} ${new_user_id[0]}`);
 		res.status(200).json({
-			"new_user_id": new_user_id
+			"new_user_id": new_user_id[0],
+			"is_new": new_user_id[1]
 		});
 	} catch (error: any) {
 		console.error(error);
@@ -489,7 +489,7 @@ app.post('/addTask', async (req: Request<{}, any, AddTaskRequestBody>, res: Resp
 	try {
 		const { owner_id, _id, name, start_time, end_time, duration, location_lat, location_lng, priority, description } = req.body
 
-		console.log("Received Add Task: " + name)
+		console.log(`[Add Task] Received from ${owner_id}: ${_id}`)
 
 		if (!_id) { // add new task
 			var new_task_id = await dbService.addTask(name, start_time, end_time, duration, location_lat, location_lng, priority, description)
@@ -526,7 +526,7 @@ app.post('/getAllTasks', async (req: Request<{}, any, {u_id: string}>, res: Resp
 		}
 		const task_id_list = await dbService.getUserTasks(u_id)
 		const task_list = await dbService.getAllTasksInList(task_id_list)
-
+		
 		res.status(200).json({
 			"task_list": task_list || []
 		});
@@ -537,14 +537,14 @@ app.post('/getAllTasks', async (req: Request<{}, any, {u_id: string}>, res: Resp
 })
 
 
-app.post('/deleteTask', async (req: Request<{}, any, { _id: string }>, res: Response): Promise<void> => {
+app.post('/deleteTask', async (req: Request<{}, any, {owner_id: string, _id: string }>, res: Response): Promise<void> => {
 	try {
-		const {_id} = req.body
+		const {owner_id, _id} = req.body
 		if (!_id) {
 			throw new Error("Missing or invalid _id in request body");
 		}
-		
-		var new_task_id = dbService.deleteTaskById(_id)
+		console.log(`[Delete Task] Received from ${owner_id}: ${_id}`)
+		var new_task_id = dbService.deleteTaskById(owner_id, _id)
 		res.status(200).json({
 			"new_task_id": new_task_id
 		});
@@ -566,12 +566,11 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 			res.status(400).json({ error: 'Missing origin or destination coordinates.' });
 			return;
 		}
-		console.log(`Received fetchOptimalRoute: ${allTasksID}`);
+		console.log(`[fetchOptimalRoute] Received: ${userLocation}`);
 
 		// query all the tasks first from data base
 		const allTasks: Task[] = []
 		for(var i = 0; i < allTasksID.length; i++){
-			console.log(`fetchOptimalRoute: ${allTasksID[i]}`);
 			const new_task = await dbService.getTasksById(`${allTasksID[i]}`);
 			const task = new Task(new_task._id, timeToMinutes(new_task.start), timeToMinutes(new_task.end), new_task.duration, new_task.location_lat, new_task.location_lng, new_task.priority, new_task.description)
 			allTasks.push(task);
@@ -586,7 +585,7 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 			}
 			return allTasks[task_i-1]._id;
 		}).filter(id => id !== null);
-		console.log(taskIds);
+		console.log(`[Optimal Route] foound: ${taskIds}`);
 		res.json({taskIds});	
 	} catch (error: any) {
 		console.error(error);

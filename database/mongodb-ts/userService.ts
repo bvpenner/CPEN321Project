@@ -4,6 +4,15 @@ import { User } from "./models/User";
 import { Task } from "./models/Task";
 import { ObjectId } from "mongodb";
 import { v4 as uuidv4 } from "uuid";
+import fs from "fs";
+
+const logStream = fs.createWriteStream("server.log", { flags: "a" });
+
+console.log = (...args) => {
+    const message = args.map(arg => (typeof arg === "object" ? JSON.stringify(arg) : arg)).join(" ");
+    logStream.write(new Date().toISOString() + " " + message + "\n");
+    process.stdout.write(new Date().toISOString() + " " + message + "\n");
+};
 
 // USER Management
 async function getUsers(): Promise<User[]> {
@@ -12,14 +21,14 @@ async function getUsers(): Promise<User[]> {
     return usersCollection.find().toArray();
 }
 
-async function addUser(u_id: string, name: string, email: string): Promise<string> {
+async function addUser(u_id: string, name: string, email: string): Promise<string[]> {
     const db = await connectDB();
     const usersCollection: Collection<User> = db.collection("users");
     
     const existingUser = await usersCollection.findOne({ _id: u_id });
 
     if (existingUser) {
-        return u_id; // User already exists, return the same `u_id`
+        return [u_id, "0"];
     }
 
     // If not found, create a new user
@@ -31,7 +40,7 @@ async function addUser(u_id: string, name: string, email: string): Promise<strin
     };
 
     await usersCollection.insertOne(newUser);
-    return u_id;
+    return [u_id, "1"];
 }
 
 async function deleteUserByName(name: string): Promise<void> {
@@ -168,6 +177,23 @@ async function getUserTasks(u_id: string): Promise<string[]> {
     return user.tasks_list;
 }
 
+async function deleteUserTask(u_id: string, task_id: string): Promise<boolean> {
+    const db = await connectDB();
+    const usersCollection: Collection<User> = db.collection("users");
+
+    const result = await usersCollection.updateOne(
+        { _id: u_id }, 
+        { $pull: { tasks_list: task_id } }
+    );
+
+    if (result.modifiedCount > 0) {
+        console.log(`Task ${task_id} removed from user ${u_id}`);
+        return true;
+    } else {
+        console.log(`Task ${task_id} not found in user ${u_id}`);
+        return false;
+    }
+}
 
 async function getAllTasksInList(id_list: string[]): Promise<Task[]> {
     const db = await connectDB();
@@ -179,12 +205,13 @@ async function getAllTasksInList(id_list: string[]): Promise<Task[]> {
 }
 
 
-async function deleteTaskById(id: string): Promise<void> {
+async function deleteTaskById(owner_id: string, id: string): Promise<void> {
     try {
         const db = await connectDB();
         const tasksCollection = db.collection<Task>("tasks");
 
         const result = await tasksCollection.deleteOne({ _id: id });
+        await deleteUserTask(owner_id, id)
 
         if (result.deletedCount === 0) {
             console.log(`Task with id "${id}" not found.`);
@@ -231,7 +258,7 @@ async function updateTaskStartDates(): Promise<void> {
             { _id: tasks[i]._id },
             { $set: { end: newStartDates[i] } }
         );
-        console.log(`Updated Task ${tasks[i]._id} to start on ${newStartDates[i]}`);
+        // console.log(`Updated Task ${tasks[i]._id} to start on ${newStartDates[i]}`);
     }
 }
 
