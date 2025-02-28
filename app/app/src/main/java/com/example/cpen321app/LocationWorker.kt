@@ -14,7 +14,6 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 
-// Written by Copilot
 class LocationWorker(appContext: Context, workerParams: WorkerParameters): Worker(appContext, workerParams) {
 
     companion object {

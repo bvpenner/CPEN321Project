@@ -84,10 +84,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                             mMap.addMarker(MarkerOptions().position(firstTaskLocation).title(firstTask.name))
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(firstTaskLocation, 14f))
                         }
-                        handler.postDelayed(this, 30000) // ✅ Reschedule
+                        handler.postDelayed(this, 120000)
                     }
                 } else {
-                    handler.postDelayed(this, 20000) // ✅ Reschedule
+                    handler.postDelayed(this, 20000)
                 }
             }
         }
@@ -305,8 +305,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
 
                     addGeofence(taskid, taskname, polygonPoints)
-                    requireActivity().runOnUiThread {
-                        var polygon = drawPolygon(polygonPoints)
+                    if (isAdded && isVisible) {
+                        requireActivity().runOnUiThread {
+                            var polygon = drawPolygon(polygonPoints)
+                        }
                     }
 
 

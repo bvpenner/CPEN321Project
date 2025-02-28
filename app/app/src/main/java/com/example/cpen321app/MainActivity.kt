@@ -68,7 +68,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
-        public var firebase_token = ""
         private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 101
     }
 
@@ -180,7 +179,7 @@ class MainActivity : AppCompatActivity() {
         scheduleRouteWorker()
 
         // For testing: update the task list (you can replace this in production).
-        taskViewModel.updateTaskListTesting()
+        // taskViewModel.updateTaskListTesting()
 
         // Set up UI components.
         val frameLayout = FrameLayout(this).apply { id = View.generateViewId() }
@@ -214,7 +213,9 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.list_view_button -> {
+
                     supportFragmentManager.beginTransaction().replace(frameLayout.id, TaskListFragment()).commit()
+                    taskViewModel.refreshTasklist()
                     true
                 }
                 R.id.map_view_button -> {
@@ -311,6 +312,12 @@ class MainActivity : AppCompatActivity() {
                 }
                 response.body?.string()?.let { jsonResponse ->
                     Log.d(TAG, "Received login response: $jsonResponse")
+                    val resultJson = JSONObject(jsonResponse)
+                    val is_new_user = resultJson.getString("is_new").toInt()
+
+                    if (is_new_user == 1){
+                        taskViewModel.addExampleTask()
+                    }
                 }
             }
         })
