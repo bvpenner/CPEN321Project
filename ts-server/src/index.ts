@@ -542,7 +542,10 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 		const graph_matrix = await fetchAllTaskRouteTime(allTasks, userLocation);
 		const result = findOptimalRoute(allTasks, graph_matrix);
 		const taskIds: string[] = result[0].map(task_i => allTasks[task_i]._id);
-		res.json(taskIds);	
+		res.status(200).json({
+			"task_sequence" : taskIds,
+			"time cost" : result[1]
+		});
 	} catch (error: any) {
 		console.error(error);
 		res.status(500).json({ error: error.message });
