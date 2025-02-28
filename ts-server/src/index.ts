@@ -2,6 +2,8 @@ import express, { Request, Response } from 'express';
 import fetch from 'node-fetch';
 import { connectDB } from '../../database/mongodb-ts/database';
 import * as dbService from "../../database/mongodb-ts/userService";
+import { Console } from 'console';
+import { Client } from "@googlemaps/google-maps-services-js";
 
 
 const app = express();
@@ -34,7 +36,6 @@ interface CompactRoute {
 	start_location: SimpleLatLng;
 	end_location: SimpleLatLng;
 	polyline: string;
-	five_min_point: SimpleLatLng;
 }
 
 // Request body interface for /fetchGeofences endpoint
@@ -87,6 +88,9 @@ interface RouteTimeRequestBody {
 /**
  * Calls the Google Directions API and processes the response.
  */
+const googleMapsClient = new Client({});
+const EARTH_RADIUS_KM = 6371;
+
 async function fetchGeofences(origin: LatLng, destination: LatLng): Promise<any> {
 	const { default: fetch } = await import('node-fetch');
 
@@ -98,40 +102,28 @@ async function fetchGeofences(origin: LatLng, destination: LatLng): Promise<any>
 		throw new Error(`Route Request Failed: ${response.statusText}`);
 	}
 	const jsonResponse = await response.json();
-	// console.log("jsonResponse:", jsonResponse);
-	const compactJson = parseRoute(jsonResponse);
-	// console.log("CompactJson:", compactJson);
+	
+	const compactJson = parseRoute(jsonResponse, destination);
 	return compactJson;
 }
 
 /**
- * Processes the JSON response from the Google Directions API.
- * Computes a compact route object for each route and also builds a polygon
- * (geofence) using the “5-minute away” points.
+ * Processes the route JSON and builds a geofence using a 3km geocircle.
  */
-function parseRoute(jsonData: any): any {
+async function parseRoute(jsonData: any, destination: LatLng): Promise<any> {
 	const routes = jsonData.routes;
 	const compactRoutes: CompactRoute[] = [];
-	const fiveMinPoints: SimpleLatLng[] = [];
-	let destinationLatLng: SimpleLatLng | null = null;
+	const destinationLatLng: SimpleLatLng = { lat: destination.latitude, lng: destination.longitude };
 
 	for (const route of routes) {
 		const summary: string = route.summary;
 		const polyline: string = route.overview_polyline.points;
 		const leg = route.legs[0];
-		const startLocation = leg.start_location; // { lat, lng }
-		const endLocation = leg.end_location;     // { lat, lng }
-		destinationLatLng = { lat: endLocation.lat, lng: endLocation.lng };
+		const startLocation = leg.start_location;
+		const endLocation = leg.end_location;
 
-		const totalDistance: number = leg.distance.value; // in meters
-		const totalDuration: number = leg.duration.value; // in seconds
-
-		// Compute the "5-minute away" point
-		const fiveMinPointJson = find5MinPoint(leg.steps, totalDuration, totalDistance);
-		const fiveMinPoint: SimpleLatLng = { lat: fiveMinPointJson.lat, lng: fiveMinPointJson.lng };
-
-		fiveMinPoints.push(fiveMinPoint);
-		console.log(`Route: 5-Minute Away Point: Lat=${fiveMinPoint.lat}, Lng=${fiveMinPoint.lng}`);
+		const totalDistance: number = leg.distance.value;
+		const totalDuration: number = leg.duration.value;
 
 		const compactRoute: CompactRoute = {
 			summary,
@@ -139,59 +131,99 @@ function parseRoute(jsonData: any): any {
 			duration: totalDuration,
 			start_location: startLocation,
 			end_location: endLocation,
-			polyline,
-			five_min_point: fiveMinPoint
+			polyline
 		};
 
 		compactRoutes.push(compactRoute);
 	}
 
-	if (destinationLatLng) {
-		fiveMinPoints.push(destinationLatLng);
-	}
-
-
-	const polygonCoordinates = computePolygonCoordinates(fiveMinPoints);
-
-	return { routes: compactRoutes, polygon: polygonCoordinates };
+	const geofence = await generateGeofence(destinationLatLng);
+	// console.log("geofence.length:" + geofence.length)
+	// return { routes: compactRoutes, polygon: geofence };
+	return { polygon: geofence };
 }
 
 /**
- * Determines the “5-minute away” point by iterating over the route’s steps.
+ * Computes a geofence based on a 3km radius circle.
+ * Finds main street intersection points using the Google Roads API.
  */
-function find5MinPoint(steps: any[], totalDuration: number, totalDistance: number): SimpleLatLng {
-	const timeThreshold = 500; // 5 minutes in seconds
-	const travelDistance = (totalDistance / totalDuration) * timeThreshold;
 
-	let accumulatedDistance = 0;
+async function generateGeofence(origin: SimpleLatLng): Promise<LatLng[]> {
+    const numPoints = 36; 
+    const radiusKm = 300;
+    const circlePoints: LatLng[] = [];
 
-	for (let i = steps.length - 1; i >= 0; i--) {
-		const step = steps[i];
-		accumulatedDistance += step.distance.value;
-		if (accumulatedDistance >= travelDistance) {
-			return step.start_location;
-		}
-	}
-	return steps[0].start_location;
+    // Generate circle boundary points
+    for (let i = 0; i < numPoints; i++) {
+        const angle = (i * 10) * (Math.PI / 180); // Convert degrees to radians
+        const latOffset = (radiusKm / EARTH_RADIUS_KM) * Math.sin(angle);
+        const lngOffset = (radiusKm / (EARTH_RADIUS_KM * Math.cos(origin.lat * Math.PI / 180))) * Math.cos(angle);
+
+        const newPoint: LatLng = {
+            latitude: origin.lat + latOffset,
+            longitude: origin.lng + lngOffset
+        };
+
+        circlePoints.push(newPoint);
+    }
+
+    // ✅ Find intersections with roads
+    const intersections = await findRoadIntersections(circlePoints);
+
+    // ✅ Select key intersections to form the polygon
+    const polygonCoordinates = computePolygonCoordinates(intersections);
+
+    return polygonCoordinates;
 }
 
 /**
- * Computes the polygon (geofence) coordinates.
- * It sorts the list of points by the angle relative to a center point.
+ * Finds the intersections of the circle boundary points with roads using Google Roads API.
  */
-function computePolygonCoordinates(points: SimpleLatLng[]): SimpleLatLng[] {
-	if (points.length < 3) {
-		return [];
-	}
+async function findRoadIntersections(points: LatLng[]): Promise<LatLng[]> {
+    const intersections: LatLng[] = [];
 
-	const center = points[points.length - 1];
+    for (const point of points) {
+        try {
+            const response = await googleMapsClient.snapToRoads({
+                params: {
+                    path: [{ lat: point.latitude, lng: point.longitude }], // ✅ Fix: Pass an array instead of a string
+                    interpolate: false,
+                    key: GMap_API_key
+                }
+            });
 
-	const sortedPoints = points.slice().sort((a, b) => {
-		const angleA = Math.atan2(a.lat - center.lat, a.lng - center.lng);
-		const angleB = Math.atan2(b.lat - center.lat, b.lng - center.lng);
-		return angleA - angleB;
-	});
-	return sortedPoints;
+            if (response.data.snappedPoints && response.data.snappedPoints.length > 0) {
+                const snappedPoint = response.data.snappedPoints[0].location;
+                intersections.push({ latitude: snappedPoint.latitude, longitude: snappedPoint.longitude });
+            }
+        } catch (error) {
+            console.error("Error fetching road intersection:", error);
+        }
+    }
+    return intersections;
+}
+
+/**
+ * Computes the geofence polygon by sorting points based on angle from the center.
+ */
+function computePolygonCoordinates(points: LatLng[]): LatLng[] {
+    if (points.length < 3) {
+        return [];
+    }
+
+    const center = points.reduce(
+        (acc, point) => ({ lat: acc.lat + point.latitude, lng: acc.lng + point.longitude }),
+        { lat: 0, lng: 0 }
+    );
+    center.lat /= points.length;
+    center.lng /= points.length;
+
+    const sortedPoints = points.slice().sort((a, b) => {
+        const angleA = Math.atan2(a.latitude - center.lat, a.longitude - center.lng);
+        const angleB = Math.atan2(b.latitude - center.lat, b.longitude - center.lng);
+        return angleA - angleB;
+    });
+    return sortedPoints;
 }
 
 /***************************************************
@@ -202,7 +234,7 @@ function computePolygonCoordinates(points: SimpleLatLng[]): SimpleLatLng[] {
  * Find a viable sequence of tasks that yields the lowest total time cost.
  *
  * @param tasksArr - Array of Task objects (NOT including "current location")
- * @param taskDistanceGraph - Pairwise distances matrix. The 0th row/col is for "current location"
+ * @param taskDistanceGraph - Pairwise time distances matrix. The 0th row/col is for "current location"
  * @returns [sequenceOfTasks, totalTimeCost], or [[], -1] if none.
  *
  * If multiple sequences have the same time cost, it arbitrarily picks one.
@@ -348,12 +380,10 @@ function parse2TaskRouteTime(jsonData: any): any {
 }
 
 
-// Alternative request formate to make fewer requests
-
 /**
- * Calls the Google Distance Matrix API and processes the response.
+ * Calls the Google Distance Matrix API with a list of task locations.
+ * Alternative request format to make fewer requests
  */
-
 async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Promise<any> {
 	const { default: fetch } = await import('node-fetch');
 
@@ -361,24 +391,21 @@ async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Pro
 
 	const response = await fetch(url);
 	if (!response.ok) {
-		throw new Error(`Route Request Failed: ${response.statusText}`);
+		throw new Error(`Route Time Request Failed: ${response.statusText}`);
 	}
 	const jsonResponse = await response.json();
-	// console.log("jsonResponse:", jsonResponse);
 	const timeDistanceMatrix = parseAllTaskRouteTime(jsonResponse);
 	// console.log("CompactJson:", compactJson);
 	return timeDistanceMatrix;
 }
 
 function buildURL(allTask: Task[], userLocation: LatLng): any {
-
-	// TODO: must include user location too!!
-
 	// Convert this array into the parameter string required by the Distance Matrix API.
 	const destinationsParam = allTask
 		.map(task => `${task.location_lat},${task.location_lng}`)
 		.join('|');
 
+	//include user location!!
 	const allDestinationsParam = `${userLocation.latitude},${userLocation.longitude}|` + destinationsParam;
 
 	const originsParam = allTask
@@ -396,26 +423,26 @@ function buildURL(allTask: Task[], userLocation: LatLng): any {
 }
 
 // TODO: to be verified (logic)!!!
-
 function parseAllTaskRouteTime(jsonData: any): any {
 	const durationsMatrix: number[][] = []; // 2D matrix to store durations
 
+	//each row is one origin to each destinations
 	for (let i = 0; i < jsonData.rows.length; i++) {
 		const row = jsonData.rows[i];
 		const durationRow: number[] = []; // Store durations for this row
 
 		for (let j = 0; j < row.elements.length; j++) {
 			const element = row.elements[j];
-			durationRow.push(element.duration.value / 60); // Extracting duration value, original in second 
+			durationRow.push(element.duration.value / 60); // Extracting duration value, original in second
 		}
 
-		durationsMatrix.push(durationRow); // Add row to the matrix
+		durationsMatrix.push(durationRow);
 	}
 
 	// Print the 2D matrix
-	console.log(durationsMatrix);
+	// console.log("durationsMatrix");
+	// console.log(durationsMatrix);
 	return durationsMatrix
-
 }
 
 
@@ -430,7 +457,6 @@ app.post('/fetchGeofences', async (req: Request<{}, any, RouteRequestBody>, res:
 			res.status(400).json({ error: 'Missing origin or destination coordinates.' });
 			return;
 		}
-		console.log(`Received fetchGeofences`);
 		const result = await fetchGeofences(origin, destination);
 		res.json(result);
 	} catch (error: any) {
@@ -447,8 +473,11 @@ app.post('/login', async (req: Request<{}, any, {u_id:string, name: string, emai
 		}
 		
 		var new_user_id = await dbService.addUser(u_id, name, email)
+
+		console.log(`[Logged in] User: ${name} ${email} ${new_user_id[0]}`);
 		res.status(200).json({
-			"new_user_id": new_user_id
+			"new_user_id": new_user_id[0],
+			"is_new": new_user_id[1]
 		});
 	} catch (error: any) {
 		console.error(error);
@@ -459,6 +488,9 @@ app.post('/login', async (req: Request<{}, any, {u_id:string, name: string, emai
 app.post('/addTask', async (req: Request<{}, any, AddTaskRequestBody>, res: Response): Promise<void> => {
 	try {
 		const { owner_id, _id, name, start_time, end_time, duration, location_lat, location_lng, priority, description } = req.body
+
+		console.log(`[Add Task] Received from ${owner_id}: ${_id}`)
+
 		if (!_id) { // add new task
 			var new_task_id = await dbService.addTask(name, start_time, end_time, duration, location_lat, location_lng, priority, description)
 			dbService.addTaskToUser(owner_id, new_task_id);
@@ -494,7 +526,7 @@ app.post('/getAllTasks', async (req: Request<{}, any, {u_id: string}>, res: Resp
 		}
 		const task_id_list = await dbService.getUserTasks(u_id)
 		const task_list = await dbService.getAllTasksInList(task_id_list)
-
+		
 		res.status(200).json({
 			"task_list": task_list || []
 		});
@@ -505,14 +537,14 @@ app.post('/getAllTasks', async (req: Request<{}, any, {u_id: string}>, res: Resp
 })
 
 
-app.post('/deleteTask', async (req: Request<{}, any, { _id: string }>, res: Response): Promise<void> => {
+app.post('/deleteTask', async (req: Request<{}, any, {owner_id: string, _id: string }>, res: Response): Promise<void> => {
 	try {
-		const {_id} = req.body
+		const {owner_id, _id} = req.body
 		if (!_id) {
 			throw new Error("Missing or invalid _id in request body");
 		}
-		
-		var new_task_id = dbService.deleteTaskById(_id)
+		console.log(`[Delete Task] Received from ${owner_id}: ${_id}`)
+		var new_task_id = dbService.deleteTaskById(owner_id, _id)
 		res.status(200).json({
 			"new_task_id": new_task_id
 		});
@@ -525,7 +557,8 @@ app.post('/deleteTask', async (req: Request<{}, any, { _id: string }>, res: Resp
 
 
 // Another endpoint for findOptimalRoute
-// user lat, lng, task array
+// input: user lat, lng, task_id list
+// return: a list of task_ids
 app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody>, res: Response): Promise<void> => {
 	try {
 		const { allTasksID, userLocation } = req.body;
@@ -533,20 +566,27 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 			res.status(400).json({ error: 'Missing origin or destination coordinates.' });
 			return;
 		}
-		console.log(`Received fetchRoute`);
+		console.log(`[fetchOptimalRoute] Received: ${userLocation}`);
 
-		//TODO: need to query all the tasks first from data base
+		// query all the tasks first from data base
 		const allTasks: Task[] = []
 		for(var i = 0; i < allTasksID.length; i++){
 			const new_task = await dbService.getTasksById(`${allTasksID[i]}`);
 			const task = new Task(new_task._id, timeToMinutes(new_task.start), timeToMinutes(new_task.end), new_task.duration, new_task.location_lat, new_task.location_lng, new_task.priority, new_task.description)
 			allTasks.push(task);
 		}
-		
+		// console.log(allTasks);
 		const graph_matrix = await fetchAllTaskRouteTime(allTasks, userLocation);
 		const result = findOptimalRoute(allTasks, graph_matrix);
-		const taskIds: string[] = result[0].map(task_i => allTasks[task_i]._id);
-		res.json(taskIds);	
+		const taskIds: string[] = result[0].map(task_i => {
+			if (task_i < 0 || task_i > allTasks.length) {
+				console.error(`Invalid index: ${task_i}, allTasks length: ${allTasks.length}`);
+				return null; 
+			}
+			return allTasks[task_i-1]._id;
+		}).filter(id => id !== null);
+		console.log(`[Optimal Route] foound: ${taskIds}`);
+		res.json({taskIds});	
 	} catch (error: any) {
 		console.error(error);
 		res.status(500).json({ error: error.message });

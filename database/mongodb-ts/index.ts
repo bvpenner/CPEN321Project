@@ -1,4 +1,5 @@
-import { addUser, getUsers, deleteUserByName, getTasks, getUserTasks, getAllTasksInList} from "./userService";
+import { addUser, getUsers, deleteUserByName, getTasks, getUserTasks, getAllTasksInList, DBDeleteAll} from "./userService";
+import { updateTaskStartDates} from "./userService";
 
 // npx ts-node index.ts
 
@@ -11,10 +12,10 @@ async function loguser() {
 
     const task_id_list = await getUserTasks("103042323293350711668")
     console.log(users);
-    console.log(task_id_list);
+    // console.log(task_id_list);
 
-    const task_list = await getAllTasksInList(task_id_list)
-    console.log(task_list);
+    // const task_list = await getAllTasksInList(task_id_list)
+    // console.log(task_list);
 }
 
 async function logTask() {
@@ -22,5 +23,16 @@ async function logTask() {
     console.log(users);
 }
 
+async function DeleteAll() {
+    const users = await DBDeleteAll();
+    console.log(users);
+}
+
+
+
+
 loguser();
-//logTask();
+// updateTaskStartDates();
+// logTask();
+
+// DeleteAll();
