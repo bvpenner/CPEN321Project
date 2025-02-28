@@ -28,13 +28,22 @@ class FirebaseMessagingService {
         val channelId = "default_channel"
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
+//        val notificationBuilder = NotificationCompat.Builder(context, channelId)
+//            .setSmallIcon(android.R.drawable.ic_dialog_info)
+//            .setContentTitle("FCM Message")
+//            .setContentText(messageBody)
+//            .setAutoCancel(true)
+//            .setSound(defaultSoundUri)
+//            .setContentIntent(pendingIntent)
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("FCM Message")
-            .setContentText(messageBody)
+            .setContentText(messageBody.take(50)) // Shorten preview text if needed
+            .setStyle(NotificationCompat.BigTextStyle().bigText(messageBody)) // Expand for longer text
             .setAutoCancel(true)
             .setSound(defaultSoundUri)
             .setContentIntent(pendingIntent)
+
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 

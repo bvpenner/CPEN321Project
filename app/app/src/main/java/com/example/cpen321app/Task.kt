@@ -1,5 +1,8 @@
 package com.example.cpen321app
 
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Polygon
+
 // Copilot generated
 data class Task(
     val id: String,
@@ -13,3 +16,9 @@ data class Task(
     val description: String
 )
 
+data class Geofence_Container(
+    val id: String,
+    val name: String,
+    val currentPolygon: Polygon?,
+    val coord_list: MutableList<LatLng>,
+)

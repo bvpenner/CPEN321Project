@@ -61,6 +61,8 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.googleid)
     implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
+    implementation(libs.places)
     implementation(libs.firebase.common.ktx)
     implementation(libs.firebase.messaging.ktx)
     testImplementation(libs.junit)
@@ -76,6 +78,7 @@ dependencies {
     implementation ("com.google.maps.android:android-maps-utils:2.3.0")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
 
 
     implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
