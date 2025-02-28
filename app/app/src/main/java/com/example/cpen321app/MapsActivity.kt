@@ -84,10 +84,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                             mMap.addMarker(MarkerOptions().position(firstTaskLocation).title(firstTask.name))
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(firstTaskLocation, 14f))
                         }
-                        handler.postDelayed(this, 120000)
+                        handler.postDelayed(this, 300000)
                     }
                 } else {
-                    handler.postDelayed(this, 20000)
+                    handler.postDelayed(this, 300000)
                 }
             }
         }

@@ -35,6 +35,7 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.lifecycle.lifecycleScope
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -215,7 +216,6 @@ class MainActivity : AppCompatActivity() {
                 R.id.list_view_button -> {
 
                     supportFragmentManager.beginTransaction().replace(frameLayout.id, TaskListFragment()).commit()
-                    taskViewModel.refreshTasklist()
                     true
                 }
                 R.id.map_view_button -> {

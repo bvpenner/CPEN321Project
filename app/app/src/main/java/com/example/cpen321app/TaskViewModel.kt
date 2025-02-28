@@ -30,7 +30,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refreshTasklist(){
-        _taskList.postValue(mutableListOf())
+//        _taskList.postValue(mutableListOf())
         sendGetAllTasksToServer()
     }
 
@@ -219,7 +219,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                     return
                 }
                 response.body?.string()?.let { jsonResponse ->
-                    Log.d(TAG, "Received response taskList: $jsonResponse")
+
                     val resultJson = JSONObject(jsonResponse)
                     val taskListJsonArray = resultJson.getJSONArray("task_list")
 
@@ -237,9 +237,13 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                             priority = taskJson.getInt("priority"),
                             description = taskJson.getString("description")
                         )
-
-                        _taskList.value?.add(task)
+                        taskList.add(task)
                     }
+                    _taskList.postValue(mutableListOf<Task>())
+
+                    _taskList.postValue(taskList)
+                    logAllTasks()
+                    Log.d(TAG, "Received response taskList: $jsonResponse")
                 }
             }
         })

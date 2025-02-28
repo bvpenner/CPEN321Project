@@ -46,6 +46,7 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
         super.onViewCreated(view, savedInstanceState)
         // Obtain the ViewModel from your Application.
         taskViewModel = (activity?.application as GeoTask).taskViewModel
+        taskViewModel.refreshTasklist()
 
         // Set up RecyclerView.
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
