@@ -202,7 +202,7 @@ function computePolygonCoordinates(points: SimpleLatLng[]): SimpleLatLng[] {
  * Find a viable sequence of tasks that yields the lowest total time cost.
  *
  * @param tasksArr - Array of Task objects (NOT including "current location")
- * @param taskDistanceGraph - Pairwise distances matrix. The 0th row/col is for "current location"
+ * @param taskDistanceGraph - Pairwise time distances matrix. The 0th row/col is for "current location"
  * @returns [sequenceOfTasks, totalTimeCost], or [[], -1] if none.
  *
  * If multiple sequences have the same time cost, it arbitrarily picks one.
@@ -348,12 +348,10 @@ function parse2TaskRouteTime(jsonData: any): any {
 }
 
 
-// Alternative request formate to make fewer requests
-
 /**
- * Calls the Google Distance Matrix API and processes the response.
+ * Calls the Google Distance Matrix API with a list of task locations.
+ * Alternative request format to make fewer requests
  */
-
 async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Promise<any> {
 	const { default: fetch } = await import('node-fetch');
 
@@ -361,7 +359,7 @@ async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Pro
 
 	const response = await fetch(url);
 	if (!response.ok) {
-		throw new Error(`Route Request Failed: ${response.statusText}`);
+		throw new Error(`Route Time Request Failed: ${response.statusText}`);
 	}
 	const jsonResponse = await response.json();
 	// console.log("jsonResponse:", jsonResponse);
@@ -371,14 +369,12 @@ async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Pro
 }
 
 function buildURL(allTask: Task[], userLocation: LatLng): any {
-
-	// TODO: must include user location too!!
-
 	// Convert this array into the parameter string required by the Distance Matrix API.
 	const destinationsParam = allTask
 		.map(task => `${task.location_lat},${task.location_lng}`)
 		.join('|');
 
+	//include user location!!
 	const allDestinationsParam = `${userLocation.latitude},${userLocation.longitude}|` + destinationsParam;
 
 	const originsParam = allTask
@@ -396,26 +392,25 @@ function buildURL(allTask: Task[], userLocation: LatLng): any {
 }
 
 // TODO: to be verified (logic)!!!
-
 function parseAllTaskRouteTime(jsonData: any): any {
 	const durationsMatrix: number[][] = []; // 2D matrix to store durations
 
+	//each row is one origin to each destinations
 	for (let i = 0; i < jsonData.rows.length; i++) {
 		const row = jsonData.rows[i];
 		const durationRow: number[] = []; // Store durations for this row
 
 		for (let j = 0; j < row.elements.length; j++) {
 			const element = row.elements[j];
-			durationRow.push(element.duration.value / 60); // Extracting duration value, original in second 
+			durationRow.push(element.duration.value / 60); // Extracting duration value, originally in second 
 		}
 
-		durationsMatrix.push(durationRow); // Add row to the matrix
+		durationsMatrix.push(durationRow);
 	}
 
-	// Print the 2D matrix
+	// Print the 2D matrix, consider verify self to self is 0
 	console.log(durationsMatrix);
 	return durationsMatrix
-
 }
 
 
@@ -506,7 +501,8 @@ app.post('/deleteTask', async (req: Request<{}, any, { _id: string }>, res: Resp
 
 
 // Another endpoint for findOptimalRoute
-// user lat, lng, task array
+// input: user lat, lng, task_id list
+// return: a list of task_ids
 app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody>, res: Response): Promise<void> => {
 	try {
 		const { allTasksID, userLocation } = req.body;
@@ -516,7 +512,7 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 		}
 		console.log(`Received fetchRoute`);
 
-		//TODO: need to query all the tasks first from data base
+		// query all the tasks first from data base
 		const allTasks: Task[] = []
 		for(var i = 0; i < allTasksID.length; i++){
 			const new_task = await dbService.getTasksById(`${allTasksID[i]}`);
