@@ -1,4 +1,5 @@
-import { addUser, getUsers, deleteUserByName, getTasks, getUserTasks, getAllTasksInList} from "./userService";
+import { addUser, getUsers, deleteUserByName, getTasks, getUserTasks, getAllTasksInList, DBDeleteAll} from "./userService";
+import { updateTaskStartDates} from "./userService";
 
 // npx ts-node index.ts
 
@@ -22,5 +23,16 @@ async function logTask() {
     console.log(users);
 }
 
-loguser();
-//logTask();
+async function DeleteAll() {
+    const users = await DBDeleteAll();
+    console.log(users);
+}
+
+
+
+
+// loguser();
+// updateTaskStartDates();
+logTask();
+
+// DeleteAll();

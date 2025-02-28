@@ -196,7 +196,46 @@ async function deleteTaskById(id: string): Promise<void> {
     }
 }
 
+async function DBDeleteAll(): Promise<void> {
+    try {
+        const db = await connectDB();
+        const tasksCollection = db.collection<Task>("tasks");
+        const usersCollection: Collection<User> = db.collection("users");
+
+        const result_task = await tasksCollection.deleteMany({});
+        const result_user = await usersCollection.deleteMany({});
+
+        console.log(`Deleted ${result_task.deletedCount} tasks from the collection.`);
+        console.log(`Deleted ${result_user.deletedCount} tasks from the collection.`);
+    } catch (error) {
+        console.error("Error deleting all tasks:", error);
+    }
+}
+
+/////////////////////////////Test//////////////////////////////////
+async function updateTaskStartDates(): Promise<void> {
+    const db = await connectDB();
+    const tasksCollection: Collection<Task> = db.collection("tasks");
+
+    // Fetch first 3 tasks
+    const tasks = await tasksCollection.find().limit(3).toArray();
+
+    if (tasks.length < 3) {
+        throw new Error("[Error] Not enough tasks to update.");
+    }
+
+    const newStartDates = ["14:00", "14:00", "14:00"];
+
+    for (let i = 0; i < 3; i++) {
+        await tasksCollection.updateOne(
+            { _id: tasks[i]._id },
+            { $set: { end: newStartDates[i] } }
+        );
+        console.log(`Updated Task ${tasks[i]._id} to start on ${newStartDates[i]}`);
+    }
+}
 
 export { getUsers, addUser, deleteUserByName, addTask, getTasks, deleteTaskById, modifyTask, getTasksById, addTaskToUser, getUserTasks,
-    getAllTasksInList
+    getAllTasksInList, DBDeleteAll,
+    updateTaskStartDates
 };
