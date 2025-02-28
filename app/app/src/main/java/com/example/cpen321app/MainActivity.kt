@@ -1,8 +1,10 @@
 package com.example.cpen321app
 
+import FirebaseMessagingService
 import TaskListFragment
 import android.app.Application
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Base64
@@ -22,6 +24,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.credentials.CredentialManager
@@ -38,6 +42,7 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -61,6 +66,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
+        public var firebase_token = ""
     }
 
     private val activityScope = CoroutineScope(Dispatchers.Main)
@@ -91,6 +97,10 @@ class MainActivity : AppCompatActivity() {
         val hashedNonce = digest.fold("") { str, it -> str + "%02x".format(it) }
 
         Log.d(TAG, "WEB_CLIENT_ID: ${BuildConfig.WEB_CLIENT_ID}")
+
+
+        val messagingService = FirebaseMessagingService()
+        messagingService.sendNotification(this, "Hello! This is a test notification")
 
         val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
             .Builder(BuildConfig.WEB_CLIENT_ID)

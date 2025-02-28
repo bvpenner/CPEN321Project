@@ -20,10 +20,9 @@ import okhttp3.RequestBody
 class TaskViewModel(application: Application) : AndroidViewModel(application) {
     val taskList: LiveData<MutableList<Task>> get() = _taskList
 
-    private var server_ip = "18.215.238.145:3000";
-
     companion object {
         private const val TAG = "TaskViewModel"
+        public var server_ip = "18.215.238.145:3000";
         public val _taskList = MutableLiveData<MutableList<Task>>()
     }
 

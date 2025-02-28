@@ -4,6 +4,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+//    alias(libs.plugins.google.services)
+//    id("com.android.application")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -58,6 +61,8 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.googleid)
     implementation(libs.play.services.maps)
+    implementation(libs.firebase.common.ktx)
+    implementation(libs.firebase.messaging.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,7 +73,10 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
 
+    implementation ("com.google.maps.android:android-maps-utils:2.3.0")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("com.google.code.gson:gson:2.10.1")
 
+
+    implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
 }
