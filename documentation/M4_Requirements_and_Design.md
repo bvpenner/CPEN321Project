@@ -39,47 +39,70 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
 2. **Google Maps API:** Handles location data, distance calculations, and navigation.
 3. **Google Authentication API:** Manages secure user sign-in and integrates credentials with MongoDB for user identification and data storage.
 
-### **3.3. Functional Requirements**
+### 3.3. Functional Requirements
 
-#### **3.3.1. User Login/Secure User Authentication**
+#### Sign In
 - **Description:** Users log in via Google authentication and retrieve previously stored tasks.
 - **Primary Actor:** End User
 - **Success Scenarios:**
-  - The user provides valid Google credentials and successfully logs in.
-  - The system retrieves and displays the user's stored tasks.
+  1. User inputs Google credentials in the sign-in window.
+  2. User successfully logs in with their credentials.
+  3. The system retrieves and displays the user’s tasks.
 - **Failure Scenarios:**
-  - Incorrect login credentials result in authentication failure.
-  - Google authentication service is unavailable.
+  1. **1a.** User cancels authentication.  
+     **1a1.** System prompts the user to restart authentication.
+  2. **2a.** User inputs invalid credentials.  
+     **2a1.** System prompts the user to re-enter valid credentials.
 
-#### **3.3.2. Task GeoFencing**
+#### Task GeoFencing
 - **Description:** Sends push notifications when a task deadline is approaching or when the user enters a task’s designated area (geographical circles).
 - **Primary Actor:** End User
 - **Success Scenarios:**
-  - The user adds a task with a defined geofencing area.
-  - The system calculates and displays the geofence, triggering a notification when the user enters the area.
+  1. The user adds a task that includes a geofencing area.
+  2. A POST request is received by the server with valid geofence coordinates.
+  3. The server calculates the geofence boundaries based on the provided coordinates.
+  4. The calculated geofence coordinates are sent to the user.
+  5. The geofence boundary is displayed on the map view as a shaded polygon.
+  6. The app tracks the user’s current location through location updates.
+  7. When the user enters the designated geofence boundary, a push notification is sent.
 - **Failure Scenarios:**
-  - The task’s geofence location is invalid (e.g., out of bounds).
-  - Necessary location permissions are not enabled.
+  1. **1a.** The task’s geofence location is invalid (out of bounds).  
+     **1a1.** The server returns an error message indicating “Invalid coordinate.”
+  2. **6a.** The user has not enabled necessary location permissions.  
+     **6a1.** The system prompts the user to enable location permissions to allow geofence tracking.
 
-#### **3.3.3. Task Management System**
+#### Manage Tasks
 - **Description:** Create, modify, or delete a task with details such as deadline, location, priority level, frequency, and a short description.
 - **Primary Actor:** End User
 - **Success Scenarios:**
-  - A new task is created with all required details.
-  - An existing task is edited and saved.
-  - A task is deleted, with the task list updating accordingly.
+  - **Add Task:**
+    1. User clicks the add task button.
+    2. User inputs task details including name, description, start time, end time, duration, location, and priority.
+    3. The updated task list displays the newly added task.
+  - **Delete Task:**
+    1. User selects an existing task from the Task View and long presses on it.
+    2. A pop-up prompts the user to delete or edit the task.
+    3. User clicks "Delete Task."
+    4. The task is removed from the task list.
 - **Failure Scenarios:**
-  - Task creation fails due to missing or invalid input.
-  - Task updates fail due to network or system errors.
+  - **Add Task:**
+    **2a.** User inputs invalid longitude & latitude.  
+       **2a1.** Prompt the user to “Input valid location.”
+    **2b.** User fails to input some fields.  
+       **2b1.** Depending on the field, prompt the user to input a proper value or use a default.
+  - **Delete Task:**  
 
-#### **3.3.4. Intelligent Route Scheduling**
-- **Description:** Generates an optimal route schedule using selected tasks based on start time, deadline, location, and estimated duration.
+#### Find Optimal Route
+- **Description:** Create the shortest viable task schedule with a route using selected tasks based on their start time, deadline, location, and estimated duration.
 - **Primary Actor:** End User
 - **Success Scenarios:**
-  - The user selects tasks, and the system returns an optimized sequence with a total time cost estimate.
+  1. The user selects tasks and clicks the findOptimalSequence button.
+  2. The system returns an optimal task sequence with the corresponding total time cost estimate.
 - **Failure Scenarios:**
-  - The system fails to generate a route due to missing input (e.g., an empty task list or absent user location).
-  - No viable task sequence is found under the current configuration.
+  **1a.** The system fails to generate a route due to missing input (e.g., empty task list or missing user location).  
+     **1a1.** The system prompts the user to try again.
+  **2a.** If no task sequence is viable.  
+     **2a1.** The system displays a message indicating no task sequence is possible under the current configuration and prompts the user to try again.
 
 ### **3.4. Non-Functional Requirements**
 1. **Scalability:** Must support at least **1,000 concurrent requests** with a response time under **200 milliseconds**.
