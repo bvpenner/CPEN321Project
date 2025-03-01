@@ -105,10 +105,10 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
      **2a1.** The system displays a message indicating no task sequence is possible under the current configuration and prompts the user to try again.
 
 ### **3.4. Non-Functional Requirements**
-1. **Scalability:** Must support at least **1,000 concurrent requests** with a response time under **200 milliseconds**.
-2. **Real-Time Location Processing:** Must process location updates in the background with minimal battery consumption.
-3. **Notification Accuracy:** Must deliver push notifications within **2 seconds** of detecting task deadlines or proximity triggers.
-4. **Location Accuracy:** Must use location data with an accuracy of at least **10 meters**.
+1. **Scalability:** The system must support at least 1,000 concurrent requests while maintaining a response time of under 200 milliseconds as industrial standard recommended by Google. It also creates a perception of immediacy, which is crucial for time-sensitive/task-management apps. This is critical to ensure smooth performance as the number of users grows, preventing slowdowns and crashes under high load.
+2. **Real-Time Location Processing:** The application must process location updates in the background with minimal battery consumption. This is essential to provide accurate and timely notifications to users while ensuring the app does not drain device resources excessively.
+3. **Notification Accuracy:** The system must deliver push notifications to users within 2 seconds of detecting task deadlines or proximity triggers. This ensures timely alerts, which are critical for user engagement and task management efficiency.
+4. **Location Accuracy:** The app must use location data with an accuracy of at least 10 meters to ensure proximity-based notifications and route planning are reliable and useful for the user.
 
 ## 4. Designs Specification
 
