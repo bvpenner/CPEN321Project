@@ -19,7 +19,7 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
 ## 3. Requirements Specification
 
 ### **3.1. Use-Case Diagram**
-![Use-Case Diagram](./images/Use_Case_Diagram.drawio.png)
+![Use-Case Diagram](./images/Use-Case-Diagram-M4.png)
 ### **3.2. Actors Description**
 1. **End User**: Can log in, manage their tasks, and receive notifications about their tasks when they are within a certain proximity based on set priority, as well as receive notifications about tasks our app recommends they do based on prior history.
 2. **Google Maps API**: The API the app will use to handle location data and distance to certain tasks, as well as be called upon for navigation.
