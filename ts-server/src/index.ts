@@ -83,6 +83,7 @@ class Task {
 interface RouteTimeRequestBody {
 	allTasksID: number[];
 	userLocation: LatLng;
+	userCurrTime: string;
 }
 
 /**
@@ -235,16 +236,17 @@ function computePolygonCoordinates(points: LatLng[]): LatLng[] {
  *
  * @param tasksArr - Array of Task objects (NOT including "current location")
  * @param taskDistanceGraph - Pairwise time distances matrix. The 0th row/col is for "current location"
+ * @param userCurrTime - in 24h fromat
  * @returns [sequenceOfTasks, totalTimeCost], or [[], -1] if none.
  *
  * If multiple sequences have the same time cost, it arbitrarily picks one.
  */
-function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][]): [number[], number] {
+function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][], userCurrTime: string): [number[], number] {
 	// tasksArr has length N, we label them 1..N in the distance graph
 	const tasksSet: Set<number> = new Set(
 		Array.from({ length: tasksArr.length }, (_, i) => i + 1)
 	);
-	const startTimeStr = "09:00";
+	const startTimeStr = userCurrTime;
 	let timeCounter = timeToMinutes(startTimeStr);
 
 	// "resultTracking" will hold multiple possible results
@@ -561,8 +563,8 @@ app.post('/deleteTask', async (req: Request<{}, any, {owner_id: string, _id: str
 // return: a list of task_ids
 app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody>, res: Response): Promise<void> => {
 	try {
-		const { allTasksID, userLocation } = req.body;
-		if (allTasksID.length == 0 || !userLocation) {
+		const { allTasksID, userLocation, userCurrTime } = req.body;
+		if (allTasksID.length == 0 || !userLocation || !userCurrTime) {
 			res.status(400).json({ error: 'Missing origin or destination coordinates.' });
 			return;
 		}
@@ -577,7 +579,7 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 		}
 		// console.log(allTasks);
 		const graph_matrix = await fetchAllTaskRouteTime(allTasks, userLocation);
-		const result = findOptimalRoute(allTasks, graph_matrix);
+		const result = findOptimalRoute(allTasks, graph_matrix, userCurrTime);
 		const taskIds: string[] = result[0].map(task_i => {
 			if (task_i < 0 || task_i > allTasks.length) {
 				console.error(`Invalid index: ${task_i}, allTasks length: ${allTasks.length}`);
