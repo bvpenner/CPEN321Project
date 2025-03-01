@@ -521,15 +521,34 @@ app.post('/addTask', async (req: Request<{}, any, AddTaskRequestBody>, res: Resp
 	}
 })
 
-app.post('/getAllTasks', async (req: Request<{}, any, {u_id: string}>, res: Response): Promise<void> => {
-	try {
-		const { u_id } = req.body
-		if (!u_id) {
-			throw new Error("Missing or invalid _id in request body");
-		}
-		const task_id_list = await dbService.getUserTasks(u_id)
-		const task_list = await dbService.getAllTasksInList(task_id_list)
+// app.post('/getAllTasks', async (req: Request<{}, any, {u_id: string}>, res: Response): Promise<void> => {
+// 	try {
+// 		const { u_id } = req.body
+// 		if (!u_id) {
+// 			throw new Error("Missing or invalid _id in request body");
+// 		}
+// 		const task_id_list = await dbService.getUserTasks(u_id)
+// 		const task_list = await dbService.getAllTasksInList(task_id_list)
 		
+// 		res.status(200).json({
+// 			"task_list": task_list || []
+// 		});
+// 	} catch (error: any) {
+// 		console.error(error);
+// 		res.status(500).json({ error: error.message });
+// 	}
+// })
+
+app.get('/getAllTasks', async (req: Request, res: Response): Promise<void> => {
+	try {
+		const { u_id } = req.query;
+		console.log(`[GetAll Task] Received from ${u_id}}`)
+		if (!u_id || typeof u_id !== 'string') {
+			throw new Error("Missing or invalid u_id in request query");
+		}
+		const task_id_list = await dbService.getUserTasks(u_id);
+		const task_list = await dbService.getAllTasksInList(task_id_list);
+
 		res.status(200).json({
 			"task_list": task_list || []
 		});
@@ -537,7 +556,8 @@ app.post('/getAllTasks', async (req: Request<{}, any, {u_id: string}>, res: Resp
 		console.error(error);
 		res.status(500).json({ error: error.message });
 	}
-})
+});
+
 
 
 app.post('/deleteTask', async (req: Request<{}, any, {owner_id: string, _id: string }>, res: Response): Promise<void> => {
