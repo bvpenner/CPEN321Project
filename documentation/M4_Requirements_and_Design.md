@@ -77,12 +77,11 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
     4. The task is removed from the task list.
 - **Failure Scenarios:**
   - **Add Task:**
-    1. **2a.** User inputs invalid longitude & latitude.  
+    **2a.** User inputs invalid longitude & latitude.  
        **2a1.** Prompt the user to “Input valid location.”
-    2. **2b.** User fails to input some fields.  
+    **2b.** User fails to input some fields.  
        **2b1.** Depending on the field, prompt the user to input a proper value or use a default.
   - **Delete Task:**  
-    *(No specific failure scenarios provided.)*
 
 #### Find Optimal Route
 - **Description:** Create the shortest viable task schedule with a route using selected tasks based on their start time, deadline, location, and estimated duration.
@@ -91,9 +90,9 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
   1. The user selects tasks and clicks the findOptimalSequence button.
   2. The system returns an optimal task sequence with the corresponding total time cost estimate.
 - **Failure Scenarios:**
-  1. **1a.** The system fails to generate a route due to missing input (e.g., empty task list or missing user location).  
+  **1a.** The system fails to generate a route due to missing input (e.g., empty task list or missing user location).  
      **1a1.** The system prompts the user to try again.
-  2. **2a.** If no task sequence is viable.  
+  **2a.** If no task sequence is viable.  
      **2a1.** The system displays a message indicating no task sequence is possible under the current configuration and prompts the user to try again.
 
 ### **3.4. Non-Functional Requirements**
