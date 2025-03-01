@@ -149,9 +149,9 @@ Find Least Travel Time Route:
 Task Geofencing:
 ![Task Geofencing](./images/task-geofencing-sequence.png)
 ### **4.7. Non-Functional Requirements Design**
-1. **Scalability**: The system will be deployed on a cloud-based infrastructure with efficient logic and auto-scaling mechanisms to handle up to 1,000 concurrent requests. Efficient database indexing and caching techniques will be implemented to maintain response times under 2 seconds.
+1. **Scalability**: The system will be deployed on a cloud-based infrastructure with efficient logic and auto-scaling mechanisms to handle up to 1,000 concurrent requests. Efficient database indexing and caching techniques will be implemented to maintain response times of under 200 milliseconds as the industrial standard recommended by Google.
 2. **Real-Time Location Processing**: The application will use optimized background location tracking with adaptive update intervals, leveraging Google Map API on Android.
-3. **Notification Accuracy**: A real-time event-driven architecture with WebSockets will be used to ensure push notifications are delivered within 2 seconds. Task deadlines and proximity triggers will be preprocessed to reduce computation overhead during runtime.
+3. **Notification Accuracy**: A real-time event-driven architecture with WebSockets will be used to ensure push notifications are delivered within 2 seconds accounting for WebSocket RTT and firebase delay. Task deadlines and proximity triggers will be preprocessed to reduce computation overhead during runtime.
 4. **Location Accuracy**: The app will integrate GPS, Wi-Fi, and cellular network data to achieve at least 10-meter accuracy.
 
 ### **4.8. Main Project Complexity Design**
