@@ -39,9 +39,9 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
 2. **Google Maps API:** Handles location data, distance calculations, and navigation.
 3. **Google Authentication API:** Manages secure user sign-in and integrates credentials with MongoDB for user identification and data storage.
 
-### 3.3. Functional Requirements
+### 3.3 Functional Requirements
 
-#### Sign In
+#### **Sign In**
 - **Description:** Users log in via Google authentication and retrieve previously stored tasks.
 - **Primary Actor:** End User
 - **Success Scenarios:**
@@ -50,11 +50,11 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
   3. The system retrieves and displays the user’s tasks.
 - **Failure Scenarios:**
   1. **1a.** User cancels authentication.  
-     **1a1.** System prompts the user to restart authentication.
+     - **1a1.** System prompts the user to restart authentication.
   2. **2a.** User inputs invalid credentials.  
-     **2a1.** System prompts the user to re-enter valid credentials.
+     - **2a1.** System prompts the user to re-enter valid credentials.
 
-#### Task GeoFencing
+#### **Task GeoFencing**
 - **Description:** Sends push notifications when a task deadline is approaching or when the user enters a task’s designated area (geographical circles).
 - **Primary Actor:** End User
 - **Success Scenarios:**
@@ -63,15 +63,15 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
   3. The server calculates the geofence boundaries based on the provided coordinates.
   4. The calculated geofence coordinates are sent to the user.
   5. The geofence boundary is displayed on the map view as a shaded polygon.
-  6. The app tracks the user’s current location through location updates.
+  6. The app tracks the user’s current location through updates.
   7. When the user enters the designated geofence boundary, a push notification is sent.
 - **Failure Scenarios:**
   1. **1a.** The task’s geofence location is invalid (out of bounds).  
-     **1a1.** The server returns an error message indicating “Invalid coordinate.”
+     - **1a1.** The server returns an error message indicating “Invalid coordinate.”
   2. **6a.** The user has not enabled necessary location permissions.  
-     **6a1.** The system prompts the user to enable location permissions to allow geofence tracking.
+     - **6a1.** The system prompts the user to enable location permissions to allow geofence tracking.
 
-#### Manage Tasks
+#### **Manage Tasks**
 - **Description:** Create, modify, or delete a task with details such as deadline, location, priority level, frequency, and a short description.
 - **Primary Actor:** End User
 - **Success Scenarios:**
@@ -86,23 +86,25 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
     4. The task is removed from the task list.
 - **Failure Scenarios:**
   - **Add Task:**
-    **2a.** User inputs invalid longitude & latitude.  
-       **2a1.** Prompt the user to “Input valid location.”
-    **2b.** User fails to input some fields.  
-       **2b1.** Depending on the field, prompt the user to input a proper value or use a default.
+    1. **2a.** User inputs invalid longitude & latitude.  
+       - **2a1.** Prompt the user to “Input valid location.”
+    2. **2b.** User fails to input some fields.  
+       - **2b1.** Depending on the field, prompt the user to input a proper value or use a default.
   - **Delete Task:**  
+    *(No specific failure scenarios provided.)*
 
-#### Find Optimal Route
+#### **Find Optimal Route**
 - **Description:** Create the shortest viable task schedule with a route using selected tasks based on their start time, deadline, location, and estimated duration.
 - **Primary Actor:** End User
 - **Success Scenarios:**
-  1. The user selects tasks and clicks the findOptimalSequence button.
+  1. The user selects tasks and clicks the `findOptimalSequence` button.
   2. The system returns an optimal task sequence with the corresponding total time cost estimate.
 - **Failure Scenarios:**
-  **1a.** The system fails to generate a route due to missing input (e.g., empty task list or missing user location).  
-     **1a1.** The system prompts the user to try again.
-  **2a.** If no task sequence is viable.  
-     **2a1.** The system displays a message indicating no task sequence is possible under the current configuration and prompts the user to try again.
+  1. **1a.** The system fails to generate a route due to missing input (e.g., empty task list or missing user location).  
+     - **1a1.** The system prompts the user to try again.
+  2. **2a.** No viable task sequence is found.  
+     - **2a1.** The system displays a message indicating no task sequence is possible under the current configuration and prompts the user to try again.
+
 
 ### **3.4. Non-Functional Requirements**
 1. **Scalability:** The system must support at least 1,000 concurrent requests while maintaining a response time of under 200 milliseconds as industrial standard recommended by Google. It also creates a perception of immediacy, which is crucial for time-sensitive/task-management apps. This is critical to ensure smooth performance as the number of users grows, preventing slowdowns and crashes under high load.
