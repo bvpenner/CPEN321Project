@@ -84,6 +84,7 @@ interface RouteTimeRequestBody {
 	allTasksID: number[];
 	userLocation: LatLng;
 	userCurrTime: string;
+	userCurrTime: string;
 }
 
 /**
@@ -397,7 +398,7 @@ async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Pro
 	}
 	const jsonResponse = await response.json();
 	const timeDistanceMatrix = parseAllTaskRouteTime(jsonResponse);
-	// console.log("CompactJson:", compactJson);
+	// console.log("CompactJson:", jsonResponse);
 	return timeDistanceMatrix;
 }
 
@@ -409,7 +410,7 @@ function buildURL(allTask: Task[], userLocation: LatLng): any {
 
 	//include user location!!
 	const allDestinationsParam = `${userLocation.latitude},${userLocation.longitude}|` + destinationsParam;
-
+	// console.log(allDestinationsParam)
 	const originsParam = allTask
 		.map(task => `${task.location_lat},${task.location_lng}`)
 		.join('|');
@@ -568,7 +569,7 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 			res.status(400).json({ error: 'Missing origin or destination coordinates.' });
 			return;
 		}
-		console.log(`[fetchOptimalRoute] Received: ${userLocation}`);
+		console.log(`[fetchOptimalRoute] Received: ${userLocation} | ${userCurrTime}`);
 
 		// query all the tasks first from data base
 		const allTasks: Task[] = []
@@ -580,6 +581,7 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 		// console.log(allTasks);
 		const graph_matrix = await fetchAllTaskRouteTime(allTasks, userLocation);
 		const result = findOptimalRoute(allTasks, graph_matrix, userCurrTime);
+		// console.log(result)
 		const taskIds: string[] = result[0].map(task_i => {
 			if (task_i < 0 || task_i > allTasks.length) {
 				console.error(`Invalid index: ${task_i}, allTasks length: ${allTasks.length}`);
@@ -587,8 +589,8 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 			}
 			return allTasks[task_i-1]._id;
 		}).filter(id => id !== null);
-		console.log(`[Optimal Route] foound: ${taskIds}`);
-		res.json({taskIds});	
+		console.log(`[Optimal Route] found: ${taskIds}`);
+		res.json({"taskIds": taskIds, "time_cost": result[1]});	
 	} catch (error: any) {
 		console.error(error);
 		res.status(500).json({ error: error.message });
