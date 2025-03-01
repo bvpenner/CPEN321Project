@@ -196,30 +196,25 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun sendGetAllTasksToServer() {
         val client = OkHttpClient()
-        val url = "http://${server_ip}/getAllTasks"
+        val url = "http://${server_ip}/getAllTasks?u_id=${SessionManager.u_id}"
 
-        val jsonBody = JSONObject().apply {
-            put("u_id", SessionManager.u_id)
-        }
-
-        val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-        val requestBody = jsonBody.toString().toRequestBody(mediaType)
         val request = Request.Builder()
             .url(url)
-            .post(requestBody)
+            .get() // ✅ Use GET request
             .build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e(TAG, "Failed to send task: ${e.message}")
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) {
+                Log.e(TAG, "Failed to get tasks: ${e.message}")
             }
 
-            override fun onResponse(call: Call, response: Response) {
+            override fun onResponse(call: okhttp3.Call, response: Response) {
                 if (!response.isSuccessful) {
                     Log.e(TAG, "Unexpected response: ${response.message}")
                     return
                 }
                 response.body?.string()?.let { jsonResponse ->
-
+                    Log.d(TAG, "Received response: $jsonResponse")
                     val resultJson = JSONObject(jsonResponse)
                     val taskListJsonArray = resultJson.getJSONArray("task_list")
 

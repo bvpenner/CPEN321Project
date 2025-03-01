@@ -323,24 +323,70 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+//    private fun sendGetAllTasksToServer(u_id: String) {
+//        val client = OkHttpClient()
+//        val url = "http://${server_ip}/getAllTasks"
+//
+//        val jsonBody = JSONObject().apply {
+//            put("u_id", u_id)
+//        }
+//        Log.d(TAG, jsonBody.toString())
+//        val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
+//        val requestBody = jsonBody.toString().toRequestBody(mediaType)
+//        val request = Request.Builder()
+//            .url(url)
+//            .post(requestBody)
+//            .build()
+//        client.newCall(request).enqueue(object : okhttp3.Callback {
+//            override fun onFailure(call: okhttp3.Call, e: IOException) {
+//                Log.e(TAG, "Failed to get tasks: ${e.message}")
+//            }
+//            override fun onResponse(call: okhttp3.Call, response: Response) {
+//                if (!response.isSuccessful) {
+//                    Log.e(TAG, "Unexpected response: ${response.message}")
+//                    return
+//                }
+//                response.body?.string()?.let { jsonResponse ->
+//                    Log.d(TAG, "Received response: $jsonResponse")
+//                    val resultJson = JSONObject(jsonResponse)
+//                    val taskListJsonArray = resultJson.getJSONArray("task_list")
+//
+//                    val taskList = mutableListOf<Task>()
+//                    for (i in 0 until taskListJsonArray.length()) {
+//                        val taskJson = taskListJsonArray.getJSONObject(i)
+//                        val task = Task(
+//                            id = taskJson.getString("_id"),
+//                            name = taskJson.getString("name"),
+//                            start = taskJson.getString("start"),
+//                            end = taskJson.getString("end"),
+//                            duration = taskJson.getDouble("duration"),
+//                            location_lat = taskJson.getDouble("location_lat"),
+//                            location_lng = taskJson.getDouble("location_lng"),
+//                            priority = taskJson.getInt("priority"),
+//                            description = taskJson.getString("description")
+//                        )
+//                        // taskList.add(task)
+//                        _taskList.value?.add(task)
+//                    }
+//                }
+//            }
+//        })
+//    }
+
     private fun sendGetAllTasksToServer(u_id: String) {
         val client = OkHttpClient()
-        val url = "http://${server_ip}/getAllTasks"
+        val url = "http://${server_ip}/getAllTasks?u_id=${u_id}"
 
-        val jsonBody = JSONObject().apply {
-            put("u_id", u_id)
-        }
-        Log.d(TAG, jsonBody.toString())
-        val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-        val requestBody = jsonBody.toString().toRequestBody(mediaType)
         val request = Request.Builder()
             .url(url)
-            .post(requestBody)
+            .get()
             .build()
+
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: IOException) {
                 Log.e(TAG, "Failed to get tasks: ${e.message}")
             }
+
             override fun onResponse(call: okhttp3.Call, response: Response) {
                 if (!response.isSuccessful) {
                     Log.e(TAG, "Unexpected response: ${response.message}")
@@ -365,14 +411,13 @@ class MainActivity : AppCompatActivity() {
                             priority = taskJson.getInt("priority"),
                             description = taskJson.getString("description")
                         )
-                        // taskList.add(task)
                         _taskList.value?.add(task)
                     }
+
                 }
             }
         })
     }
-
 
     fun decodeIdToken(idToken: String): Map<String, Any> {
         return try {
