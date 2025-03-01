@@ -72,6 +72,7 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
                 val origin = SessionManager.currentLocation?.let {
                     LatLng(it.latitude, it.longitude)
                 }
+                Log.d(TAG, "Origin: $origin")
                 if (origin == null) {
                     Toast.makeText(requireContext(), "Current location not available.", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
