@@ -24,8 +24,7 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
 ## 3. Requirements Specification
 
 ### **3.1. Use-Case Diagram**
-![Use-Case Diagram](./images/Use_Case_Diagram.drawio.png)
-
+![Use-Case Diagram](./images/Use-Case-Diagram-M4.png)
 ### **3.2. Actors Description**
 1. **End User:** Logs in, manages tasks, and receives notifications based on proximity and prior task history.
 2. **Google Maps API:** Handles location data, distance calculations, and navigation.
