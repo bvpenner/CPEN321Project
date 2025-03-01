@@ -5,7 +5,16 @@
 | Version | Date       | Description                                                                                                    | Author               |
 |---------|------------|----------------------------------------------------------------------------------------------------------------|----------------------|
 | 1.0     | 2025-01-31 | Initial Draft                                                                                                  | Team (4 Coordinates) |
-| 2.0     | 2025-02-28 | MVP – Updated use case diagram to more effectively represent the actual use cases.                             | Team (4 Coordinates)                |
+|---------|------------|----------------------------------------------------------------------------------------------------------------|----------------------|
+| 2.0     | 2025-02-28 | MVP – Updated use case diagram to more effectively represent the actual use cases.                             | Team (4 Coordinates) |
+|         |            | - Add sequential diagrams for Task Geofencing and find the Optimal Route. | |
+| | | - Modified Api endpoint in managing task sequential tasks. | |
+| | | - Add detailed success/failure scenarios to all functional requirements based on feedback. | |
+| | | - Dependency diagram update with more components (user&task) and connect them with DB. | |
+| | | - Added Google Authentication API as one of our main actors. | |
+| | | - Removed Google Calendar API as one of our main actors as it is beyond MVP. | |
+| | | - Updated main complexity such that it aligns with the current implementation. Also added pseudo code for the proposed solution. | |
+
 
 **Changed:**
 - **Feb 26:** Updated functional requirement for route scheduling (*Find Optimal Route*), formatted success/failure scenarios, created a sequence diagram for route scheduling, and updated the dependency diagram format. *(David)*
