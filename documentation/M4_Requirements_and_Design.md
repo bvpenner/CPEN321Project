@@ -123,12 +123,16 @@ Primary actor: End User
     -   Docker ensures that the application runs consistently across different environments. It also reduces deployment times and optimizes resource usage.
 
 ### **4.5. Dependencies Diagram**
-![Dependencies Diagram](./images/design_diagram.png)
+![Dependencies Diagram](./images/dependencies-diagram-m4.png)
 ### **4.6. Functional Requirements Sequence Diagram**
-![Sequence Diagram 1](./images/Map_View_For_Tasks-REST.drawio.png)
-![Sequence Diagram 1](./images/Task_Notifications-REST.drawio.png)
-![Sequence Diagram 1](./images/User_Login-REST.drawio.png)
-![Sequence Diagram 1](./images/Task_Management-REST.drawio.png)
+Sign In:
+![Sign In Sequence Diagram](./images/User_Login-REST.drawio.png)
+Task Management:
+![Task Management Sequence Diagram](./images/Task-Management-M4-sequence.png)
+Find Least Travel Time Route:
+![Find Least Travel Time Route](./images/Find-least-travel-time-sequence.png)
+Task Geofencing:
+![Task Geofencing](./images/task-geofencing-sequence.png)
 ### **4.7. Non-Functional Requirements Design**
 1. **Scalability**: The system will be deployed on a cloud-based infrastructure with efficient logic and auto-scaling mechanisms to handle up to 1,000 concurrent requests. Efficient database indexing and caching techniques will be implemented to maintain response times under 2 seconds.
 2. **Real-Time Location Processing**: The application will use optimized background location tracking with adaptive update intervals, leveraging Google Map API on Android.
