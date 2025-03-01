@@ -26,6 +26,8 @@ import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
     private var TAG = "TaskListFragment"
@@ -130,7 +132,10 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
         val client = OkHttpClient()
         val url = "http://${server_ip}/fetchOptimalRoute"
         val taskIds: List<String> = selectedTasks.map { it.id }
+        val formatter = DateTimeFormatter.ofPattern("HH:mm") // 24-hour format
+        val currentTime = LocalTime.now().format(formatter)
 
+        Log.d(TAG, currentTime)
         Log.d(TAG, "taskIds: ${taskIds}")
         val jsonBody = JSONObject().apply {
             put("allTasksID", JSONArray(taskIds))
@@ -138,6 +143,7 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
                 put("latitude", User_Lat)
                 put("longitude", User_Lng)
             })
+            put("userCurrTime", currentTime)
         }
 
         val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
@@ -159,6 +165,7 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
                     Log.d(TAG, "Received response: $jsonResponse")
 
                     val orderedtaskIds = JSONObject(jsonResponse).getJSONArray("taskIds")
+                    val estimated_time = JSONObject(jsonResponse).get("time_cost")
                     val taskIdList = mutableListOf<String>()
 
                     for (i in 0 until orderedtaskIds.length()) {
@@ -172,7 +179,7 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
 
                     var message = ""
                     if (orderedTaskNames.isNotEmpty()) {
-                        message = "Optimal Task Order Found:\n" + orderedTaskNames.joinToString(" → ") // ✅ Format as a sequence
+                        message = "Optimal Task Order Found:\n" + orderedTaskNames.joinToString(" → ") +" Estimated timecost: " + estimated_time + " mins"
                     } else {
                         message = "No valid tasks found in the order."
                     }
