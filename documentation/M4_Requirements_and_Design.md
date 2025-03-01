@@ -115,10 +115,10 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
 ### **4.1. Main Components**
 1. **User**
    - **Description:** Handles user authentication, account management, and interaction with the Android UI. Users log in via Google Authentication and access their cloud-saved tasks.
-   - **Purpose:** Ensures secure access and streamlined task management by linking user login data with task storage.
+   - **Purpose:** Ensures secure access, allowing users to manage their profiles and seamlessly interact with the app. Google Authentication API was chosen for enhanced security and to reduce development overhead. User login information is also linked to database organization, serving as labels for storing and retrieving user-specific task data.
 2. **Task**
-   - **Description:** Enables creation, modification, and deletion of tasks, enhanced by real-time geofencing and dynamic scheduling.
-   - **Purpose:** Boosts productivity by minimizing travel time and automating task scheduling based on location, priority, and deadlines.
+   - **Description:** Provides users with a comprehensive system to create, modify, and delete tasks while optimizing task execution through real-time geofencing and dynamic scheduling. The system continuously tracks user location to determine proximity to task locations, dynamically adjusting task order based on real-time conditions such as distance, priority levels, and deadlines.
+   - **Purpose:** Enhances productivity by minimizing travel time and ensuring efficient task execution. Real-time geofencing defines virtual boundaries around task locations and triggers alerts when users enter or leave task zones, ensuring location-based task reminders. Task scheduling intelligently arranges tasks based on their geographic distribution and urgency, providing users with an optimized route for task completion. Automated notifications ensure that tasks are pushed to users at the right time, reducing manual intervention and improving overall efficiency. This was chosen because alternatives like an automated task system don't provide users with direct control over their tasks.
 
 ### **4.2. Databases**
 - **MongoDB**
