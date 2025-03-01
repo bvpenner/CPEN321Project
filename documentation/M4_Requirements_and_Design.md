@@ -136,39 +136,17 @@ Primary actor: End User
 4. **Location Accuracy**: The app will integrate GPS, Wi-Fi, and cellular network data to achieve at least 10-meter accuracy.
 
 ### **4.8. Main Project Complexity Design**
-#### **Task Scheduling with Deadline Constraints**
-- **Problem Definition**: Given a set of tasks with locations and deadlines, the system must find the optimal order of execution to minimize travel time while ensuring all tasks are completed before their deadlines.
+#### **Task Scheduling with Time Window Constraints**
+- **Problem Definition**: Given a set of tasks (currently limited to within the same day) with location, start time, deadline, and estimated duration, the system must find the optimal order of execution to minimize travel time while ensuring all tasks are completed before their deadlines.
 - **Challenges:**
     - The problem resembles the Traveling Salesman Problem (TSP) with Time Windows, which is NP-hard.
     - Tasks may have overlapping or conflicting deadlines, requiring dynamic adjustments.
-    - Real-time traffic data must be considered for accurate scheduling.
+    - Optional real-time traffic data will give a more accurate estimate, but comes at a much higher performance cost.
 - **Proposed Solution:**
-    - Use a **Greedy + Heuristic Approach**:
-    - Sort tasks by the **earliest deadline first (EDF)**.
-    - Use **Dijkstra’s Algorithm** (or **A* Search**) to find the shortest path between tasks, incorporating real-time traffic updates.
-    - Backtrack and re-optimize the schedule if a task cannot be reached before its deadline.
-    - **Ant Colony Optimization (ACO)** or **Genetic Algorithms** can be used for large-scale optimization for near-optimal solutions.
-
-#### **Geofencing and Real-Time Location Processing**
-- **Problem Definition**: The system must detect when a user enters/exits a geofenced task area and trigger notifications in real-time with minimal battery consumption.
-- **Challenges:**
-    - Processing location updates frequently drains the battery.
-    - Maintaining geofences efficiently in large areas requires optimized data structures.
-    - High precision is needed to avoid false positives.
-- **Proposed Solution:**
-    - Use **QuadTrees or R-trees** to efficiently store and query geofences based on user location.
-    - Implement **adaptive geofencing**:
-        - Reduce location update frequency when the user is far from any geofence.
-        - Increase frequency dynamically when near a task location.
-    - Use the **Haversine Distance Formula** for quick geofence boundary checks.
-    - Use **Android’s Geofencing API** / **iOS Core Location Region Monitoring** for event-driven location updates.
-
-## 5. Contributions
-- **Patrick Chen**: I identified the Main Project Complexity Design, addressing scalability, concurrency, and performance challenges, defining Non-Functional Requirements, and identifying the main components together with the team.
-- **Jingyang Cui**: I worked on creating a draft for functional requirements and a dependency diagram. I also assisted in making the use-case diagram, and slides, as well as participated in discussion for other segments.
-- **Amaan Siddiqi**: I mainly worked on the Project Description while also making final edits to the whole file, as well as participating in discussions for all segments.
-- **Misty Penner**: Create the use-case diagram and sequence diagrams, and significant contribution to summarizing functional requirements.
-
-
-
-
+    - Bruteforce approach + Early stopping:
+        - Start from the current user location and recursively explore all possible combinations. If at any point an unfinished task can no longer be reached before end time, it will be stopped early to reduce unnecessary computation.
+        - Given the number tasks is small (generally less than 6), the computation cost is manageable.
+        - Pseudo code:
+![PseudoCode1](./images/pseudoCode1.png)
+![PseudoCode2](./images/pseudoCode2.png)
+![PseudoCode3](./images/pseudoCode3.png)
