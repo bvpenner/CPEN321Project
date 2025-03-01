@@ -83,6 +83,7 @@ class Task {
 interface RouteTimeRequestBody {
 	allTasksID: number[];
 	userLocation: LatLng;
+	userCurrTime: string;
 }
 
 /**
@@ -235,16 +236,17 @@ function computePolygonCoordinates(points: LatLng[]): LatLng[] {
  *
  * @param tasksArr - Array of Task objects (NOT including "current location")
  * @param taskDistanceGraph - Pairwise time distances matrix. The 0th row/col is for "current location"
+ * @param userCurrTime - in 24h fromat
  * @returns [sequenceOfTasks, totalTimeCost], or [[], -1] if none.
  *
  * If multiple sequences have the same time cost, it arbitrarily picks one.
  */
-function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][]): [number[], number] {
+function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][], userCurrTime: string): [number[], number] {
 	// tasksArr has length N, we label them 1..N in the distance graph
 	const tasksSet: Set<number> = new Set(
 		Array.from({ length: tasksArr.length }, (_, i) => i + 1)
 	);
-	const startTimeStr = "09:00";
+	const startTimeStr = userCurrTime;
 	let timeCounter = timeToMinutes(startTimeStr);
 
 	// "resultTracking" will hold multiple possible results
@@ -395,7 +397,7 @@ async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Pro
 	}
 	const jsonResponse = await response.json();
 	const timeDistanceMatrix = parseAllTaskRouteTime(jsonResponse);
-	// console.log("CompactJson:", compactJson);
+	// console.log("CompactJson:", jsonResponse);
 	return timeDistanceMatrix;
 }
 
@@ -407,7 +409,7 @@ function buildURL(allTask: Task[], userLocation: LatLng): any {
 
 	//include user location!!
 	const allDestinationsParam = `${userLocation.latitude},${userLocation.longitude}|` + destinationsParam;
-
+	// console.log(allDestinationsParam)
 	const originsParam = allTask
 		.map(task => `${task.location_lat},${task.location_lng}`)
 		.join('|');
@@ -561,12 +563,12 @@ app.post('/deleteTask', async (req: Request<{}, any, {owner_id: string, _id: str
 // return: a list of task_ids
 app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody>, res: Response): Promise<void> => {
 	try {
-		const { allTasksID, userLocation } = req.body;
-		if (allTasksID.length == 0 || !userLocation) {
+		const { allTasksID, userLocation, userCurrTime } = req.body;
+		if (allTasksID.length == 0 || !userLocation || !userCurrTime) {
 			res.status(400).json({ error: 'Missing origin or destination coordinates.' });
 			return;
 		}
-		console.log(`[fetchOptimalRoute] Received: ${userLocation}`);
+		console.log(`[fetchOptimalRoute] Received: ${userLocation} | ${userCurrTime}`);
 
 		// query all the tasks first from data base
 		const allTasks: Task[] = []
@@ -577,7 +579,8 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 		}
 		// console.log(allTasks);
 		const graph_matrix = await fetchAllTaskRouteTime(allTasks, userLocation);
-		const result = findOptimalRoute(allTasks, graph_matrix);
+		const result = findOptimalRoute(allTasks, graph_matrix, userCurrTime);
+		// console.log(result)
 		const taskIds: string[] = result[0].map(task_i => {
 			if (task_i < 0 || task_i > allTasks.length) {
 				console.error(`Invalid index: ${task_i}, allTasks length: ${allTasks.length}`);
@@ -585,8 +588,8 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 			}
 			return allTasks[task_i-1]._id;
 		}).filter(id => id !== null);
-		console.log(`[Optimal Route] foound: ${taskIds}`);
-		res.json({taskIds});	
+		console.log(`[Optimal Route] found: ${taskIds}`);
+		res.json({"taskIds": taskIds, "time_cost": result[1]});	
 	} catch (error: any) {
 		console.error(error);
 		res.status(500).json({ error: error.message });
