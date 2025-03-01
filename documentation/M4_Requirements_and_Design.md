@@ -91,7 +91,7 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
 ### **4.2. Databases**
 - **MongoDB**
   - **Description:** A NoSQL database.
-  - **Purpose:** Stores user-created tasks, enabling cross-device access and providing resiliency against network interruptions.
+  - **Purpose:** Store user-created tasks so that the user can access their tasks across multiple devices. This was chosen because of its simplicity compared to relational databases as well as the resiliency NoSQL can provide against network interruptions.
 
 ### **4.3. External Modules**
 - **Google Maps API**
