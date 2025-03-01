@@ -85,7 +85,6 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
     2. **2b.** User fails to input some fields.  
        - **2b1.** Depending on the field, prompt the user to input a proper value or use a default.
   - **Delete Task:**  
-    *(No specific failure scenarios provided.)*
 
 #### **Find Optimal Route**
 - **Description:** Create the shortest viable task schedule with a route using selected tasks based on their start time, deadline, location, and estimated duration.
