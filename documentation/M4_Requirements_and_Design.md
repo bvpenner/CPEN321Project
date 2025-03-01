@@ -15,12 +15,6 @@
 | | | - Removed Google Calendar API as one of our main actors as it is beyond MVP. | |
 | | | - Updated main complexity such that it aligns with the current implementation. Also added pseudo code for the proposed solution. | |
 
-
-**Changed:**
-- **Feb 26:** Updated functional requirement for route scheduling (*Find Optimal Route*), formatted success/failure scenarios, created a sequence diagram for route scheduling, and updated the dependency diagram format. *(David)*
-- **Feb 27:** Adjusted main complexity to align with current implementation and added pseudo code for the brute force method. *(David)*
-- **Feb 28:** Modified Functional Requirement 2 (Task Geofencing) to fit the structure of formal use cases. *(Amaan)*
-
 ## 2. Project Description
 
 Managing daily tasks efficiently can be challenging, especially when dealing with multiple locations and deadlines. **GeoTask** is a smart task management app that leverages real-time location data, intelligent scheduling, and AI-powered recommendations to help users organize their tasks seamlessly.
