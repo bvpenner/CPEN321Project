@@ -8,7 +8,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.PopupMenu
+import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -102,26 +104,55 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
     }
 
     override fun onItemLongClick(task: Task): Boolean {
-        // Use a PopupMenu for update/delete actions.
-        val popupMenu = PopupMenu(requireContext(), requireView())
-        popupMenu.menuInflater.inflate(R.menu.popup_menu, popupMenu.menu)
-        popupMenu.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.update_button -> {
-                    Toast.makeText(requireContext(), "Update action for: ${task.name}", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                R.id.delete_button -> {
-                    taskViewModel.deleteTask(task)
-                    Toast.makeText(requireContext(), "Task deleted: ${task.name}", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                else -> false
-            }
+//        // Use a PopupMenu for update/delete actions.
+//        val popupMenu = PopupMenu(requireContext(), requireView())
+//        popupMenu.menuInflater.inflate(R.menu.popup_menu, popupMenu.menu)
+//        popupMenu.setOnMenuItemClickListener { menuItem ->
+//            when (menuItem.itemId) {
+//                R.id.update_button -> {
+//                    Toast.makeText(requireContext(), "Update action for: ${task.name}", Toast.LENGTH_SHORT).show()
+//                    true
+//                }
+//                R.id.delete_button -> {
+//                    taskViewModel.deleteTask(task)
+//                    Toast.makeText(requireContext(), "Task deleted: ${task.name}", Toast.LENGTH_SHORT).show()
+//                    true
+//                }
+//                else -> false
+//            }
+//        }
+//        popupMenu.show()
+//        taskViewModel.logAllTasks()
+//        return true
+
+        // Inflate the popup menu layout
+        val popupView = LayoutInflater.from(requireContext()).inflate(R.layout.popup_menu, null)
+
+        // Create the PopupWindow
+        val popupWindow = PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true)
+
+        // Set click listeners for the buttons
+        val updateButton: Button = popupView.findViewById(R.id.update_button)
+        val deleteButton: Button = popupView.findViewById(R.id.delete_button)
+
+        updateButton.setOnClickListener {
+            // Handle the update action
+            Toast.makeText(requireContext(), "Update action", Toast.LENGTH_SHORT).show()
+            popupWindow.dismiss()
         }
-        popupMenu.show()
-        taskViewModel.logAllTasks()
+
+        deleteButton.setOnClickListener {
+            // Handle the delete action
+            taskViewModel.deleteTask(task)
+            Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
+            popupWindow.dismiss()
+        }
+
+        // Show the PopupWindow
+        popupWindow.showAtLocation(view, android.view.Gravity.BOTTOM, 0, 0)
+
         return true
+
     }
 
     override fun onDestroyView() {
