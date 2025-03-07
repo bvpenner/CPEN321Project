@@ -61,6 +61,17 @@
         <item name="chipIconSize">18dp</item>
     </style>
 
+    <style name="ChipStyle.Choice" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+        <item name="chipBackgroundColor">@color/chip_background_color</item>
+        <item name="chipStrokeColor">@color/chip_stroke_color</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">@color/chip_text_color</item>
+        <item name="rippleColor">@color/chip_ripple_color</item>
+    </style>
+
     <!-- Bottom Navigation Style -->
     <style name="BottomNavigation" parent="Widget.Material3.BottomNavigationView">
         <item name="itemIconTint">@color/colorPrimary</item>

@@ -1,6 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">cpen321app</string>
+    <string name="app_name">GeoTask</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_maps">MapsActivity</string>
+    
+    <!-- Menu Items -->
+    <string name="search">Search</string>
+    <string name="filter">Filter</string>
+    <string name="settings">Settings</string>
+    <string name="logout">Logout</string>
+    
+    <!-- Task Priorities -->
+    <string name="priority_high">High</string>
+    <string name="priority_medium">Medium</string>
+    <string name="priority_low">Low</string>
+    
+    <!-- Actions -->
+    <string name="add_task">Add Task</string>
+    <string name="edit_task">Edit Task</string>
+    <string name="delete_task">Delete Task</string>
+    <string name="share_task">Share Task</string>
+    <string name="complete_task">Complete Task</string>
+    
+    <!-- Labels -->
+    <string name="task_name">Task Name</string>
+    <string name="task_description">Description</string>
+    <string name="task_location">Location</string>
+    <string name="task_duration">Duration</string>
+    <string name="task_priority">Priority</string>
+    <string name="task_date">Date</string>
+    <string name="task_time">Time</string>
+    
+    <!-- Messages -->
+    <string name="error_task_name_empty">Task name cannot be empty</string>
+    <string name="error_task_location_empty">Please select a location</string>
+    <string name="error_task_duration_invalid">Please enter a valid duration</string>
+    <string name="success_task_added">Task added successfully</string>
+    <string name="success_task_updated">Task updated successfully</string>
+    <string name="success_task_deleted">Task deleted successfully</string>
 </resources>
