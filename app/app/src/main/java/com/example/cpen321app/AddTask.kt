@@ -137,7 +137,10 @@ class AddTask : AppCompatActivity(), OnMapReadyCallback {
                     updateSelectedLocation(latLng)
                 }
             }
-            searchFragment.show(supportFragmentManager, "place_search")
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, searchFragment)
+                .addToBackStack(null)
+                .commit()
         }
     }
 
