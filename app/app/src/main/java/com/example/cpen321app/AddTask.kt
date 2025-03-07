@@ -20,6 +20,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -131,11 +132,13 @@ class AddTask : AppCompatActivity(), OnMapReadyCallback {
 
     private fun setupLocationSearch() {
         binding.locationSearchButton.setOnClickListener {
-            PlaceSearchFragment().apply {
-                setOnPlaceSelectedListener { latLng ->
+            val searchFragment = PlaceSearchFragment()
+            searchFragment.onPlaceSelected = { place ->
+                place.latLng?.let { latLng ->
                     updateSelectedLocation(latLng)
                 }
-            }.show(supportFragmentManager, "place_search")
+            }
+            searchFragment.show(supportFragmentManager, "place_search")
         }
     }
 
