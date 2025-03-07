@@ -84,7 +84,6 @@ interface RouteTimeRequestBody {
 	allTasksID: number[];
 	userLocation: LatLng;
 	userCurrTime: string;
-	userCurrTime: string;
 }
 
 /**
@@ -93,7 +92,7 @@ interface RouteTimeRequestBody {
 const googleMapsClient = new Client({});
 const EARTH_RADIUS_KM = 6371;
 
-async function fetchGeofences(origin: LatLng, destination: LatLng): Promise<any> {
+export async function fetchGeofences(origin: LatLng, destination: LatLng): Promise<any> {
 	const { default: fetch } = await import('node-fetch');
 
 	const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}` +

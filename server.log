@@ -1,0 +1,76 @@
+2025-03-06T21:51:23.329Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:36:44.696Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:36:45.089Z Connected to MongoDB
+2025-03-07T01:36:45.096Z Server is running on port 3000
+2025-03-07T01:38:26.657Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:38:26.679Z [Error] Task not found with _id: task123
+2025-03-07T01:38:26.680Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:38:26.685Z User with ID user123 not found
+2025-03-07T01:38:26.696Z Task task123 removed from user user123
+2025-03-07T01:38:26.696Z Task with id  "task123" deleted successfully.
+2025-03-07T01:38:26.785Z Connected to MongoDB
+2025-03-07T01:38:26.792Z Server is running on port 3000
+2025-03-07T01:40:11.244Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:40:11.272Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:40:11.502Z Connected to MongoDB
+2025-03-07T01:40:11.509Z Server is running on port 3000
+2025-03-07T01:41:14.226Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:41:14.247Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:41:14.470Z Connected to MongoDB
+2025-03-07T01:41:14.478Z Server is running on port 3000
+2025-03-07T01:42:16.863Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:42:16.895Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:42:17.030Z Connected to MongoDB
+2025-03-07T01:42:17.037Z Server is running on port 3000
+2025-03-07T01:42:35.259Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:42:35.282Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:42:35.451Z Connected to MongoDB
+2025-03-07T01:42:35.460Z Server is running on port 3000
+2025-03-07T01:42:51.580Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:42:51.601Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:42:51.706Z Connected to MongoDB
+2025-03-07T01:42:51.714Z Server is running on port 3000
+2025-03-07T01:43:24.613Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:43:24.652Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:43:24.906Z Connected to MongoDB
+2025-03-07T01:43:24.914Z Server is running on port 3000
+2025-03-07T01:44:13.903Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:44:13.923Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:44:14.031Z Connected to MongoDB
+2025-03-07T01:44:14.039Z Server is running on port 3000
+2025-03-07T01:45:41.793Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:45:41.815Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:45:42.185Z Connected to MongoDB
+2025-03-07T01:45:42.192Z Server is running on port 3000
+2025-03-07T01:49:21.756Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:49:21.777Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:49:21.927Z Connected to MongoDB
+2025-03-07T01:49:21.935Z Server is running on port 3000
+2025-03-07T01:51:05.749Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:51:05.768Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:51:05.999Z Connected to MongoDB
+2025-03-07T01:51:06.006Z Server is running on port 3000
+2025-03-07T01:51:37.708Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:51:37.729Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:51:37.813Z Connected to MongoDB
+2025-03-07T01:51:37.821Z Server is running on port 3000
+2025-03-07T01:52:45.754Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:52:45.783Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:53:10.262Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:53:10.281Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:53:39.909Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:53:39.932Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:53:50.756Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:53:50.776Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:55:14.287Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:55:14.314Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:55:38.723Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:55:38.748Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:55:38.946Z Connected to MongoDB
+2025-03-07T01:55:38.954Z Server is running on port 3000
+2025-03-07T01:56:29.350Z [Logged in] User: Test User test@example.com test123
+2025-03-07T01:56:29.373Z [Logged in] User: Test User test@example.com mockedUserId123
+2025-03-07T01:56:29.531Z Connected to MongoDB
+2025-03-07T01:56:29.538Z Server is running on port 3000
+2025-03-07T02:03:33.529Z [Logged in] User: Test User (test@example.com) - ID: test123
+2025-03-07T02:03:33.545Z [Logged in] User: Test User (test@example.com) - ID: mockedUserId123
