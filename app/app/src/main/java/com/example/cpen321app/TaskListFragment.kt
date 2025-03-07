@@ -1,45 +1,63 @@
 package com.example.cpen321app
 
 import FirebaseMessagingService
+import android.animation.ObjectAnimator
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.PopupMenu
-import android.widget.PopupWindow
-import android.widget.Toast
+import android.view.*
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.cpen321app.MapsFragment.Companion.User_Lat
 import com.example.cpen321app.MapsFragment.Companion.User_Lng
-import com.example.cpen321app.TaskViewModel.Companion._taskList
-import com.example.cpen321app.TaskViewModel.Companion.server_ip
 import com.example.cpen321app.databinding.FragmentTaskListBinding
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.*
+import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
 
-class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
-    private var TAG = "TaskListFragment"
+class TaskListFragment : Fragment(), TaskAdapter.OnTaskInteractionListener {
     private var _binding: FragmentTaskListBinding? = null
     private val binding get() = _binding!!
     private lateinit var taskViewModel: TaskViewModel
     private lateinit var taskAdapter: TaskAdapter
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private var searchView: SearchView? = null
+    private var filterChipGroup: ChipGroup? = null
+    private var sortChip: Chip? = null
+    
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .build()
+
+    companion object {
+        private const val TAG = "TaskListFragment"
+        private const val BASE_URL = "http://18.215.238.145:3000"
+    }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTaskListBinding.inflate(inflater, container, false)
@@ -48,127 +66,179 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Obtain the ViewModel from your Application.
+        setupViewModel()
+        setupRecyclerView()
+        setupSwipeRefresh()
+        setupSearchView()
+        setupFilterChips()
+        setupSortChip()
+        setupFab()
+        observeViewModel()
+    }
+
+    private fun setupViewModel() {
         taskViewModel = (activity?.application as GeoTask).taskViewModel
-        taskViewModel.refreshTasklist()
+        taskViewModel.refreshTaskList()
+    }
 
-        // Set up RecyclerView.
-        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
-        taskAdapter = TaskAdapter(taskViewModel.taskList.value ?: mutableListOf(), this, requireContext())
-        binding.recyclerView.adapter = taskAdapter
-
-        // Observe changes in the task list.
-        taskViewModel.taskList.observe(viewLifecycleOwner) {
-            taskAdapter.notifyDataSetChanged()
+    private fun setupRecyclerView() {
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(activity)
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy > 0) {
+                        binding.buttonPlanRoute.shrink()
+                    } else {
+                        binding.buttonPlanRoute.extend()
+                    }
+                }
+            })
         }
+        
+        taskAdapter = TaskAdapter(emptyList(), this, requireContext())
+        binding.recyclerView.adapter = taskAdapter
+    }
 
-        taskViewModel.logAllTasks()
+    private fun setupSwipeRefresh() {
+        swipeRefreshLayout = binding.swipeRefresh
+        swipeRefreshLayout.setColorSchemeColors(
+            ContextCompat.getColor(requireContext(), R.color.colorPrimary)
+        )
+        swipeRefreshLayout.setOnRefreshListener {
+            taskViewModel.refreshTaskList()
+        }
+    }
 
-        // Set up the "Plan Route" button.
-        binding.buttonPlanRoute.setOnClickListener {
-            val selectedTasks = taskAdapter.getSelectedTasks()
-            if (selectedTasks.isEmpty()) {
-                Toast.makeText(requireContext(), "No tasks selected.", Toast.LENGTH_SHORT).show()
-            } else {
-                // Get the current location from SessionManager.
-                val origin = SessionManager.currentLocation?.let {
-                    LatLng(it.latitude, it.longitude)
-                }
-                Log.d(TAG, "Origin: $origin")
-                if (origin == null) {
-                    Toast.makeText(requireContext(), "Current location not available.", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-                // generateRouteForSelectedTasks(origin, selectedTasks)
-                sendGetOptimalRouteServer(selectedTasks)
+    private fun setupSearchView() {
+        searchView = binding.searchView
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean = false
+            
+            override fun onQueryTextChange(newText: String?): Boolean {
+                taskViewModel.setFilterCriteria(
+                    taskViewModel.filterCriteria.value?.copy(
+                        searchQuery = newText
+                    ) ?: TaskViewModel.FilterCriteria(searchQuery = newText)
+                )
+                return true
+            }
+        })
+    }
+
+    private fun setupFilterChips() {
+        filterChipGroup = binding.filterChipGroup
+        filterChipGroup?.setOnCheckedStateChangeListener { group, checkedIds ->
+            val priority = when (checkedIds.firstOrNull()) {
+                R.id.chipHigh -> Task.PRIORITY_HIGH
+                R.id.chipMedium -> Task.PRIORITY_MEDIUM
+                R.id.chipLow -> Task.PRIORITY_LOW
+                else -> null
+            }
+            taskViewModel.setFilterCriteria(
+                taskViewModel.filterCriteria.value?.copy(
+                    priority = priority
+                ) ?: TaskViewModel.FilterCriteria(priority = priority)
+            )
+        }
+    }
+
+    private fun setupSortChip() {
+        sortChip = binding.sortChip
+        sortChip?.setOnClickListener {
+            showSortOptionsDialog()
+        }
+    }
+
+    private fun setupFab() {
+        binding.buttonPlanRoute.apply {
+            setOnClickListener {
+                handlePlanRoute()
+            }
+            ObjectAnimator.ofFloat(this, View.TRANSLATION_Y, 100f, 0f).apply {
+                duration = 200
+                interpolator = AccelerateDecelerateInterpolator()
+                start()
             }
         }
     }
 
-    // Generates the Google Maps route URL and launches Google Maps.
-    private fun generateRouteForSelectedTasks(origin: LatLng, selectedTasks: List<Task>) {
-        // Use the last task as destination; other tasks become waypoints.
-        val destination = selectedTasks.last()
-        val waypoints = selectedTasks.dropLast(1).joinToString(separator = "|") {
-            "${it.location_lat},${it.location_lng}"
+    private fun observeViewModel() {
+        taskViewModel.taskList.observe(viewLifecycleOwner) { tasks ->
+            taskAdapter.updateTasks(tasks)
+            updateEmptyState(tasks.isEmpty())
         }
-        val mapsUrl = "https://www.google.com/maps/dir/?api=1" +
-                "&origin=${origin.latitude},${origin.longitude}" +
-                "&destination=${destination.location_lat},${destination.location_lng}" +
-                if (waypoints.isNotEmpty()) "&waypoints=optimize:true|$waypoints" else ""
-        // Launch Google Maps.
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mapsUrl)).apply {
-            setPackage("com.google.android.apps.maps")
+
+        taskViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            swipeRefreshLayout.isRefreshing = isLoading
         }
-        startActivity(intent)
+
+        taskViewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let { showError(it) }
+        }
     }
 
-    override fun onItemLongClick(task: Task): Boolean {
-//        // Use a PopupMenu for update/delete actions.
-//        val popupMenu = PopupMenu(requireContext(), requireView())
-//        popupMenu.menuInflater.inflate(R.menu.popup_menu, popupMenu.menu)
-//        popupMenu.setOnMenuItemClickListener { menuItem ->
-//            when (menuItem.itemId) {
-//                R.id.update_button -> {
-//                    Toast.makeText(requireContext(), "Update action for: ${task.name}", Toast.LENGTH_SHORT).show()
-//                    true
-//                }
-//                R.id.delete_button -> {
-//                    taskViewModel.deleteTask(task)
-//                    Toast.makeText(requireContext(), "Task deleted: ${task.name}", Toast.LENGTH_SHORT).show()
-//                    true
-//                }
-//                else -> false
-//            }
-//        }
-//        popupMenu.show()
-//        taskViewModel.logAllTasks()
-//        return true
-
-        // Inflate the popup menu layout
-        val popupView = LayoutInflater.from(requireContext()).inflate(R.layout.popup_menu, null)
-
-        // Create the PopupWindow
-        val popupWindow = PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true)
-
-        // Set click listeners for the buttons
-        val updateButton: Button = popupView.findViewById(R.id.update_button)
-        val deleteButton: Button = popupView.findViewById(R.id.delete_button)
-
-        updateButton.setOnClickListener {
-            // Handle the update action
-            Toast.makeText(requireContext(), "Update action", Toast.LENGTH_SHORT).show()
-            popupWindow.dismiss()
-        }
-
-        deleteButton.setOnClickListener {
-            // Handle the delete action
-            taskViewModel.deleteTask(task)
-            Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
-            popupWindow.dismiss()
-        }
-
-        // Show the PopupWindow
-        popupWindow.showAtLocation(view, android.view.Gravity.BOTTOM, 0, 0)
-
-        return true
-
+    private fun updateEmptyState(isEmpty: Boolean) {
+        binding.emptyStateGroup.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.recyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun showError(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+            .setAction("Retry") {
+                taskViewModel.refreshTaskList()
+            }
+            .show()
     }
 
-    private fun sendGetOptimalRouteServer(selectedTasks: List<Task>) {
-        val client = OkHttpClient()
-        val url = "http://${server_ip}/fetchOptimalRoute"
-        val taskIds: List<String> = selectedTasks.map { it.id }
-        val formatter = DateTimeFormatter.ofPattern("HH:mm") // 24-hour format
-        val currentTime = LocalTime.now().format(formatter)
+    private fun showSortOptionsDialog() {
+        val options = arrayOf("Priority", "Due Date", "Start Time", "Name")
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Sort Tasks By")
+            .setItems(options) { _, which ->
+                val order = when (which) {
+                    0 -> TaskViewModel.SortOrder.PRIORITY
+                    1 -> TaskViewModel.SortOrder.DUE_DATE
+                    2 -> TaskViewModel.SortOrder.START_TIME
+                    3 -> TaskViewModel.SortOrder.NAME
+                    else -> TaskViewModel.SortOrder.PRIORITY
+                }
+                taskViewModel.setSortOrder(order)
+                sortChip?.text = "Sorted by ${options[which]}"
+            }
+            .show()
+    }
 
-        Log.d(TAG, currentTime)
-        Log.d(TAG, "taskIds: ${taskIds}")
+    private fun handlePlanRoute() {
+        val selectedTasks = taskAdapter.getSelectedTasks()
+        if (selectedTasks.isEmpty()) {
+            showError("Please select tasks to plan a route")
+            return
+        }
+
+        val origin = SessionManager.currentLocation?.let {
+            LatLng(it.latitude, it.longitude)
+        } ?: run {
+            showError("Current location not available")
+            return
+        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                binding.buttonPlanRoute.isEnabled = false
+                val response = sendGetOptimalRouteServer(selectedTasks)
+                showRouteConfirmationDialog(response)
+            } catch (e: Exception) {
+                showError("Failed to plan route: ${e.localizedMessage}")
+            } finally {
+                binding.buttonPlanRoute.isEnabled = true
+            }
+        }
+    }
+
+    private suspend fun sendGetOptimalRouteServer(selectedTasks: List<Task>): JSONObject = withContext(Dispatchers.IO) {
+        val taskIds = selectedTasks.map { it.id }
+        val currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+
         val jsonBody = JSONObject().apply {
             put("allTasksID", JSONArray(taskIds))
             put("userLocation", JSONObject().apply {
@@ -178,49 +248,139 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
             put("userCurrTime", currentTime)
         }
 
-        val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-        val requestBody = jsonBody.toString().toRequestBody(mediaType)
         val request = Request.Builder()
-            .url(url)
-            .post(requestBody)
+            .url("$BASE_URL/fetchOptimalRoute")
+            .post(jsonBody.toString().toRequestBody("application/json".toMediaTypeOrNull()))
             .build()
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
-                Log.e(TAG, "Failed to get tasks: ${e.message}")
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Unexpected response ${response.code}")
+            JSONObject(response.body?.string() ?: throw IOException("Empty response"))
+        }
+    }
+
+    private fun showRouteConfirmationDialog(response: JSONObject) {
+        val orderedTaskIds = response.getJSONArray("taskIds")
+        val estimatedTime = response.getDouble("time_cost")
+        val taskIdList = List(orderedTaskIds.length()) { orderedTaskIds.getString(it) }
+        
+        val orderedTasks = taskIdList.mapNotNull { id ->
+            taskAdapter.getSelectedTasks().find { it.id == id }
+        }
+
+        if (orderedTasks.isEmpty()) {
+            showError("No valid tasks found in the order")
+            return
+        }
+
+        val message = buildString {
+            append("Optimal Route Found\n\n")
+            orderedTasks.forEachIndexed { index, task ->
+                append("${index + 1}. ${task.name}\n")
             }
-            override fun onResponse(call: okhttp3.Call, response: Response) {
-                if (!response.isSuccessful) {
-                    Log.e(TAG, "Unexpected response: ${response.message}")
-                    return
-                }
-                response.body?.string()?.let { jsonResponse ->
-                    Log.d(TAG, "Received response: $jsonResponse")
+            append("\nEstimated time: $estimatedTime minutes")
+        }
 
-                    val orderedtaskIds = JSONObject(jsonResponse).getJSONArray("taskIds")
-                    val estimated_time = JSONObject(jsonResponse).get("time_cost")
-                    val taskIdList = mutableListOf<String>()
-
-                    for (i in 0 until orderedtaskIds.length()) {
-                        taskIdList.add(orderedtaskIds.getString(i))
-                    }
-
-
-                    val orderedTaskNames = taskIdList.mapNotNull { id ->
-                        selectedTasks.find { it.id == id }?.name
-                    }
-
-                    var message = ""
-                    if (orderedTaskNames.isNotEmpty()) {
-                        message = "Optimal Task Order Found:\n" + orderedTaskNames.joinToString(" → ") +" Estimated timecost: " + estimated_time + " mins"
-                    } else {
-                        message = "No valid tasks found in the order."
-                    }
-
-                    val messagingService = FirebaseMessagingService()
-                    messagingService.sendNotification(requireContext(), message)
-
-                }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Route Plan")
+            .setMessage(message)
+            .setPositiveButton("Open in Maps") { _, _ ->
+                launchGoogleMaps(orderedTasks)
             }
+            .setNegativeButton("Cancel", null)
+            .show()
+
+        // Also send notification
+        FirebaseMessagingService().sendNotification(requireContext(), message)
+    }
+
+    private fun launchGoogleMaps(tasks: List<Task>) {
+        val origin = SessionManager.currentLocation?.let {
+            "${it.latitude},${it.longitude}"
+        } ?: return
+
+        val destination = tasks.last()
+        val waypoints = tasks.dropLast(1).joinToString("|") {
+            "${it.location_lat},${it.location_lng}"
+        }
+
+        val uri = Uri.parse("https://www.google.com/maps/dir/?api=1" +
+                "&origin=$origin" +
+                "&destination=${destination.location_lat},${destination.location_lng}" +
+                if (waypoints.isNotEmpty()) "&waypoints=optimize:true|$waypoints" else "")
+
+        startActivity(Intent(Intent.ACTION_VIEW, uri).apply {
+            setPackage("com.google.android.apps.maps")
         })
+    }
+
+    override fun onItemClick(task: Task) {
+        // Show task details in bottom sheet
+        val bottomSheet = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_task_details, null)
+        // TODO: Populate view with task details
+        bottomSheet.setContentView(view)
+        bottomSheet.show()
+    }
+
+    override fun onItemLongClick(task: Task): Boolean {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(task.name)
+            .setItems(arrayOf("Edit", "Delete", "Share")) { _, which ->
+                when (which) {
+                    0 -> navigateToEditTask(task)
+                    1 -> confirmDeleteTask(task)
+                    2 -> shareTask(task)
+                }
+            }
+            .show()
+        return true
+    }
+
+    override fun onTaskCompleted(task: Task) {
+        taskViewModel.updateTask(task.copy(isCompleted = true))
+        Snackbar.make(binding.root, "Task marked as completed", Snackbar.LENGTH_LONG)
+            .setAction("Undo") {
+                taskViewModel.updateTask(task.copy(isCompleted = false))
+            }
+            .show()
+    }
+
+    private fun navigateToEditTask(task: Task) {
+        // TODO: Navigate to edit task screen
+    }
+
+    private fun confirmDeleteTask(task: Task) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Delete Task")
+            .setMessage("Are you sure you want to delete '${task.name}'?")
+            .setPositiveButton("Delete") { _, _ ->
+                taskViewModel.deleteTask(task)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun shareTask(task: Task) {
+        val shareIntent = Intent.createChooser(Intent().apply {
+            action = Intent.ACTION_SEND
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, """
+                Task: ${task.name}
+                Time: ${task.start} - ${task.end}
+                Priority: ${task.priorityText}
+                Description: ${task.description}
+                Location: https://www.google.com/maps?q=${task.location_lat},${task.location_lng}
+            """.trimIndent())
+        }, "Share Task")
+        startActivity(shareIntent)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        searchView = null
+        filterChipGroup = null
+        sortChip = null
     }
 }

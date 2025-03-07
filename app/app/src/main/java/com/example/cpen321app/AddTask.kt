@@ -1,141 +1,370 @@
 package com.example.cpen321app
 
-import android.app.Activity
+import android.animation.ValueAnimator
+import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
+import android.text.format.DateFormat
+import android.view.MenuItem
+import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.widget.doAfterTextChanged
+import com.example.cpen321app.databinding.ActivityAddTaskBinding
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.libraries.places.api.Places
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-class AddTask : AppCompatActivity() {
-
+class AddTask : AppCompatActivity(), OnMapReadyCallback {
+    private lateinit var binding: ActivityAddTaskBinding
     private lateinit var taskViewModel: TaskViewModel
-    private lateinit var locationPickerLauncher: ActivityResultLauncher<android.content.Intent>
-    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    private var map: GoogleMap? = null
+    private var selectedLocation: LatLng? = null
+    private var startDate: Calendar = Calendar.getInstance()
+    private var endDate: Calendar = Calendar.getInstance()
+    
+    companion object {
+        private const val DEFAULT_ZOOM = 15f
+        private const val DEFAULT_DURATION = 60 // minutes
+        private const val MIN_DESCRIPTION_LENGTH = 10
+        private const val MAX_TASK_DURATION = 24 * 60 // 24 hours in minutes
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_task)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        
+        // Initialize Places API
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, BuildConfig.MAPS_API_KEY)
         }
+        
+        binding = ActivityAddTaskBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        
+        setupViewModel()
+        setupToolbar()
+        setupMapFragment()
+        setupInputFields()
+        setupDateTimePickers()
+        setupPriorityChips()
+        setupSaveButton()
+        setupLocationSearch()
+    }
 
+    private fun setupViewModel() {
         taskViewModel = (application as GeoTask).taskViewModel
+    }
 
-        // Initialize the location picker launcher.
-        locationPickerLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data = result.data
-                val latitude = data?.getDoubleExtra("latitude", 0.0)
-                val longitude = data?.getDoubleExtra("longitude", 0.0)
-                if (latitude != null && longitude != null) {
-                    findViewById<EditText>(R.id.editText_taskLat).setText(latitude.toString())
-                    findViewById<EditText>(R.id.editText_taskLng).setText(longitude.toString())
-                    Toast.makeText(this, "Location Selected: ($latitude, $longitude)", Toast.LENGTH_SHORT).show()
+    private fun setupToolbar() {
+        binding.toolbar.apply {
+            setNavigationOnClickListener {
+                if (hasUnsavedChanges()) {
+                    showDiscardDialog()
+                } else {
+                    finish()
                 }
             }
         }
+    }
 
-        // When the user taps the "Pick Location" button, launch the location search activity.
-        findViewById<Button>(R.id.button_pick_location).setOnClickListener {
-            val intent = android.content.Intent(this, LocationSearchActivity::class.java)
-            locationPickerLauncher.launch(intent)
+    private fun setupMapFragment() {
+        val mapFragment = supportFragmentManager
+            .findFragmentById(R.id.mapPreview) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+    }
+
+    private fun setupInputFields() {
+        // Task name validation
+        binding.taskNameInput.doAfterTextChanged { text ->
+            binding.taskNameLayout.error = when {
+                text.isNullOrBlank() -> "Task name is required"
+                text.length < 3 -> "Task name must be at least 3 characters"
+                else -> null
+            }
         }
 
-        // Set up TimePickerDialogs for Start and End fields.
-        val editTextStart = findViewById<EditText>(R.id.editText_taskStart)
-        val editTextEnd = findViewById<EditText>(R.id.editText_taskEnd)
-        // Make time fields non-editable and clickable.
-        editTextStart.isFocusable = false
-        editTextStart.isClickable = true
-        editTextEnd.isFocusable = false
-        editTextEnd.isClickable = true
+        // Description validation
+        binding.taskDescriptionInput.doAfterTextChanged { text ->
+            binding.taskDescriptionLayout.error = when {
+                text.isNullOrBlank() -> "Description is required"
+                text.length < MIN_DESCRIPTION_LENGTH -> "Description must be at least $MIN_DESCRIPTION_LENGTH characters"
+                else -> null
+            }
+        }
 
-        editTextStart.setOnClickListener { showTimePickerDialog(editTextStart) }
-        editTextEnd.setOnClickListener { showTimePickerDialog(editTextEnd) }
+        // Duration validation and auto-calculation
+        binding.durationInput.apply {
+            setText(DEFAULT_DURATION.toString())
+            doAfterTextChanged { text ->
+                if (!text.isNullOrBlank()) {
+                    try {
+                        val duration = text.toString().toInt()
+                        binding.durationLayout.error = when {
+                            duration <= 0 -> "Duration must be positive"
+                            duration > MAX_TASK_DURATION -> "Duration cannot exceed ${MAX_TASK_DURATION / 60} hours"
+                            else -> null
+                        }
+                        if (binding.durationLayout.error == null) {
+                            updateEndTime()
+                        }
+                    } catch (e: NumberFormatException) {
+                        binding.durationLayout.error = "Invalid duration"
+                    }
+                }
+            }
+        }
+    }
 
-        // Create task on button press.
-        findViewById<Button>(R.id.button_taskCreate).setOnClickListener {
-            val id = "Placeholder"
-            val name = findViewById<EditText>(R.id.editTextName).text.toString()
-            val start = editTextStart.text.toString()
-            val end = editTextEnd.text.toString()
-            val duration = findViewById<EditText>(R.id.editText_duration).text.toString().toDoubleOrNull() ?: 0.0
-            val latitude = findViewById<EditText>(R.id.editText_taskLat).text.toString().toDoubleOrNull() ?: 0.0
-            val longitude = findViewById<EditText>(R.id.editText_taskLng).text.toString().toDoubleOrNull() ?: 0.0
-            val priority = findViewById<EditText>(R.id.editText_taskPrio).text.toString().toIntOrNull() ?: 1
-            val description = findViewById<EditText>(R.id.editText_description).text.toString()
+    private fun setupLocationSearch() {
+        binding.locationSearchButton.setOnClickListener {
+            PlaceSearchFragment().apply {
+                setOnPlaceSelectedListener { latLng ->
+                    updateSelectedLocation(latLng)
+                }
+            }.show(supportFragmentManager, "place_search")
+        }
+    }
 
-            if (latitude !in -90.0..90.0) {
-                Toast.makeText(this, "Valid Latitude Required: Between -90 and 90 degrees", Toast.LENGTH_SHORT).show()
-            } else if (longitude !in -180.0..180.0) {
-                Toast.makeText(this, "Valid Longitude Required: Between -180 and 180 degrees", Toast.LENGTH_SHORT).show()
-            } else {
-                val newTask = Task(id, name, start, end, duration, latitude, longitude, priority, description)
-                taskViewModel.addTask(newTask)
-                taskViewModel.logAllTasks()
+    private fun updateSelectedLocation(latLng: LatLng) {
+        selectedLocation = latLng
+        map?.apply {
+            clear()
+            addMarker(MarkerOptions().position(latLng))
+            animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM))
+        }
+        binding.locationText.text = "Selected: ${String.format("%.6f, %.6f", latLng.latitude, latLng.longitude)}"
+    }
+
+    private fun hasUnsavedChanges(): Boolean {
+        return binding.taskNameInput.text?.isNotBlank() == true ||
+            binding.taskDescriptionInput.text?.isNotBlank() == true ||
+            binding.startTimeInput.text?.isNotBlank() == true ||
+            binding.endTimeInput.text?.isNotBlank() == true ||
+            binding.durationInput.text.toString() != DEFAULT_DURATION.toString() ||
+            selectedLocation != null
+    }
+
+    private fun showDiscardDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Discard Changes?")
+            .setMessage("You have unsaved changes. Are you sure you want to discard them?")
+            .setPositiveButton("Discard") { _, _ -> finish() }
+            .setNegativeButton("Keep Editing", null)
+            .show()
+    }
+
+    private fun validateInputs(): Boolean {
+        var isValid = true
+
+        // Validate task name
+        if (binding.taskNameInput.text.isNullOrBlank() || binding.taskNameInput.text?.length ?: 0 < 3) {
+            binding.taskNameLayout.error = "Task name must be at least 3 characters"
+            isValid = false
+        }
+
+        // Validate description
+        if (binding.taskDescriptionInput.text.isNullOrBlank() || 
+            binding.taskDescriptionInput.text?.length ?: 0 < MIN_DESCRIPTION_LENGTH) {
+            binding.taskDescriptionLayout.error = "Description must be at least $MIN_DESCRIPTION_LENGTH characters"
+            isValid = false
+        }
+
+        // Validate times
+        if (binding.startTimeInput.text.isNullOrBlank()) {
+            binding.startTimeLayout.error = "Start time is required"
+            isValid = false
+        }
+
+        if (binding.endTimeInput.text.isNullOrBlank()) {
+            binding.endTimeLayout.error = "End time is required"
+            isValid = false
+        }
+
+        // Validate duration
+        try {
+            val duration = binding.durationInput.text.toString().toInt()
+            when {
+                duration <= 0 -> {
+                    binding.durationLayout.error = "Duration must be positive"
+                    isValid = false
+                }
+                duration > MAX_TASK_DURATION -> {
+                    binding.durationLayout.error = "Duration cannot exceed ${MAX_TASK_DURATION / 60} hours"
+                    isValid = false
+                }
+            }
+        } catch (e: NumberFormatException) {
+            binding.durationLayout.error = "Invalid duration"
+            isValid = false
+        }
+
+        // Validate time range
+        if (startDate.after(endDate)) {
+            Snackbar.make(binding.root, "End time must be after start time", Snackbar.LENGTH_LONG).show()
+            isValid = false
+        }
+
+        // Validate location
+        if (selectedLocation == null) {
+            Snackbar.make(binding.root, "Please select a location on the map", Snackbar.LENGTH_LONG).show()
+            isValid = false
+        }
+
+        return isValid
+    }
+
+    private fun setupDateTimePickers() {
+        binding.startTimeInput.setOnClickListener {
+            showDateTimePicker(true)
+        }
+
+        binding.endTimeInput.setOnClickListener {
+            showDateTimePicker(false)
+        }
+    }
+
+    private fun showDateTimePicker(isStartTime: Boolean) {
+        val calendar = if (isStartTime) startDate else endDate
+
+        val datePicker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText(if (isStartTime) "Select Start Date" else "Select End Date")
+            .setSelection(calendar.timeInMillis)
+            .build()
+
+        datePicker.addOnPositiveButtonClickListener { selection ->
+            calendar.timeInMillis = selection
+            
+            val timePicker = MaterialTimePicker.Builder()
+                .setTimeFormat(if (DateFormat.is24HourFormat(this)) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H)
+                .setHour(calendar.get(Calendar.HOUR_OF_DAY))
+                .setMinute(calendar.get(Calendar.MINUTE))
+                .setTitleText(if (isStartTime) "Select Start Time" else "Select End Time")
+                .build()
+
+            timePicker.addOnPositiveButtonClickListener {
+                calendar.set(Calendar.HOUR_OF_DAY, timePicker.hour)
+                calendar.set(Calendar.MINUTE, timePicker.minute)
+                
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+                if (isStartTime) {
+                    binding.startTimeInput.setText(dateFormat.format(calendar.time))
+                    updateEndTime()
+                } else {
+                    binding.endTimeInput.setText(dateFormat.format(calendar.time))
+                }
+            }
+
+            timePicker.show(supportFragmentManager, "time_picker")
+        }
+
+        datePicker.show(supportFragmentManager, "date_picker")
+    }
+
+    private fun updateEndTime() {
+        try {
+            val duration = binding.durationInput.text.toString().toInt()
+            endDate.timeInMillis = startDate.timeInMillis
+            endDate.add(Calendar.MINUTE, duration)
+            
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+            binding.endTimeInput.setText(dateFormat.format(endDate.time))
+        } catch (e: NumberFormatException) {
+            // Ignore invalid duration
+        }
+    }
+
+    private fun setupPriorityChips() {
+        binding.priorityChipGroup.check(R.id.chipMedium)
+    }
+
+    private fun setupSaveButton() {
+        binding.saveFab.setOnClickListener {
+            if (validateInputs()) {
+                createTask()
+            }
+        }
+    }
+
+    private fun createTask() {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        
+        val priority = when (binding.priorityChipGroup.checkedChipId) {
+            R.id.chipHigh -> Task.PRIORITY_HIGH
+            R.id.chipMedium -> Task.PRIORITY_MEDIUM
+            R.id.chipLow -> Task.PRIORITY_LOW
+            else -> Task.PRIORITY_MEDIUM
+        }
+
+        val task = Task(
+            id = "", // Will be set by the server
+            name = binding.taskNameInput.text.toString(),
+            start = dateFormat.format(startDate.time),
+            end = dateFormat.format(endDate.time),
+            duration = binding.durationInput.text.toString().toDouble(),
+            location_lat = selectedLocation?.latitude ?: 0.0,
+            location_lng = selectedLocation?.longitude ?: 0.0,
+            priority = priority,
+            description = binding.taskDescriptionInput.text.toString()
+        )
+
+        taskViewModel.addTask(task)
+        animateSaveAndFinish()
+    }
+
+    private fun animateSaveAndFinish() {
+        ValueAnimator.ofFloat(1f, 0.8f, 1f).apply {
+            duration = 200
+            interpolator = AccelerateDecelerateInterpolator()
+            addUpdateListener { animator ->
+                binding.saveFab.scaleX = animator.animatedValue as Float
+                binding.saveFab.scaleY = animator.animatedValue as Float
+            }
+            doOnEnd {
                 finish()
             }
+            start()
         }
     }
 
-    // Show a TimePickerDialog and update the provided EditText. After updating, attempt to compute duration.
-    private fun showTimePickerDialog(editText: EditText) {
-        val calendar = Calendar.getInstance()
-        val hour = calendar.get(Calendar.HOUR_OF_DAY)
-        val minute = calendar.get(Calendar.MINUTE)
+    override fun onMapReady(googleMap: GoogleMap) {
+        map = googleMap
+        
+        // Set default location to user's current location or a default position
+        val defaultLocation = SessionManager.currentLocation?.let {
+            LatLng(it.latitude, it.longitude)
+        } ?: LatLng(49.2827, -123.1207) // Default to Vancouver
 
-        val timePickerDialog = TimePickerDialog(
-            this,
-            { _, selectedHour, selectedMinute ->
-                val formattedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
-                editText.setText(formattedTime)
-                updateDurationIfPossible()
-            },
-            hour,
-            minute,
-            true
-        )
-        timePickerDialog.show()
+        map?.apply {
+            moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, DEFAULT_ZOOM))
+            
+            setOnMapClickListener { latLng ->
+                clear()
+                selectedLocation = latLng
+                addMarker(MarkerOptions().position(latLng))
+                binding.locationText.text = "Selected: ${String.format("%.6f, %.6f", latLng.latitude, latLng.longitude)}"
+            }
+        }
     }
 
-    // If both start and end times are available and valid, compute duration in minutes.
-    private fun updateDurationIfPossible() {
-        val editTextStart = findViewById<EditText>(R.id.editText_taskStart)
-        val editTextEnd = findViewById<EditText>(R.id.editText_taskEnd)
-        val editTextDuration = findViewById<EditText>(R.id.editText_duration)
-
-        val startText = editTextStart.text.toString()
-        val endText = editTextEnd.text.toString()
-
-        if (startText.isNotEmpty() && endText.isNotEmpty()) {
-            try {
-                val startDate = timeFormat.parse(startText)
-                val endDate = timeFormat.parse(endText)
-                if (startDate != null && endDate != null) {
-                    var diff = endDate.time - startDate.time
-                    // If diff is negative, assume the end time is on the next day.
-                    if (diff < 0) {
-                        diff += 24 * 60 * 60 * 1000
-                    }
-                    val durationMinutes = diff / (60 * 1000)
-                    editTextDuration.setText(durationMinutes.toString())
-                }
-            } catch (e: Exception) {
-                // Ignore parse errors and let the user override.
-                e.printStackTrace()
-            }
+    override fun onBackPressed() {
+        if (hasUnsavedChanges()) {
+            showDiscardDialog()
+        } else {
+            super.onBackPressed()
         }
     }
 }

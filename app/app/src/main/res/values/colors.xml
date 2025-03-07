@@ -1,10 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Core colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="colorPrimary">#FF2b9ad0</color>
-    <color name="colorPrimaryDark">#FF000000</color>
-    <color name="colorAccent">#FF808080</color>
-    <color name="holo_blue_light">#FF2b9ad0</color>
-    <color name="holo_red_light">#FFFF4444</color>
+    
+    <!-- Primary colors -->
+    <color name="colorPrimary">#FF3A7BD5</color>
+    <color name="colorPrimaryLight">#FF6FA1FF</color>
+    <color name="colorPrimaryDark">#FF0054A3</color>
+    
+    <!-- Accent colors -->
+    <color name="colorAccent">#FF00E5FF</color>
+    <color name="colorAccentLight">#FF6EFFFF</color>
+    <color name="colorAccentDark">#FF00B2CC</color>
+    
+    <!-- Neutral colors -->
+    <color name="colorBackground">#FFFAFAFA</color>
+    <color name="colorSurface">#FFFFFFFF</color>
+    <color name="colorError">#FFD32F2F</color>
+    
+    <!-- Text colors -->
+    <color name="textPrimary">#DE000000</color>
+    <color name="textSecondary">#99000000</color>
+    <color name="textHint">#61000000</color>
+    
+    <!-- Status colors -->
+    <color name="statusSuccess">#FF43A047</color>
+    <color name="statusWarning">#FFFFB300</color>
+    <color name="statusError">#FFE53935</color>
 </resources>

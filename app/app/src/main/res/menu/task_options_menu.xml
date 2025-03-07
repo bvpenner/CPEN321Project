@@ -1,9 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    
     <item
-        android:id="@+id/action_update"
-        android:title="Update Task"/>
+        android:id="@+id/action_sort"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="Sort"
+        android:contentDescription="Sort tasks"
+        app:showAsAction="ifRoom">
+        
+        <menu>
+            <item
+                android:id="@+id/sort_priority"
+                android:title="Sort by Priority"
+                android:contentDescription="Sort tasks by priority" />
+            
+            <item
+                android:id="@+id/sort_time"
+                android:title="Sort by Time"
+                android:contentDescription="Sort tasks by time" />
+            
+            <item
+                android:id="@+id/sort_distance"
+                android:title="Sort by Distance"
+                android:contentDescription="Sort tasks by distance" />
+        </menu>
+    </item>
+
     <item
-        android:id="@+id/action_delete"
-        android:title="Delete Task"/>
+        android:id="@+id/action_filter"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="Filter"
+        android:contentDescription="Filter tasks"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_select_all"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="Select All"
+        android:contentDescription="Select all tasks"
+        app:showAsAction="ifRoom" />
 </menu>

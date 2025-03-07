@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/map_view_button"
-        android:title="Map"
-        android:icon="@drawable/map_temp_vector"/>
+        android:id="@+id/navigation_tasks"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="Tasks"
+        android:contentDescription="View tasks list" />
+
     <item
-        android:id="@+id/list_view_button"
-        android:title="List View"
-        android:icon="@drawable/list_view"/>
+        android:id="@+id/navigation_map"
+        android:icon="@android:drawable/ic_menu_mapmode"
+        android:title="Map"
+        android:contentDescription="View map" />
+
+    <item
+        android:id="@+id/navigation_profile"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="Profile"
+        android:contentDescription="View profile" />
 </menu>

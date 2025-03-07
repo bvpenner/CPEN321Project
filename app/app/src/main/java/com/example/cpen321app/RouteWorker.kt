@@ -13,16 +13,18 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.Tasks
+import com.google.android.gms.location.*
+import kotlinx.coroutines.*
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.*
 import kotlin.math.*
 
 /**
@@ -30,186 +32,295 @@ import kotlin.math.*
  * orders them using a simple nearest-neighbor algorithm, builds a Google Maps URL,
  * and displays a notification that launches Google Maps when tapped.
  */
-class RouteWorker(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
+class RouteWorker(
+    appContext: Context,
+    workerParams: WorkerParameters
+) : CoroutineWorker(appContext, workerParams) {
+
+    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(applicationContext)
+    
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .build()
 
     companion object {
         private const val TAG = "RouteWorker"
-        private const val SERVER_IP = "18.215.238.145:3000" // Replace with your backend server IP or domain.
+        private const val SERVER_URL = "http://18.215.238.145:3000"
+        private const val CHANNEL_ID = "route_optimization_channel"
+        private const val NOTIFICATION_ID = 2001
+        private const val MAX_WAYPOINTS = 23  // Google Maps limit is 23 waypoints
     }
 
-    override fun doWork(): Result {
-        // Check location permissions.
-        if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-            ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.e(TAG, "Location permissions not granted.")
-            return Result.failure()
-        }
+    override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
+        try {
+            if (!hasLocationPermission()) {
+                Log.e(TAG, "Location permissions not granted")
+                return@withContext Result.failure()
+            }
 
-        return try {
-            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(applicationContext)
-            val location: Location = Tasks.await(fusedLocationClient.lastLocation)
+            val location = getCurrentLocation()
             if (location != null) {
-                // Fetch tasks from the backend.
-                fetchUserTasks { tasks ->
-                    if (tasks.isNotEmpty()) {
-                        // Order tasks using a simple nearest-neighbor algorithm.
-                        val orderedTasks = orderTasksByNearestNeighbor(location.latitude, location.longitude, tasks)
-                        // Build a Google Maps URL for the route.
-                        val mapsUrl = buildGoogleMapsUrl(location.latitude, location.longitude, orderedTasks)
-                        if (mapsUrl.isNotEmpty()) {
-                            // Show a notification with an "Accept" action that launches Google Maps.
-                            showRouteNotification(applicationContext, mapsUrl)
-                        } else {
-                            Log.e(TAG, "Generated Google Maps URL is empty.")
-                        }
-                    } else {
-                        Log.e(TAG, "No tasks received from backend.")
-                    }
+                val tasks = fetchUserTasks()
+                if (tasks.isNotEmpty()) {
+                    val optimizedRoute = optimizeRoute(location, tasks)
+                    val mapsUrl = buildGoogleMapsUrl(location, optimizedRoute)
+                    showRouteNotification(mapsUrl, optimizedRoute)
+                    Result.success()
+                } else {
+                    Log.d(TAG, "No tasks available for route optimization")
+                    Result.success()
                 }
-                Result.success()
             } else {
-                Log.d(TAG, "No location available; retrying later.")
+                Log.w(TAG, "Could not get current location")
                 Result.retry()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Exception in RouteWorker: ${e.message}")
+            Log.e(TAG, "Route optimization failed", e)
             Result.failure()
         }
     }
 
-    // Fetch tasks from the backend using the existing /getAllTasks endpoint.
-    private fun fetchUserTasks(onResult: (List<Task>) -> Unit) {
-        val client = OkHttpClient()
-        val url = "http://$SERVER_IP/getAllTasks"
-        val jsonBody = JSONObject().apply {
-            put("u_id", SessionManager.u_id) // Ensure SessionManager.u_id is set after sign-in.
+    private suspend fun getCurrentLocation(): Location? = suspendCoroutine { continuation ->
+        try {
+            val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
+                .setMaxUpdateDelayMillis(15000)
+                .build()
+
+            val locationCallback = object : LocationCallback() {
+                override fun onLocationResult(result: LocationResult) {
+                    fusedLocationClient.removeLocationUpdates(this)
+                    continuation.resume(result.lastLocation)
+                }
+            }
+
+            if (ActivityCompat.checkSelfPermission(
+                    applicationContext,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                fusedLocationClient.requestLocationUpdates(
+                    locationRequest,
+                    locationCallback,
+                    applicationContext.mainLooper
+                )
+
+                // Set a timeout
+                GlobalScope.launch {
+                    delay(15000)
+                    fusedLocationClient.removeLocationUpdates(locationCallback)
+                    if (continuation.context.isActive) {
+                        continuation.resume(null)
+                    }
+                }
+            } else {
+                continuation.resume(null)
+            }
+        } catch (e: Exception) {
+            continuation.resumeWithException(e)
         }
-        val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-        val requestBody = RequestBody.create(mediaType, jsonBody.toString())
-        val request = Request.Builder().url(url).post(requestBody).build()
+    }
+
+    private suspend fun fetchUserTasks(): List<Task> = suspendCoroutine { continuation ->
+        val request = Request.Builder()
+            .url("$SERVER_URL/getAllTasks")
+            .post(
+                JSONObject().put("u_id", SessionManager.u_id)
+                    .toString()
+                    .toRequestBody("application/json".toMediaTypeOrNull())
+            )
+            .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e(TAG, "Failed to fetch tasks: ${e.message}")
-                onResult(emptyList())
+                Log.e(TAG, "Failed to fetch tasks", e)
+                continuation.resume(emptyList())
             }
 
             override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    response.body?.string()?.let { jsonResponse ->
-                        val tasks = parseTasksFromResponse(jsonResponse)
-                        onResult(tasks)
-                    } ?: onResult(emptyList())
-                } else {
-                    Log.e(TAG, "Unexpected response: ${response.message}")
-                    onResult(emptyList())
+                try {
+                    if (!response.isSuccessful) {
+                        throw IOException("Unexpected response ${response.code}")
+                    }
+
+                    val tasks = parseTasksFromResponse(response.body?.string() ?: "{}")
+                    continuation.resume(tasks)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error parsing tasks", e)
+                    continuation.resume(emptyList())
+                } finally {
+                    response.close()
                 }
             }
         })
     }
 
-    // Parse the JSON response into a list of Task objects.
     private fun parseTasksFromResponse(jsonResponse: String): List<Task> {
         val tasks = mutableListOf<Task>()
         try {
-            val resultJson = JSONObject(jsonResponse)
-            val taskListJsonArray = resultJson.getJSONArray("task_list")
-            for (i in 0 until taskListJsonArray.length()) {
-                val taskJson = taskListJsonArray.getJSONObject(i)
-                val task = Task(
-                    id = taskJson.getString("_id"),
-                    name = taskJson.getString("name"),
-                    start = taskJson.getString("start"),
-                    end = taskJson.getString("end"),
-                    duration = taskJson.getDouble("duration"),
-                    location_lat = taskJson.getDouble("location_lat"),
-                    location_lng = taskJson.getDouble("location_lng"),
-                    priority = taskJson.getInt("priority"),
-                    description = taskJson.getString("description")
+            val json = JSONObject(jsonResponse)
+            val taskArray = json.getJSONArray("task_list")
+            
+            for (i in 0 until taskArray.length()) {
+                val taskJson = taskArray.getJSONObject(i)
+                tasks.add(
+                    Task(
+                        id = taskJson.getString("_id"),
+                        name = taskJson.getString("name"),
+                        description = taskJson.getString("description"),
+                        start = taskJson.getString("start"),
+                        end = taskJson.getString("end"),
+                        duration = taskJson.getDouble("duration"),
+                        location_lat = taskJson.getDouble("location_lat"),
+                        location_lng = taskJson.getDouble("location_lng"),
+                        priority = taskJson.getInt("priority")
+                    )
                 )
-                tasks.add(task)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error parsing tasks: ${e.message}")
+            Log.e(TAG, "Error parsing JSON response", e)
         }
         return tasks
     }
 
-    // Compute the distance between two points using the Haversine formula.
-    private fun computeDistance(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double {
-        val earthRadius = 6371e3 // meters
-        val dLat = Math.toRadians(lat2 - lat1)
-        val dLng = Math.toRadians(lng2 - lng1)
-        val a = sin(dLat / 2).pow(2.0) +
-                cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
-                sin(dLng / 2).pow(2.0)
-        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        return earthRadius * c
-    }
+    private fun optimizeRoute(startLocation: Location, tasks: List<Task>): List<Task> {
+        // Sort tasks by priority and time constraints
+        val prioritizedTasks = tasks.sortedWith(
+            compareByDescending<Task> { it.priority }
+                .thenBy { it.getStartTime() }
+        )
 
-    // Order tasks based on proximity from the current location using a nearest-neighbor algorithm.
-    private fun orderTasksByNearestNeighbor(currentLat: Double, currentLng: Double, tasks: List<Task>): List<Task> {
-        val remaining = tasks.toMutableList()
-        val ordered = mutableListOf<Task>()
-        var currentLatVar = currentLat
-        var currentLngVar = currentLng
+        // Use nearest neighbor with time windows
+        val route = mutableListOf<Task>()
+        val remaining = prioritizedTasks.toMutableList()
+        var currentLocation = startLocation
+        var currentTime = System.currentTimeMillis()
 
-        while (remaining.isNotEmpty()) {
-            val nearest = remaining.minByOrNull { computeDistance(currentLatVar, currentLngVar, it.location_lat, it.location_lng) }!!
-            ordered.add(nearest)
-            remaining.remove(nearest)
-            currentLatVar = nearest.location_lat
-            currentLngVar = nearest.location_lng
-        }
-        return ordered
-    }
+        while (remaining.isNotEmpty() && route.size < MAX_WAYPOINTS) {
+            val nextTask = remaining.minByOrNull { task ->
+                val taskLocation = Location("").apply {
+                    latitude = task.location_lat
+                    longitude = task.location_lng
+                }
+                
+                // Calculate score based on distance, priority, and time window
+                val distance = currentLocation.distanceTo(taskLocation)
+                val timeToReach = (distance / 13.4).toInt() // Assuming average speed of 13.4 m/s (30 mph)
+                val arrivalTime = currentTime + timeToReach * 1000
+                
+                val timeWindowPenalty = if (arrivalTime > task.getEndTime()) {
+                    (arrivalTime - task.getEndTime()) / 1000 // Convert to seconds
+                } else 0
 
-    // Build a Google Maps URL from the origin through waypoints to the destination.
-    private fun buildGoogleMapsUrl(originLat: Double, originLng: Double, orderedTasks: List<Task>): String {
-        if (orderedTasks.isEmpty()) return ""
-        val destination = orderedTasks.last()
-        val waypoints = orderedTasks.dropLast(1).joinToString(separator = "|") {
-            "${it.location_lat},${it.location_lng}"
-        }
-        return "https://www.google.com/maps/dir/?api=1" +
-                "&origin=$originLat,$originLng" +
-                "&destination=${destination.location_lat},${destination.location_lng}" +
-                if (waypoints.isNotEmpty()) "&waypoints=$waypoints" else ""
-    }
+                // Score = distance - (priority * 1000) + timeWindowPenalty
+                distance - (task.priority * 1000) + timeWindowPenalty
+            } ?: break
 
-    // Display a notification that launches Google Maps with the computed route.
-    private fun showRouteNotification(context: Context, mapsUrl: String) {
-        // For Android 13+, ensure POST_NOTIFICATIONS permission is granted.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                Log.e(TAG, "POST_NOTIFICATIONS permission not granted.")
-                return
+            route.add(nextTask)
+            remaining.remove(nextTask)
+            
+            currentLocation = Location("").apply {
+                latitude = nextTask.location_lat
+                longitude = nextTask.location_lng
             }
+            currentTime += (nextTask.duration * 3600 * 1000).toLong() // Convert hours to milliseconds
         }
-        val channelId = "task_route_channel"
+
+        return route
+    }
+
+    private fun buildGoogleMapsUrl(startLocation: Location, tasks: List<Task>): String {
+        if (tasks.isEmpty()) return ""
+
+        val origin = "${startLocation.latitude},${startLocation.longitude}"
+        val destination = with(tasks.last()) { "$location_lat,$location_lng" }
+        
+        val waypoints = tasks.dropLast(1)
+            .joinToString("|") { "${it.location_lat},${it.location_lng}" }
+            .let { if (it.isNotEmpty()) "&waypoints=$it" else "" }
+
+        return "https://www.google.com/maps/dir/?api=1" +
+                "&origin=$origin" +
+                "&destination=$destination" +
+                waypoints +
+                "&travelmode=driving"
+    }
+
+    private fun showRouteNotification(mapsUrl: String, tasks: List<Task>) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "Task Route Notifications", NotificationManager.IMPORTANCE_HIGH)
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+            createNotificationChannel()
         }
-        // Create an intent to open Google Maps with the generated route.
+
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mapsUrl)).apply {
             setPackage("com.google.android.apps.maps")
         }
+
         val pendingIntent = PendingIntent.getActivity(
-            context,
+            applicationContext,
             0,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.mipmap.ic_launcher) // Replace with your notification icon if available.
-            .setContentTitle("New Route Available")
-            .setContentText("Tap to view your optimized task route.")
+
+        val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle("Optimized Route Available")
+            .setContentText("Route with ${tasks.size} tasks has been optimized")
+            .setStyle(NotificationCompat.BigTextStyle().bigText(
+                buildRouteDescription(tasks)
+            ))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .addAction(R.mipmap.ic_launcher, "Accept", pendingIntent) // Replace with your accept icon if available.
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .addAction(
+                R.drawable.ic_navigation,
+                "Start Navigation",
+                pendingIntent
+            )
             .build()
-        NotificationManagerCompat.from(context).notify(1001, notification)
+
+        val notificationManager = ContextCompat.getSystemService(
+            applicationContext,
+            NotificationManager::class.java
+        )
+        notificationManager?.notify(NOTIFICATION_ID, notification)
+    }
+
+    private fun buildRouteDescription(tasks: List<Task>): String {
+        return buildString {
+            appendLine("Optimized route with ${tasks.size} tasks:")
+            tasks.forEachIndexed { index, task ->
+                appendLine("${index + 1}. ${task.name} (${task.getPriorityText()})")
+            }
+            appendLine("\nTap to view and start navigation.")
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Route Optimization",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notifications for optimized task routes"
+                enableLights(true)
+                enableVibration(true)
+            }
+
+            val notificationManager = ContextCompat.getSystemService(
+                applicationContext,
+                NotificationManager::class.java
+            )
+            notificationManager?.createNotificationChannel(channel)
+        }
+    }
+
+    private fun hasLocationPermission(): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            applicationContext,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
     }
 }

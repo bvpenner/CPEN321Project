@@ -1,235 +1,235 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:fitsSystemWindows="true">
 
-    <!-- Header -->
-    <TextView
-        android:id="@+id/textView_add_task_menu"
-        android:layout_width="0dp"
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Task"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:fitsSystemWindows="true">
 
-    <!-- Name Input -->
-    <TextView
-        android:id="@+id/textView_taskName"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Add Task"
+            app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
+            style="@style/Widget.Material3.Toolbar" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_medium">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/taskNameLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Task Name"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/taskNameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/taskDescriptionLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:hint="Description"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/taskDescriptionInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:minLines="2"
+                    android:maxLines="4" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/startTimeLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_small"
+                    android:hint="Start Time"
+                    app:startIconDrawable="@android:drawable/ic_menu_my_calendar"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/startTimeInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:focusable="false"
+                        android:clickable="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/endTimeLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_small"
+                    android:hint="End Time"
+                    app:startIconDrawable="@android:drawable/ic_menu_my_calendar"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/endTimeInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:focusable="false"
+                        android:clickable="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/durationLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:hint="Duration (minutes)"
+                app:startIconDrawable="@android:drawable/ic_menu_recent_history"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/durationInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:text="Priority"
+                android:textAppearance="@style/TextStyle.Title" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/priorityChipGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_small"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipLow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Low"
+                    style="@style/ChipStyle.Choice" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Medium"
+                    style="@style/ChipStyle.Choice" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipHigh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="High"
+                    style="@style/ChipStyle.Choice" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Location"
+                    android:textAppearance="@style/TextStyle.Title" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/locationSearchButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Search"
+                    app:icon="@android:drawable/ic_menu_search"
+                    style="@style/Widget.Material3.Button.TextButton.Icon" />
+
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="@dimen/spacing_small"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                style="@style/CardStyle">
+
+                <fragment
+                    android:id="@+id/mapPreview"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/locationText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:gravity="center"
+                android:text="Tap on the map to select location"
+                android:textAppearance="@style/TextStyle.Body" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/saveFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Name:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/textView_add_task_menu"
-        android:layout_marginTop="24dp"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:text="Save Task"
+        app:icon="@android:drawable/ic_menu_save"
+        style="@style/Widget.Material3.ExtendedFloatingActionButton.Primary" />
 
-    <EditText
-        android:id="@+id/editTextName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="text"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_taskName"
-        app:layout_constraintStart_toEndOf="@id/textView_taskName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
-
-    <!-- Description Input -->
-    <TextView
-        android:id="@+id/textView_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Description:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/editTextName"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
-        android:id="@+id/editText_description"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="text"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_description"
-        app:layout_constraintStart_toEndOf="@id/textView_description"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
-
-    <!-- Start Time Input -->
-    <TextView
-        android:id="@+id/textView_taskStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/editText_description"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
-        android:id="@+id/editText_taskStart"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="time"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_taskStart"
-        app:layout_constraintStart_toEndOf="@id/textView_taskStart"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
-
-    <!-- End Time Input -->
-    <TextView
-        android:id="@+id/textView_taskEnd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="End:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/editText_taskStart"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
-        android:id="@+id/editText_taskEnd"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="time"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_taskEnd"
-        app:layout_constraintStart_toEndOf="@id/textView_taskEnd"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
-
-    <!-- Duration Input -->
-    <TextView
-        android:id="@+id/textView_duration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Duration (min):"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/editText_taskEnd"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
-        android:id="@+id/editText_duration"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_duration"
-        app:layout_constraintStart_toEndOf="@id/textView_duration"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
-
-    <!-- Location Section Header -->
-    <TextView
-        android:id="@+id/textView_Location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Location"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/editText_duration"
-        android:layout_marginTop="24dp"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <!-- Pick Location Button -->
-    <Button
-        android:id="@+id/button_pick_location"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Search for a Place"
-        app:layout_constraintTop_toBottomOf="@id/textView_Location"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Latitude Input -->
-    <TextView
-        android:id="@+id/textView_taskLat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Latitude:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/button_pick_location"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
-        android:id="@+id/editText_taskLat"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="numberSigned|numberDecimal"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_taskLat"
-        app:layout_constraintStart_toEndOf="@id/textView_taskLat"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
-
-    <!-- Longitude Input -->
-    <TextView
-        android:id="@+id/textView_taskLng"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Longitude:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/editText_taskLat"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
-        android:id="@+id/editText_taskLng"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="numberSigned|numberDecimal"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_taskLng"
-        app:layout_constraintStart_toEndOf="@id/textView_taskLng"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
-
-    <!-- Priority Input -->
-    <TextView
-        android:id="@+id/textView_taskPrio"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Priority:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/editText_taskLng"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
-        android:id="@+id/editText_taskPrio"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_taskPrio"
-        app:layout_constraintStart_toEndOf="@id/textView_taskPrio"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
-
-    <!-- Create Task Button -->
-    <Button
-        android:id="@+id/button_taskCreate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create Task"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/editText_taskPrio"
-        android:layout_marginTop="24dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
