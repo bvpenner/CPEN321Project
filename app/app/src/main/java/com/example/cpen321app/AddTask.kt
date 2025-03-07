@@ -135,8 +135,10 @@ class AddTask : AppCompatActivity(), OnMapReadyCallback {
             val searchFragment = PlaceSearchFragment().apply {
                 onPlaceSelected = { latLng ->
                     updateSelectedLocation(latLng)
+                    binding.fragmentContainer.visibility = View.GONE
                 }
             }
+            binding.fragmentContainer.visibility = View.VISIBLE
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, searchFragment)
                 .addToBackStack(null)
@@ -366,10 +368,13 @@ class AddTask : AppCompatActivity(), OnMapReadyCallback {
     }
 
     override fun onBackPressed() {
-        if (hasUnsavedChanges()) {
-            showDiscardDialog()
-        } else {
-            super.onBackPressed()
+        when {
+            binding.fragmentContainer.visibility == View.VISIBLE -> {
+                binding.fragmentContainer.visibility = View.GONE
+                supportFragmentManager.popBackStack()
+            }
+            hasUnsavedChanges() -> showDiscardDialog()
+            else -> super.onBackPressed()
         }
     }
 }

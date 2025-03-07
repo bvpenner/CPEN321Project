@@ -232,4 +232,10 @@
         app:icon="@android:drawable/ic_menu_save"
         style="@style/Widget.Material3.ExtendedFloatingActionButton.Primary" />
 
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
