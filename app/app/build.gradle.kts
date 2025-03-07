@@ -68,6 +68,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.rules)
 
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
@@ -82,4 +84,5 @@ dependencies {
 
 
     implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
+
 }

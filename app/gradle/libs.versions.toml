@@ -16,9 +16,13 @@ playServicesLocation = "21.3.0"
 places = "4.1.0"
 firebaseCommonKtx = "21.0.0"
 firebaseMessagingKtx = "24.1.0"
+rules = "1.6.1"
+runner = "1.6.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-rules = { module = "androidx.test:rules", version.ref = "rules" }
+androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
