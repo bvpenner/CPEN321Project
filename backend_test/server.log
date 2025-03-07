@@ -1,0 +1,335 @@
+2025-03-07T08:48:46.523Z Connected to MongoDB
+2025-03-07T08:48:46.546Z Server is running on port 3000
+2025-03-07T08:48:46.614Z [GetAll Task] Received from 103042323293350711668}
+2025-03-07T08:48:46.670Z User with ID 103042323293350711668 not found
+2025-03-07T08:51:57.702Z Connected to MongoDB
+2025-03-07T08:51:57.956Z Server is running on port 3000
+2025-03-07T08:51:58.052Z [GetAll Task] Received from 103042323293350711668}
+2025-03-07T08:51:58.074Z User with ID 103042323293350711668 not found
+2025-03-07T08:53:42.244Z Connected to MongoDB
+2025-03-07T08:53:42.424Z Server is running on port 3000
+2025-03-07T08:53:42.469Z [GetAll Task] Received from 103042323293350711668}
+2025-03-07T08:53:42.496Z User with ID 103042323293350711668 not found
+2025-03-07T08:54:27.214Z Connected to MongoDB
+2025-03-07T08:54:27.391Z Server is running on port 3000
+2025-03-07T08:54:27.433Z [GetAll Task] Received from 103042323293350711668}
+2025-03-07T08:54:27.458Z User with ID 103042323293350711668 not found
+2025-03-07T08:54:53.219Z Connected to MongoDB
+2025-03-07T08:54:53.390Z Server is running on port 3000
+2025-03-07T08:54:53.436Z [GetAll Task] Received from 103042323293350711668}
+2025-03-07T08:54:53.466Z User with ID 103042323293350711668 not found
+2025-03-07T08:55:42.768Z Connected to MongoDB
+2025-03-07T08:55:42.945Z Server is running on port 3000
+2025-03-07T08:55:43.037Z [GetAll Task] Received from 103042323293350711668}
+2025-03-07T08:55:43.057Z User with ID 103042323293350711668 not found
+2025-03-07T08:58:12.480Z Connected to MongoDB
+2025-03-07T08:58:12.652Z Server is running on port 3000
+2025-03-07T08:58:12.745Z [GetAll Task] Received from 103042323293350711668}
+2025-03-07T08:58:12.766Z User with ID 103042323293350711668 not found
+2025-03-07T08:58:12.799Z MongoDB connection closed
+2025-03-07T08:58:26.452Z Connected to MongoDB
+2025-03-07T08:58:26.628Z Server is running on port 3000
+2025-03-07T08:58:26.725Z [GetAll Task] Received from 103042323293350711668}
+2025-03-07T08:58:26.747Z User with ID 103042323293350711668 not found
+2025-03-07T09:00:55.887Z Connected to MongoDB
+2025-03-07T09:00:55.917Z Server is running on port 3000
+2025-03-07T09:01:31.752Z Connected to MongoDB
+2025-03-07T09:01:31.782Z Server is running on port 3000
+2025-03-07T09:02:09.585Z Connected to MongoDB
+2025-03-07T09:02:09.615Z Server is running on port 3000
+2025-03-07T09:02:42.419Z Connected to MongoDB
+2025-03-07T09:02:42.441Z Server is running on port 3000
+2025-03-07T09:02:42.513Z [GetAll Task] Received from 103042323293350711668}
+2025-03-07T09:02:42.540Z User with ID 103042323293350711668 not found
+2025-03-07T09:02:52.064Z Connected to MongoDB
+2025-03-07T09:02:52.085Z Server is running on port 3000
+2025-03-07T09:02:52.158Z [GetAll Task] Received from 103042323293350711668}
+2025-03-07T09:02:52.184Z User with ID 103042323293350711668 not found
+2025-03-07T09:03:34.202Z Connected to MongoDB
+2025-03-07T09:03:34.227Z Server is running on port 3000
+2025-03-07T09:03:34.296Z [GetAll Task] Received from 103042323293350711668}
+2025-03-07T09:03:34.323Z User with ID 103042323293350711668 not found
+2025-03-07T09:06:56.361Z Connected to MongoDB
+2025-03-07T09:06:56.385Z Server is running on port 3000
+2025-03-07T09:06:56.455Z [GetAll Task] Received from 103042323293350711668}
+2025-03-07T09:06:56.484Z User with ID 103042323293350711668 not found
+2025-03-07T09:08:36.959Z Connected to MongoDB
+2025-03-07T09:08:36.969Z Server is running on port 3000
+2025-03-07T09:08:36.986Z [GetAll Task] Received from 103042323293350711668}
+2025-03-07T09:08:36.999Z User with ID 103042323293350711668 not found
+2025-03-07T19:32:43.836Z Connected to MongoDB
+2025-03-07T19:32:43.849Z Server is running on port 3000
+2025-03-07T19:32:43.866Z [GetAll Task] Received from test_id_backend}
+2025-03-07T19:42:03.742Z Connected to MongoDB
+2025-03-07T19:42:03.754Z Server is running on port 3000
+2025-03-07T19:42:03.770Z [GetAll Task] Received from test_id_backend}
+2025-03-07T19:42:03.821Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T19:42:55.945Z Connected to MongoDB
+2025-03-07T19:42:55.956Z Server is running on port 3000
+2025-03-07T19:42:55.975Z [GetAll Task] Received from test_id_backend}
+2025-03-07T19:42:56.014Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T19:44:37.874Z Connected to MongoDB
+2025-03-07T19:44:37.884Z Server is running on port 3000
+2025-03-07T19:44:37.902Z [GetAll Task] Received from test_id_backend}
+2025-03-07T19:44:37.938Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T20:33:36.264Z Connected to MongoDB
+2025-03-07T20:33:36.277Z Server is running on port 3000
+2025-03-07T20:33:36.296Z [GetAll Task] Received from test_id_backend}
+2025-03-07T20:33:36.371Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T20:33:36.380Z [Add Task] Received from test_id_backend: test_task_id_temp_3
+2025-03-07T20:33:36.382Z [Error] Task not found with _id: test_task_id_temp_3
+2025-03-07T20:34:17.673Z Connected to MongoDB
+2025-03-07T20:34:17.684Z Server is running on port 3000
+2025-03-07T20:34:17.706Z [GetAll Task] Received from test_id_backend}
+2025-03-07T20:34:17.746Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T20:34:17.753Z [Add Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T20:34:17.768Z Updated task: test_task_id_temp_1
+2025-03-07T20:34:56.206Z Connected to MongoDB
+2025-03-07T20:34:56.217Z Server is running on port 3000
+2025-03-07T20:34:56.235Z [GetAll Task] Received from test_id_backend}
+2025-03-07T20:34:56.275Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T20:34:56.284Z [Add Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T20:34:56.288Z Updated task: test_task_id_temp_1
+2025-03-07T20:36:04.838Z Connected to MongoDB
+2025-03-07T20:36:04.850Z Server is running on port 3000
+2025-03-07T20:36:04.870Z [GetAll Task] Received from test_id_backend}
+2025-03-07T20:36:04.907Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T20:36:04.914Z [Add Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T20:36:04.920Z Updated task: test_task_id_temp_1
+2025-03-07T20:36:04.925Z [Add Task] Received from test_id_backend: 
+2025-03-07T21:59:35.151Z Connected to MongoDB
+2025-03-07T21:59:35.164Z Server is running on port 3000
+2025-03-07T21:59:35.182Z [GetAll Task] Received from test_id_backend}
+2025-03-07T21:59:35.243Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T21:59:35.252Z [Add Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T21:59:35.268Z Updated task: test_task_id_temp_1
+2025-03-07T21:59:35.273Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:00:09.479Z Connected to MongoDB
+2025-03-07T22:00:09.502Z Server is running on port 3000
+2025-03-07T22:00:09.511Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:00:09.549Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:00:09.556Z [Add Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T22:00:09.559Z Updated task: test_task_id_temp_1
+2025-03-07T22:00:09.564Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:00:59.173Z Connected to MongoDB
+2025-03-07T22:00:59.185Z Server is running on port 3000
+2025-03-07T22:00:59.210Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:00:59.249Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:00:59.254Z [Add Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T22:00:59.258Z Updated task: test_task_id_temp_1
+2025-03-07T22:00:59.262Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:00:59.271Z [Delete Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T22:03:00.942Z Connected to MongoDB
+2025-03-07T22:03:00.953Z Server is running on port 3000
+2025-03-07T22:03:00.978Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:03:01.017Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:03:01.095Z [Add Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T22:03:01.097Z [Error] Task not found with _id: test_task_id_temp_1
+2025-03-07T22:03:01.104Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:03:01.112Z [Delete Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T22:03:54.505Z Connected to MongoDB
+2025-03-07T22:03:54.516Z Server is running on port 3000
+2025-03-07T22:03:54.527Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:03:54.564Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:03:54.584Z [Add Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T22:03:54.586Z [Error] Task not found with _id: test_task_id_temp_1
+2025-03-07T22:03:54.596Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:03:54.607Z [Delete Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T22:07:50.914Z Connected to MongoDB
+2025-03-07T22:07:50.927Z Server is running on port 3000
+2025-03-07T22:07:50.948Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:07:50.983Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:07:51.000Z [Add Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T22:07:51.002Z [Error] Task not found with _id: test_task_id_temp_1
+2025-03-07T22:07:51.012Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:07:51.020Z [Delete Task] Received from test_id_backend: 4577fc12-2873-4cd7-a188-43794bf4615c
+2025-03-07T22:10:07.511Z Connected to MongoDB
+2025-03-07T22:10:07.515Z temp_taskid: undefined
+2025-03-07T22:10:07.522Z Server is running on port 3000
+2025-03-07T22:10:07.545Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:10:07.587Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:10:07.604Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:10:07.612Z [Add Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T22:10:07.616Z [Error] Task not found with _id: test_task_id_temp_1
+2025-03-07T22:10:07.625Z [Delete Task] Received from test_id_backend: 1b1135ea-ff09-41ab-9cde-19bc19a72e28
+2025-03-07T22:10:07.634Z Task 1b1135ea-ff09-41ab-9cde-19bc19a72e28 removed from user test_id_backend
+2025-03-07T22:10:50.314Z Connected to MongoDB
+2025-03-07T22:10:50.325Z Server is running on port 3000
+2025-03-07T22:10:50.346Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:10:50.385Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:10:50.402Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:10:50.406Z temp_taskid: 1a71bee1-ec23-46f5-9c97-e654bf3e2f68
+2025-03-07T22:10:50.411Z [Add Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T22:10:50.414Z [Error] Task not found with _id: test_task_id_temp_1
+2025-03-07T22:10:50.424Z [Delete Task] Received from test_id_backend: 1a71bee1-ec23-46f5-9c97-e654bf3e2f68
+2025-03-07T22:10:50.432Z Task 1a71bee1-ec23-46f5-9c97-e654bf3e2f68 removed from user test_id_backend
+2025-03-07T22:11:34.062Z Connected to MongoDB
+2025-03-07T22:11:34.073Z Server is running on port 3000
+2025-03-07T22:11:34.093Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:11:34.129Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:11:34.144Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:11:34.149Z temp_taskid: 505d2205-fcba-4a5f-aea3-114cc574c3c0
+2025-03-07T22:11:34.153Z [Add Task] Received from test_id_backend: test_task_id_temp_1
+2025-03-07T22:11:34.157Z [Error] Task not found with _id: test_task_id_temp_1
+2025-03-07T22:11:34.166Z [Delete Task] Received from test_id_backend: 505d2205-fcba-4a5f-aea3-114cc574c3c0
+2025-03-07T22:11:34.174Z Task 505d2205-fcba-4a5f-aea3-114cc574c3c0 removed from user test_id_backend
+2025-03-07T22:12:48.059Z Connected to MongoDB
+2025-03-07T22:12:48.071Z Server is running on port 3000
+2025-03-07T22:12:48.092Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:12:48.136Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:12:48.154Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:12:48.159Z temp_taskid: da9f6e32-1d35-4bdf-83ea-2489c962bc0d
+2025-03-07T22:12:48.165Z [Add Task] Received from test_id_backend: da9f6e32-1d35-4bdf-83ea-2489c962bc0d
+2025-03-07T22:12:48.178Z Updated task: da9f6e32-1d35-4bdf-83ea-2489c962bc0d
+2025-03-07T22:12:48.186Z [Delete Task] Received from test_id_backend: da9f6e32-1d35-4bdf-83ea-2489c962bc0d
+2025-03-07T22:12:48.197Z Task da9f6e32-1d35-4bdf-83ea-2489c962bc0d removed from user test_id_backend
+2025-03-07T22:13:36.266Z Connected to MongoDB
+2025-03-07T22:13:36.471Z Server is running on port 3000
+2025-03-07T22:13:36.490Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:13:36.527Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:13:36.544Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:13:36.548Z temp_taskid: 3e8dddf4-b477-4d98-a93b-00a7a5caf879
+2025-03-07T22:13:36.552Z [Add Task] Received from test_id_backend: 3e8dddf4-b477-4d98-a93b-00a7a5caf879
+2025-03-07T22:13:36.557Z Updated task: 3e8dddf4-b477-4d98-a93b-00a7a5caf879
+2025-03-07T22:13:36.561Z [Delete Task] Received from test_id_backend: 3e8dddf4-b477-4d98-a93b-00a7a5caf879
+2025-03-07T22:13:36.568Z Task 3e8dddf4-b477-4d98-a93b-00a7a5caf879 removed from user test_id_backend
+2025-03-07T22:19:39.009Z Connected to MongoDB
+2025-03-07T22:19:39.202Z Server is running on port 3000
+2025-03-07T22:19:39.229Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:19:39.275Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:19:39.290Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:19:39.295Z temp_taskid: e76ad72e-e914-4532-a449-f21f76b9d034
+2025-03-07T22:19:39.298Z [Add Task] Received from test_id_backend: e76ad72e-e914-4532-a449-f21f76b9d034
+2025-03-07T22:19:39.302Z Updated task: e76ad72e-e914-4532-a449-f21f76b9d034
+2025-03-07T22:19:39.307Z [Delete Task] Received from test_id_backend: e76ad72e-e914-4532-a449-f21f76b9d034
+2025-03-07T22:19:39.315Z Task e76ad72e-e914-4532-a449-f21f76b9d034 removed from user test_id_backend
+2025-03-07T22:19:39.315Z Task with id  "e76ad72e-e914-4532-a449-f21f76b9d034" deleted successfully.
+2025-03-07T22:20:11.184Z Connected to MongoDB
+2025-03-07T22:20:11.339Z Server is running on port 3000
+2025-03-07T22:20:11.348Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:20:11.386Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:20:11.408Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:20:11.412Z temp_taskid: 010fb092-821f-4d1b-bf6c-5dfa7bcb4529
+2025-03-07T22:20:11.417Z [Add Task] Received from test_id_backend: 010fb092-821f-4d1b-bf6c-5dfa7bcb4529
+2025-03-07T22:20:11.424Z Updated task: 010fb092-821f-4d1b-bf6c-5dfa7bcb4529
+2025-03-07T22:20:11.428Z [Delete Task] Received from test_id_backend: 010fb092-821f-4d1b-bf6c-5dfa7bcb4529
+2025-03-07T22:20:11.435Z Task 010fb092-821f-4d1b-bf6c-5dfa7bcb4529 removed from user test_id_backend
+2025-03-07T22:20:11.435Z Task with id  "010fb092-821f-4d1b-bf6c-5dfa7bcb4529" deleted successfully.
+2025-03-07T22:20:14.660Z {"polygon":[{"latitude":49.222155101284635,"longitude":-123.21496696306838},{"latitude":49.228348553979856,"longitude":-123.17876481287402},{"latitude":49.23278151515948,"longitude":-123.16871428917382},{"latitude":49.23885813610534,"longitude":-123.1598263553302},{"latitude":49.245617312950706,"longitude":-123.15259238214168},{"latitude":49.25316415046812,"longitude":-123.14736196137726},{"latitude":49.260869592453645,"longitude":-123.14404094948091},{"latitude":49.26913839730066,"longitude":-123.14320568741573}]}
+2025-03-07T22:21:09.667Z Connected to MongoDB
+2025-03-07T22:21:09.828Z Server is running on port 3000
+2025-03-07T22:21:09.848Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:21:09.885Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:21:09.902Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:21:09.906Z temp_taskid: d9283110-e9bc-4df3-a92e-ad3a8829d073
+2025-03-07T22:21:09.912Z [Add Task] Received from test_id_backend: d9283110-e9bc-4df3-a92e-ad3a8829d073
+2025-03-07T22:21:09.918Z Updated task: d9283110-e9bc-4df3-a92e-ad3a8829d073
+2025-03-07T22:21:09.923Z [Delete Task] Received from test_id_backend: d9283110-e9bc-4df3-a92e-ad3a8829d073
+2025-03-07T22:21:09.929Z Task d9283110-e9bc-4df3-a92e-ad3a8829d073 removed from user test_id_backend
+2025-03-07T22:21:09.929Z Task with id  "d9283110-e9bc-4df3-a92e-ad3a8829d073" deleted successfully.
+2025-03-07T22:21:13.370Z {"polygon":[{"latitude":49.222155101284635,"longitude":-123.21496696306838},{"latitude":49.228348553979856,"longitude":-123.17876481287402},{"latitude":49.23278151515948,"longitude":-123.16871428917382},{"latitude":49.23885813610534,"longitude":-123.1598263553302},{"latitude":49.245617312950706,"longitude":-123.15259238214168},{"latitude":49.25316415046812,"longitude":-123.14736196137726},{"latitude":49.260869592453645,"longitude":-123.14404094948091},{"latitude":49.26913839730066,"longitude":-123.14320568741573}]}
+2025-03-07T22:21:53.351Z Connected to MongoDB
+2025-03-07T22:21:53.516Z Server is running on port 3000
+2025-03-07T22:21:53.536Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:21:53.573Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:21:53.590Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:21:53.595Z temp_taskid: 45dafdac-99c2-4f2f-a600-6b35d46ce858
+2025-03-07T22:21:53.600Z [Add Task] Received from test_id_backend: 45dafdac-99c2-4f2f-a600-6b35d46ce858
+2025-03-07T22:21:53.606Z Updated task: 45dafdac-99c2-4f2f-a600-6b35d46ce858
+2025-03-07T22:21:53.610Z [Delete Task] Received from test_id_backend: 45dafdac-99c2-4f2f-a600-6b35d46ce858
+2025-03-07T22:21:53.617Z Task 45dafdac-99c2-4f2f-a600-6b35d46ce858 removed from user test_id_backend
+2025-03-07T22:21:53.617Z Task with id  "45dafdac-99c2-4f2f-a600-6b35d46ce858" deleted successfully.
+2025-03-07T22:22:07.358Z Connected to MongoDB
+2025-03-07T22:22:07.515Z Server is running on port 3000
+2025-03-07T22:22:07.534Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:22:07.571Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:22:07.587Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:22:07.592Z temp_taskid: cd0989da-763b-41e9-911a-0bad2a7822e5
+2025-03-07T22:22:07.597Z [Add Task] Received from test_id_backend: cd0989da-763b-41e9-911a-0bad2a7822e5
+2025-03-07T22:22:07.602Z Updated task: cd0989da-763b-41e9-911a-0bad2a7822e5
+2025-03-07T22:22:07.607Z [Delete Task] Received from test_id_backend: cd0989da-763b-41e9-911a-0bad2a7822e5
+2025-03-07T22:22:07.615Z Task cd0989da-763b-41e9-911a-0bad2a7822e5 removed from user test_id_backend
+2025-03-07T22:22:07.615Z Task with id  "cd0989da-763b-41e9-911a-0bad2a7822e5" deleted successfully.
+2025-03-07T22:32:07.035Z Connected to MongoDB
+2025-03-07T22:32:07.235Z Server is running on port 3000
+2025-03-07T22:32:07.245Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:32:07.291Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:32:07.310Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:32:07.315Z temp_taskid: 12f29ff8-4e2f-4cc8-b7f8-dd87712327f6
+2025-03-07T22:32:07.320Z [Add Task] Received from test_id_backend: 12f29ff8-4e2f-4cc8-b7f8-dd87712327f6
+2025-03-07T22:32:07.324Z Updated task: 12f29ff8-4e2f-4cc8-b7f8-dd87712327f6
+2025-03-07T22:32:07.329Z [Delete Task] Received from test_id_backend: 12f29ff8-4e2f-4cc8-b7f8-dd87712327f6
+2025-03-07T22:32:07.336Z Task 12f29ff8-4e2f-4cc8-b7f8-dd87712327f6 removed from user test_id_backend
+2025-03-07T22:32:07.337Z Task with id  "12f29ff8-4e2f-4cc8-b7f8-dd87712327f6" deleted successfully.
+2025-03-07T22:32:24.731Z Connected to MongoDB
+2025-03-07T22:32:24.888Z Server is running on port 3000
+2025-03-07T22:32:24.909Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:32:24.947Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:32:24.964Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:32:24.968Z temp_taskid: 6ead7238-79de-4334-be07-91bc60acec6e
+2025-03-07T22:32:24.972Z [Add Task] Received from test_id_backend: 6ead7238-79de-4334-be07-91bc60acec6e
+2025-03-07T22:32:24.982Z Updated task: 6ead7238-79de-4334-be07-91bc60acec6e
+2025-03-07T22:32:24.987Z [Delete Task] Received from test_id_backend: 6ead7238-79de-4334-be07-91bc60acec6e
+2025-03-07T22:32:24.993Z Task 6ead7238-79de-4334-be07-91bc60acec6e removed from user test_id_backend
+2025-03-07T22:32:24.993Z Task with id  "6ead7238-79de-4334-be07-91bc60acec6e" deleted successfully.
+2025-03-07T22:39:57.226Z Connected to MongoDB
+2025-03-07T22:39:57.417Z Server is running on port 3000
+2025-03-07T22:39:57.435Z [GetAll Task] Received from test_id_backend}
+2025-03-07T22:39:57.466Z [GetAll Task] Received from }
+2025-03-07T22:39:57.537Z [Logged in] User: Test Dummy TestDummy@gmail.com test_id_backend
+2025-03-07T22:39:57.553Z [Add Task] Received from test_id_backend: 
+2025-03-07T22:39:57.558Z temp_taskid: 614d43f0-15c2-41b0-a326-427ad912530c
+2025-03-07T22:39:57.562Z [Add Task] Received from test_id_backend: 614d43f0-15c2-41b0-a326-427ad912530c
+2025-03-07T22:39:57.567Z Updated task: 614d43f0-15c2-41b0-a326-427ad912530c
+2025-03-07T22:39:57.572Z [Delete Task] Received from test_id_backend: 614d43f0-15c2-41b0-a326-427ad912530c
+2025-03-07T22:39:57.579Z Task 614d43f0-15c2-41b0-a326-427ad912530c removed from user test_id_backend
+2025-03-07T22:39:57.579Z Task with id  "614d43f0-15c2-41b0-a326-427ad912530c" deleted successfully.
+2025-03-07T22:41:55.850Z Connected to MongoDB
+2025-03-07T22:41:55.861Z Server is running on port 3000
+2025-03-07T22:41:55.877Z [GetAll Task] Received from test_id_mocked}
+2025-03-07T22:48:32.164Z Connected to MongoDB
+2025-03-07T22:48:32.175Z Server is running on port 3000
+2025-03-07T22:48:32.193Z [GetAll Task] Received from test_id_mocked}
+2025-03-07T22:48:32.219Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-03-07T22:48:32.225Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-03-07T22:48:32.230Z [GetAll Task] Received from test_id_mocked}
+2025-03-07T22:53:04.652Z Connected to MongoDB
+2025-03-07T22:53:04.663Z Server is running on port 3000
+2025-03-07T22:53:04.681Z [GetAll Task] Received from test_id_mocked}
+2025-03-07T22:53:04.708Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-03-07T22:53:04.713Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-03-07T22:53:04.718Z [Add Task] Received from test_id_mocked: 
+2025-03-07T22:53:04.725Z [Add Task] Received from test_id_mocked: mocked_task_id
+2025-03-07T22:53:04.730Z [Delete Task] Received from test_id_mocked: mocked_task_id
+2025-03-07T22:54:24.419Z Connected to MongoDB
+2025-03-07T22:54:24.430Z Server is running on port 3000
+2025-03-07T22:54:24.448Z [GetAll Task] Received from test_id_mocked}
+2025-03-07T22:54:24.475Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-03-07T22:54:24.480Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-03-07T22:54:24.485Z [Add Task] Received from test_id_mocked: 
+2025-03-07T22:54:24.489Z [Add Task] Received from test_id_mocked: mocked_task_id
+2025-03-07T22:54:24.494Z [Delete Task] Received from test_id_mocked: mocked_task_id
+2025-03-07T22:54:49.544Z Connected to MongoDB
+2025-03-07T22:54:49.555Z Server is running on port 3000
+2025-03-07T22:54:49.572Z [GetAll Task] Received from test_id_mocked}
+2025-03-07T22:54:49.606Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-03-07T22:54:49.611Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-03-07T22:54:49.615Z [Add Task] Received from test_id_mocked: 
+2025-03-07T22:54:49.618Z [Add Task] Received from test_id_mocked: mocked_task_id
+2025-03-07T22:54:49.622Z [Delete Task] Received from test_id_mocked: mocked_task_id
+2025-03-07T22:55:28.260Z Connected to MongoDB
+2025-03-07T22:55:28.272Z Server is running on port 3000
+2025-03-07T22:55:28.288Z [GetAll Task] Received from test_id_mocked}
+2025-03-07T22:55:28.315Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-03-07T22:55:28.320Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-03-07T22:55:28.325Z [Add Task] Received from test_id_mocked: 
+2025-03-07T22:55:28.330Z [Add Task] Received from test_id_mocked: mocked_task_id
+2025-03-07T22:55:28.336Z [Delete Task] Received from test_id_mocked: mocked_task_id
+2025-03-07T22:56:18.973Z Connected to MongoDB
+2025-03-07T22:56:18.985Z Server is running on port 3000
+2025-03-07T22:56:19.000Z [GetAll Task] Received from test_id_mocked}
+2025-03-07T22:56:19.028Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-03-07T22:56:19.033Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-03-07T22:56:19.038Z [Add Task] Received from test_id_mocked: 
+2025-03-07T22:56:19.042Z [Add Task] Received from test_id_mocked: mocked_task_id
+2025-03-07T22:56:19.046Z [Delete Task] Received from test_id_mocked: mocked_task_id

@@ -482,7 +482,7 @@ app.post('/login', async (req: Request<{}, any, {u_id:string, name: string, emai
 			"is_new": new_user_id[1]
 		});
 	} catch (error: any) {
-		console.error(error);
+		// console.error(error);
 		res.status(500).json({ error: error.message });
 	}
 })
@@ -552,7 +552,7 @@ app.get('/getAllTasks', async (req: Request, res: Response): Promise<void> => {
 			"task_list": task_list || []
 		});
 	} catch (error: any) {
-		console.error(error);
+		// console.error(error);
 		res.status(500).json({ error: error.message });
 	}
 });
@@ -572,7 +572,7 @@ app.post('/deleteTask', async (req: Request<{}, any, {owner_id: string, _id: str
 		});
 
 	} catch (error: any) {
-		console.error(error);
+		// console.error(error);
 		res.status(500).json({ error: error.message });
 	}
 })
@@ -620,3 +620,7 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 app.listen(PORT, () => {
 	console.log(`Server is running on port ${PORT}`);
 });
+
+
+
+export {app, db};
