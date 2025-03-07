@@ -17,10 +17,13 @@ import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.model.TypeFilter
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import android.util.Log
 
 class PlaceSearchFragment : Fragment() {
     private var _binding: FragmentPlaceSearchBinding? = null
@@ -33,7 +36,7 @@ class PlaceSearchFragment : Fragment() {
     private val searchFlow = MutableStateFlow("")
     private var searchJob: Job? = null
 
-    var onPlaceSelected: ((Place.Field) -> Unit)? = null
+    var onPlaceSelected: ((LatLng) -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -171,9 +174,7 @@ class PlaceSearchFragment : Fragment() {
                     Place.Field.ID,
                     Place.Field.NAME,
                     Place.Field.LAT_LNG,
-                    Place.Field.ADDRESS,
-                    Place.Field.TYPES,
-                    Place.Field.VIEWPORT
+                    Place.Field.ADDRESS
                 )
 
                 val request = FetchPlaceRequest.builder(prediction.placeId, placeFields)
@@ -185,10 +186,16 @@ class PlaceSearchFragment : Fragment() {
                 }
 
                 response.place?.let { place ->
-                    onPlaceSelected?.invoke(place)
-                    // Generate new token after successful place selection
-                    sessionToken = AutocompleteSessionToken.newInstance()
+                    place.latLng?.let { latLng ->
+                        onPlaceSelected?.invoke(latLng)
+                        dismiss()
+                    } ?: run {
+                        showError("Selected place has no location coordinates")
+                    }
                 }
+                
+                // Generate new token after successful place selection
+                sessionToken = AutocompleteSessionToken.newInstance()
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching place details", e)
                 showError("Error fetching place details")
@@ -196,6 +203,12 @@ class PlaceSearchFragment : Fragment() {
                 binding.progressBar.visibility = View.GONE
             }
         }
+    }
+
+    private fun dismiss() {
+        parentFragmentManager.beginTransaction()
+            .remove(this)
+            .commitAllowingStateLoss()
     }
 
     private fun showError(message: String) {

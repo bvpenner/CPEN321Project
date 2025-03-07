@@ -132,9 +132,8 @@ class AddTask : AppCompatActivity(), OnMapReadyCallback {
 
     private fun setupLocationSearch() {
         binding.locationSearchButton.setOnClickListener {
-            val searchFragment = PlaceSearchFragment()
-            searchFragment.onPlaceSelected = { place ->
-                place.latLng?.let { latLng ->
+            val searchFragment = PlaceSearchFragment().apply {
+                onPlaceSelected = { latLng ->
                     updateSelectedLocation(latLng)
                 }
             }
