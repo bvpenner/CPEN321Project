@@ -14,6 +14,14 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 
 class TaskNotificationService : FirebaseMessagingService() {
     companion object {
@@ -30,7 +38,30 @@ class TaskNotificationService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d(TAG, "New FCM token: $token")
-        // TODO: Send token to server
+        
+        // Send token to server
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val client = OkHttpClient()
+                val json = JSONObject().apply {
+                    put("u_id", SessionManager.u_id)
+                    put("fcm_token", token)
+                }
+                
+                val request = Request.Builder()
+                    .url("${TaskViewModel.BASE_URL}/updateFcmToken")
+                    .post(json.toString().toRequestBody("application/json".toMediaTypeOrNull()))
+                    .build()
+
+                client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        Log.e(TAG, "Failed to update FCM token: ${response.code}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error updating FCM token", e)
+            }
+        }
     }
 
     override fun onMessageReceived(message: RemoteMessage) {

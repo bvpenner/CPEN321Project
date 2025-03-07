@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GeoTask</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_activity_maps">Map</string>
     
     <!-- Menu Items -->
     <string name="search">Search</string>
@@ -22,6 +20,8 @@
     <string name="delete_task">Delete Task</string>
     <string name="share_task">Share Task</string>
     <string name="complete_task">Complete Task</string>
+    <string name="discard_changes">Discard Changes</string>
+    <string name="keep_editing">Keep Editing</string>
     
     <!-- Labels -->
     <string name="task_name">Task Name</string>
@@ -31,12 +31,32 @@
     <string name="task_priority">Priority</string>
     <string name="task_date">Date</string>
     <string name="task_time">Time</string>
+    <string name="search_location">Search Location</string>
+    <string name="current_location">Current Location</string>
     
     <!-- Messages -->
     <string name="error_task_name_empty">Task name cannot be empty</string>
+    <string name="error_task_name_short">Task name must be at least 3 characters</string>
+    <string name="error_task_description_short">Description must be at least %1$d characters</string>
     <string name="error_task_location_empty">Please select a location</string>
     <string name="error_task_duration_invalid">Please enter a valid duration</string>
+    <string name="error_task_duration_positive">Duration must be positive</string>
+    <string name="error_task_duration_max">Duration cannot exceed %1$d hours</string>
+    <string name="error_task_time_invalid">End time must be after start time</string>
+    <string name="error_no_location">Current location not available</string>
+    <string name="error_route_planning">Failed to plan route: %1$s</string>
+    <string name="error_no_tasks_selected">Please select tasks to plan a route</string>
+    
     <string name="success_task_added">Task added successfully</string>
     <string name="success_task_updated">Task updated successfully</string>
     <string name="success_task_deleted">Task deleted successfully</string>
+    
+    <!-- Dialogs -->
+    <string name="dialog_discard_title">Discard Changes?</string>
+    <string name="dialog_discard_message">You have unsaved changes. Are you sure you want to discard them?</string>
+    <string name="dialog_sort_title">Sort Tasks By</string>
+    
+    <!-- Location -->
+    <string name="location_selected">Selected: %1$.6f, %2$.6f</string>
+    <string name="location_tap_to_select">Tap on the map to select location</string>
 </resources>

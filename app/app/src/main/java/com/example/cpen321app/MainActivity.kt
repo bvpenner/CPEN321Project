@@ -1,182 +1,78 @@
 package com.example.cpen321app
 
-import FirebaseMessagingService
-import android.Manifest
-import android.animation.ObjectAnimator
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.util.Base64
 import android.util.Log
-import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetCredentialResponse
-import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import com.example.cpen321app.databinding.ActivityMainBinding
-import com.google.android.gms.location.LocationServices
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.elevation.SurfaceColors
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.messaging.FirebaseMessaging
-import kotlinx.coroutines.*
-import okhttp3.*
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.gms.auth.api.identity.GetCredentialResponse
+import com.google.android.gms.auth.api.identity.GoogleIdTokenCredential
+import com.google.android.gms.auth.api.identity.CustomCredential
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
-import java.io.IOException
-import java.security.MessageDigest
-import java.util.*
-import java.util.concurrent.TimeUnit
+import java.util.Base64
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var taskViewModel: TaskViewModel
+    private lateinit var credentialManager: SignInClient
     private var savedCredential: GoogleIdTokenCredential? = null
-    
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
-        .build()
-
-    private val locationPermissionRequest = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        when {
-            permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true -> {
-                initializeLocation()
-            }
-            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true -> {
-                initializeLocation()
-            }
-            else -> {
-                showLocationPermissionRationale()
-            }
-        }
-    }
-
-    private val notificationPermissionRequest = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (!isGranted) {
-            showNotificationPermissionRationale()
-        }
-    }
 
     companion object {
         private const val TAG = "MainActivity"
-        private const val BASE_URL = "http://18.215.238.145:3000"
-        private const val ROUTE_WORKER_TAG = "route_worker"
+        private const val REQ_ONE_TAP = 2
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setupWindowDecorations()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        setupViewModel()
-        setupNavigation()
-        setupFab()
-        
-        if (savedCredential == null) {
-            initiateSignIn()
-        } else {
-            setupApp()
-        }
-    }
-
-    private fun setupWindowDecorations() {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.navigationBarColor = SurfaceColors.SURFACE_2.getColor(this)
-        window.statusBarColor = android.graphics.Color.TRANSPARENT
-    }
-
-    private fun setupViewModel() {
         taskViewModel = (application as GeoTask).taskViewModel
-    }
-
-    private fun setupNavigation() {
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
+        credentialManager = Identity.getSignInClient(this)
         
-        binding.bottomNavigation.apply {
-            setupWithNavController(navController)
-            setOnItemReselectedListener { /* Prevent reselection reload */ }
-        }
+        startSignIn()
     }
 
-    private fun setupFab() {
-        binding.addTaskFab.apply {
-            setOnClickListener {
-                animateFab {
-                    startActivity(Intent(this@MainActivity, AddTask::class.java))
-                }
-            }
-        }
-    }
-
-    private fun animateFab(onAnimationEnd: () -> Unit) {
-        ObjectAnimator.ofFloat(binding.addTaskFab, View.SCALE_X, 1f, 0.8f, 1f).apply {
-            duration = 200
-            interpolator = AccelerateDecelerateInterpolator()
-            start()
-        }
-        ObjectAnimator.ofFloat(binding.addTaskFab, View.SCALE_Y, 1f, 0.8f, 1f).apply {
-            duration = 200
-            interpolator = AccelerateDecelerateInterpolator()
-            doOnEnd { onAnimationEnd() }
-            start()
-        }
-    }
-
-    private fun initiateSignIn() {
+    private fun startSignIn() {
         lifecycleScope.launch {
             try {
-                val credentialManager = CredentialManager.create(this@MainActivity)
-                val rawNonce = UUID.randomUUID().toString()
-                val hashedNonce = MessageDigest.getInstance("SHA-256")
-                    .digest(rawNonce.toByteArray())
-                    .fold("") { str, it -> str + "%02x".format(it) }
-
-                val signInOption = GetSignInWithGoogleOption.Builder(BuildConfig.WEB_CLIENT_ID)
-                    .setNonce(hashedNonce)
+                val request = BeginSignInRequest.builder()
+                    .setGoogleIdTokenRequestOptions(
+                        BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                            .setSupported(true)
+                            .setServerClientId(getString(R.string.default_web_client_id))
+                            .setFilterByAuthorizedAccounts(true)
+                            .build()
+                    )
                     .build()
 
-                val request = GetCredentialRequest.Builder()
-                    .addCredentialOption(signInOption)
-                    .build()
-
-                val result = credentialManager.getCredential(request, this@MainActivity)
-                handleSignIn(result)
-            } catch (e: GetCredentialException) {
-                showError("Sign in failed: ${e.localizedMessage}")
+                val result = credentialManager.beginSignIn(request).await()
+                startIntentSenderForResult(
+                    result.pendingIntent.intentSender,
+                    REQ_ONE_TAP,
+                    null,
+                    0,
+                    0,
+                    0,
+                    null
+                )
+            } catch (e: Exception) {
+                showError("Failed to start sign in: ${e.localizedMessage}")
+                Log.e(TAG, "Error starting sign in", e)
             }
         }
     }
@@ -188,27 +84,44 @@ class MainActivity : AppCompatActivity() {
                     try {
                         val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
                         val claims = decodeIdToken(googleCredential.idToken)
-                        val name = claims["name"] as? String ?: "Unknown"
-                        val email = claims["email"] as? String ?: "Unknown"
-                        val userId = claims["sub"] as? String ?: "Unknown"
+                        val name = claims["name"] as? String ?: throw IllegalStateException("Name not found in token")
+                        val email = claims["email"] as? String ?: throw IllegalStateException("Email not found in token")
+                        val userId = claims["sub"] as? String ?: throw IllegalStateException("User ID not found in token")
                         
                         savedCredential = googleCredential
                         SessionManager.u_id = userId
+                        SessionManager.userName = name
+                        SessionManager.userEmail = email
                         
                         lifecycleScope.launch {
                             try {
                                 sendLoginRequest(userId, name, email)
                                 setupApp()
+                                showSnackbar("Welcome, $name!")
                             } catch (e: Exception) {
                                 showError("Failed to initialize: ${e.localizedMessage}")
+                                Log.e(TAG, "Error during initialization", e)
+                                signOut()
                             }
                         }
                     } catch (e: GoogleIdTokenParsingException) {
                         showError("Invalid Google ID token")
+                        Log.e(TAG, "Error parsing Google ID token", e)
+                        signOut()
+                    } catch (e: IllegalStateException) {
+                        showError(e.message ?: "Invalid token data")
+                        Log.e(TAG, "Missing required token data", e)
+                        signOut()
                     }
+                } else {
+                    showError("Unsupported credential type")
+                    signOut()
                 }
             }
-            else -> showError("Unexpected credential type")
+            else -> {
+                showError("Unexpected credential type")
+                signOut()
+            }
         }
     }
 
@@ -217,133 +130,73 @@ class MainActivity : AppCompatActivity() {
         initializeLocation()
         scheduleRouteWorker()
         taskViewModel.refreshTaskList()
-    }
-
-    private fun requestPermissions() {
-        // Location permissions
-        if (!hasLocationPermissions()) {
-            locationPermissionRequest.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
-        }
-
-        // Notification permission (Android 13+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (!hasNotificationPermission()) {
-                notificationPermissionRequest.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-    }
-
-    private fun hasLocationPermissions(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            this, Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED ||
-        ContextCompat.checkSelfPermission(
-            this, Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun hasNotificationPermission(): Boolean {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-        ContextCompat.checkSelfPermission(
-            this, Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun initializeLocation() {
-        if (!hasLocationPermissions()) return
         
-        LocationServices.getFusedLocationProviderClient(this).lastLocation
-            .addOnSuccessListener { location ->
-                location?.let {
-                    SessionManager.currentLocation = it
-                    Log.d(TAG, "Location updated: ${it.latitude}, ${it.longitude}")
+        // Set up navigation
+        binding.bottomNavigation.apply {
+            setOnItemSelectedListener { item ->
+                when (item.itemId) {
+                    R.id.navigation_tasks -> {
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.fragmentContainer, TaskListFragment())
+                            .commit()
+                        true
+                    }
+                    R.id.navigation_map -> {
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.fragmentContainer, MapViewFragment())
+                            .commit()
+                        true
+                    }
+                    else -> false
                 }
             }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Failed to get location", e)
-            }
-    }
-
-    private fun scheduleRouteWorker() {
-        val routeWorkRequest = PeriodicWorkRequestBuilder<RouteWorker>(
-            15, TimeUnit.MINUTES,
-            5, TimeUnit.MINUTES
-        ).build()
-
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            ROUTE_WORKER_TAG,
-            ExistingPeriodicWorkPolicy.UPDATE,
-            routeWorkRequest
-        )
-    }
-
-    private suspend fun sendLoginRequest(userId: String, name: String, email: String) = withContext(Dispatchers.IO) {
-        val jsonBody = JSONObject().apply {
-            put("u_id", userId)
-            put("name", name)
-            put("email", email)
+            selectedItemId = R.id.navigation_tasks
         }
-
-        val request = Request.Builder()
-            .url("$BASE_URL/login")
-            .post(jsonBody.toString().toRequestBody("application/json".toMediaTypeOrNull()))
-            .build()
-
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) throw IOException("Unexpected response ${response.code}")
+        
+        // Set up FAB
+        binding.addTaskFab.apply {
+            show()
+            setOnClickListener {
+                startActivity(Intent(this@MainActivity, AddTask::class.java))
+            }
         }
     }
 
-    private fun showLocationPermissionRationale() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Location Permission Required")
-            .setMessage("This app needs location access to plan optimal routes for your tasks and provide location-based reminders.")
-            .setPositiveButton("Grant Permission") { _, _ ->
-                locationPermissionRequest.launch(
-                    arrayOf(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    )
-                )
+    private fun signOut() {
+        lifecycleScope.launch {
+            try {
+                credentialManager.clearCredentials()
+                SessionManager.clear()
+                savedCredential = null
+                startSignIn()
+            } catch (e: Exception) {
+                showError("Failed to sign out: ${e.localizedMessage}")
+                Log.e(TAG, "Error during sign out", e)
             }
-            .setNegativeButton("Not Now", null)
-            .show()
+        }
     }
 
-    private fun showNotificationPermissionRationale() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Notification Permission Required")
-            .setMessage("Enable notifications to receive important updates about your tasks and route optimizations.")
-            .setPositiveButton("Grant Permission") { _, _ ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    notificationPermissionRequest.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-            }
-            .setNegativeButton("Not Now", null)
-            .show()
+    private fun showSnackbar(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     private fun showError(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
             .setAction("Retry") {
-                if (savedCredential == null) {
-                    initiateSignIn()
-                } else {
-                    setupApp()
-                }
+                startSignIn()
             }
             .show()
     }
 
     private fun decodeIdToken(idToken: String): Map<String, Any> {
         val parts = idToken.split(".")
-        val payload = String(Base64.decode(parts[1], Base64.URL_SAFE))
-        return JSONObject(payload).toMap()
+        if (parts.size != 3) throw IllegalArgumentException("Invalid ID token format")
+        
+        val payload = parts[1]
+        val decodedBytes = Base64.getUrlDecoder().decode(payload)
+        val decodedString = String(decodedBytes)
+        
+        return JSONObject(decodedString).toMap()
     }
 
     private fun JSONObject.toMap(): Map<String, Any> =
@@ -354,4 +207,22 @@ class MainActivity : AppCompatActivity() {
                 else -> value
             }
         }
+
+    private suspend fun sendLoginRequest(userId: String, name: String, email: String) {
+        val client = OkHttpClient()
+        val json = JSONObject().apply {
+            put("u_id", userId)
+            put("name", name)
+            put("email", email)
+        }
+        
+        val request = Request.Builder()
+            .url("${TaskViewModel.BASE_URL}/login")
+            .post(json.toString().toRequestBody("application/json".toMediaTypeOrNull()))
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IllegalStateException("Login failed: ${response.code}")
+        }
+    }
 }

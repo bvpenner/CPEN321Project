@@ -48,47 +48,23 @@ class GeoTask : Application(), DefaultLifecycleObserver {
     private fun initializeFirebase() {
         try {
             FirebaseApp.initializeApp(this)
-            if (FirebaseApp.getApps(this).isNotEmpty()) {
-                Log.d(TAG, "Firebase initialized successfully")
-                retrieveAndUpdateFCMToken()
-            } else {
-                Log.e(TAG, "Firebase initialization failed")
-                // Consider implementing a retry mechanism or fallback
-            }
+            FirebaseMessaging.getInstance().token
+                .addOnCompleteListener(OnCompleteListener { task ->
+                    if (!task.isSuccessful) {
+                        Log.w(TAG, "Failed to get FCM token", task.exception)
+                        return@OnCompleteListener
+                    }
+
+                    val token = task.result
+                    Log.d(TAG, "FCM Token: $token")
+                })
         } catch (e: Exception) {
             Log.e(TAG, "Error initializing Firebase", e)
-            // Handle initialization error (e.g., missing google-services.json)
         }
     }
 
-    private fun retrieveAndUpdateFCMToken() {
-        FirebaseMessaging.getInstance().token
-            .addOnCompleteListener(OnCompleteListener { task ->
-                if (!task.isSuccessful) {
-                    Log.w(TAG, "Fetching FCM registration token failed", task.exception)
-                    return@OnCompleteListener
-                }
-
-                val token = task.result
-                Log.d(TAG, "FCM Token: $token")
-                // TODO: Send token to server
-                applicationScope.launch(Dispatchers.IO) {
-                    try {
-                        // Implement token upload to server
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error sending FCM token to server", e)
-                    }
-                }
-            })
-    }
-
     private fun initializeWorkManager() {
-        setupLocationTracking()
-        setupRouteOptimization()
-    }
-
-    private fun setupLocationTracking() {
-        val constraints = Constraints.Builder()
+        val locationConstraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .setRequiresBatteryNotLow(true)
             .build()
@@ -97,43 +73,28 @@ class GeoTask : Application(), DefaultLifecycleObserver {
             15, TimeUnit.MINUTES,
             5, TimeUnit.MINUTES
         )
-            .setConstraints(constraints)
-            .setBackoffCriteria(
-                BackoffPolicy.LINEAR,
-                WorkRequest.MIN_BACKOFF_MILLIS,
-                TimeUnit.MILLISECONDS
-            )
-            .build()
-
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            LOCATION_WORK_NAME,
-            ExistingPeriodicWorkPolicy.UPDATE,
-            locationWorkRequest
-        )
-    }
-
-    private fun setupRouteOptimization() {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .setConstraints(locationConstraints)
             .build()
 
         val routeWorkRequest = PeriodicWorkRequestBuilder<RouteWorker>(
-            30, TimeUnit.MINUTES,
-            5, TimeUnit.MINUTES
+            1, TimeUnit.HOURS,
+            15, TimeUnit.MINUTES
         )
-            .setConstraints(constraints)
-            .setBackoffCriteria(
-                BackoffPolicy.EXPONENTIAL,
-                WorkRequest.MIN_BACKOFF_MILLIS,
-                TimeUnit.MILLISECONDS
-            )
+            .setConstraints(locationConstraints)
             .build()
 
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            ROUTE_WORK_NAME,
-            ExistingPeriodicWorkPolicy.UPDATE,
-            routeWorkRequest
-        )
+        WorkManager.getInstance(this).apply {
+            enqueueUniquePeriodicWork(
+                LOCATION_WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                locationWorkRequest
+            )
+            enqueueUniquePeriodicWork(
+                ROUTE_WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                routeWorkRequest
+            )
+        }
     }
 
     private fun setupLifecycleObserver() {
@@ -142,20 +103,18 @@ class GeoTask : Application(), DefaultLifecycleObserver {
 
     override fun onStart(owner: LifecycleOwner) {
         super.onStart(owner)
-        Log.d(TAG, "App moved to foreground")
-        // Refresh data when app comes to foreground
-        taskViewModel.refreshTaskList()
+        applicationScope.launch {
+            taskViewModel.refreshTaskList()
+        }
     }
 
     override fun onStop(owner: LifecycleOwner) {
         super.onStop(owner)
-        Log.d(TAG, "App moved to background")
-        // Perform cleanup or background task optimization
+        // Clean up any resources if needed
     }
 
     override fun onTerminate() {
         super.onTerminate()
-        // Cleanup resources
         WorkManager.getInstance(this).cancelUniqueWork(LOCATION_WORK_NAME)
         WorkManager.getInstance(this).cancelUniqueWork(ROUTE_WORK_NAME)
     }

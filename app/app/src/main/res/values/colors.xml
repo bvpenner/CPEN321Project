@@ -41,4 +41,9 @@
     <color name="priority_high">#FFE57373</color>
     <color name="priority_medium">#FFFFD54F</color>
     <color name="priority_low">#FF81C784</color>
+
+    <!-- Notification Colors -->
+    <color name="task_notification">#FF3A7BD5</color>
+    <color name="route_notification">#FF00B2CC</color>
+    <color name="reminder_notification">#FFE53935</color>
 </resources>
