@@ -6,12 +6,22 @@ import { ObjectId } from "mongodb";
 /////////////////////////////////////////////////
 // Without Mock
 // npx jest backend_nomock.test.ts --preset=ts-jest
+// npx jest backend_nomock.test.ts backend_mock.test.ts --coverage --runInBand
 /////////////////////////////////////////////////
 
 const validUID = "test_id_backend";
 const valid_username = "Test Dummy";
 const valid_useremail = "TestDummy@gmail.com";
 var temp_taskid: ObjectId = new ObjectId(); 
+
+describe("/ (No Mocks)", () => {
+    test("test ping", async () => {
+        const response = await request(app)
+            .get("/");
+
+        expect(response.status).toBe(200); 
+    });
+});
 
 describe("/getAllTasks (No Mocks)", () => {
     test("should return user data from real API", async () => {

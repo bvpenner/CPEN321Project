@@ -3,6 +3,15 @@ import { JestConfigWithTsJest } from "ts-jest";
 const config: JestConfigWithTsJest = {
   preset: "ts-jest",
   testEnvironment: "node",
+  rootDir: "../",
+  collectCoverage: true,
+  collectCoverageFrom: [
+    "ts-server/src/**/*.ts",
+    "!ts-server/src/**/*.test.ts",
+    "!**/node_modules/**",
+    "!**/vendor/**", 
+  ],
+  coverageDirectory: "<rootDir>/coverage",
   transform: {
     "^.+\\.ts$": ["ts-jest", { useESM: true }],
   },
