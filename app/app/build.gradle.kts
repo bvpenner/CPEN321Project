@@ -1,4 +1,5 @@
 import java.util.Properties
+import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.android.application)
@@ -13,9 +14,8 @@ android {
     namespace = "com.example.cpen321app"
     compileSdk = 35
 
-    val file = rootProject.file("local.properties")
-    val properties = Properties()
-    properties.load(file.inputStream())
+    // Set a default empty string for webClientId
+    val webClientId = ""
 
     defaultConfig {
         applicationId = "com.example.cpen321app"
@@ -26,7 +26,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val webClientId = properties.getProperty("WEB_CLIENT_ID") ?: ""
         buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientId\"")
     }
 
@@ -70,6 +69,25 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.rules)
+
+    // Additional Espresso dependencies
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.6.1")
+    
+    // Mockito for testing
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    androidTestImplementation("org.mockito:mockito-android:5.11.0")
+    
+    // Fragment testing
+    debugImplementation("androidx.fragment:fragment-testing:1.7.0")
+    
+    // Work Manager testing
+    androidTestImplementation("androidx.work:work-testing:2.10.0")
+    
+    // Hamcrest for matchers
+    androidTestImplementation("org.hamcrest:hamcrest-library:2.2")
 
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
