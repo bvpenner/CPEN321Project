@@ -203,3 +203,299 @@ describe("/fetchGeofences (No Mocks)", () => {
         expect(response.body).toHaveProperty("error");
     });
 });
+
+/////////////////////////////////////////////////
+// FindOptimalRoute tests
+/////////////////////////////////////////////////
+
+describe("/findOptimalRoute (No Mocks)", () => {
+    test("case 1: user selected no task", async () => {
+        const response = await request(app)
+            .post("/fetchOptimalRoute")
+            .send({ 
+                allTasksID: [],
+                userLocation: {
+                    latitude: 49.269139,
+                    longitude: -123.215108
+                }, 
+                userCurrTime: "10:00"
+            })
+            .set("Content-Type", "application/json");
+
+        expect(response.status).toBe(400);
+    });
+
+    test("case 2: user gives no time", async () => {
+        const response = await request(app)
+            .post("/fetchOptimalRoute")
+            .send({ 
+                allTasksID: [],
+                userLocation: {
+                    latitude: 49.269139,
+                    longitude: -123.215108
+                }, 
+                userCurrTime: ""
+            })
+            .set("Content-Type", "application/json");
+
+        expect(response.status).toBe(400);
+    });
+
+    test("case 3: user gives no location", async () => {
+        const response = await request(app)
+            .post("/fetchOptimalRoute")
+            .send({ 
+                allTasksID: [],
+                userLocation: {
+                    latitude: 0,
+                    longitude: 0
+                }, 
+                userCurrTime: "10:00"
+            })
+            .set("Content-Type", "application/json");
+
+        expect(response.status).toBe(400);
+    });
+
+    test("case 4: user gives all required info, single tasks, viable route", async () => {
+        
+        //add new tasks
+        //specific fields tbd
+        var temp_taskid_1: ObjectId = new ObjectId(); 
+
+        const task_1_res = await request(app)
+            .post("/addTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: temp_taskid_1, 
+                name: "test_task_1",
+                start_time: "10:00", 
+                end_time: "11:00", 
+                duration: 30, 
+                location_lat: 45, 
+                location_lng: 45, 
+                priority: 1, 
+                description: ""
+            })
+            .set("Content-Type", "application/json");
+
+        const response = await request(app)
+            .post("/fetchOptimalRoute")
+            .send({ 
+                allTasksID: [task_1_res.body.new_task_id],
+                userLocation: {
+                    latitude: 49.269139,
+                    longitude: -123.215108
+                }, 
+                userCurrTime: "10:00"
+            })
+            .set("Content-Type", "application/json");
+
+        expect(response.status).toBe(200);
+        // more expect
+
+        //clean up
+        const cleanUpResponse_1 = await request(app)
+            .post("/deleteTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: "temp_taskid_1", 
+            })
+            .set("Content-Type", "application/json");
+    });
+
+    test("case 5: user gives all required info, multiple tasks, viable route", async () => {
+        
+        //add new tasks
+        //specific fields tbd
+        var temp_taskid_1: ObjectId = new ObjectId(); 
+        var temp_taskid_2: ObjectId = new ObjectId(); 
+        var temp_taskid_3: ObjectId = new ObjectId(); 
+        const task_1_res = await request(app)
+            .post("/addTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: temp_taskid_1, 
+                name: "test_task_1",
+                start_time: "10:00", 
+                end_time: "11:00", 
+                duration: 30, 
+                location_lat: 45, 
+                location_lng: 45, 
+                priority: 1, 
+                description: ""
+            })
+            .set("Content-Type", "application/json");
+
+        const task_2_res = await request(app)
+            .post("/addTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: temp_taskid_2, 
+                name: "test_task_2",
+                start_time: "10:00", 
+                end_time: "11:00", 
+                duration: 30, 
+                location_lat: 45, 
+                location_lng: 45, 
+                priority: 1, 
+                description: ""
+            })
+            .set("Content-Type", "application/json");
+
+        const task_3_res = await request(app)
+            .post("/addTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: temp_taskid_3, 
+                name: "test_task_3",
+                start_time: "10:00", 
+                end_time: "11:00", 
+                duration: 30, 
+                location_lat: 45, 
+                location_lng: 45, 
+                priority: 1, 
+                description: ""
+            })
+            .set("Content-Type", "application/json");
+        
+        const response = await request(app)
+            .post("/fetchOptimalRoute")
+            .send({ 
+                allTasksID: [task_1_res.body.new_task_id, task_2_res.body.new_task_id, task_3_res.body.new_task_id],
+                userLocation: {
+                    latitude: 49.269139,
+                    longitude: -123.215108
+                }, 
+                userCurrTime: "10:00"
+            })
+            .set("Content-Type", "application/json");
+
+        expect(response.status).toBe(200);
+        // more expect here
+
+
+        //clean up
+        const cleanUpResponse_1 = await request(app)
+            .post("/deleteTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: "temp_taskid_1", 
+            })
+            .set("Content-Type", "application/json");
+
+        const cleanUpResponse_2 = await request(app)
+            .post("/deleteTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: "temp_taskid_2", 
+            })
+            .set("Content-Type", "application/json");
+
+        const cleanUpResponse_3 = await request(app)
+            .post("/deleteTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: "temp_taskid_3", 
+            })
+            .set("Content-Type", "application/json");
+    });
+
+    test("case 6: user gives all required info, multiple tasks, no viable route", async () => {
+        
+        //add new tasks
+        //specific fields tbd
+        var temp_taskid_1: ObjectId = new ObjectId(); 
+        var temp_taskid_2: ObjectId = new ObjectId(); 
+        var temp_taskid_3: ObjectId = new ObjectId(); 
+        const task_1_res = await request(app)
+            .post("/addTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: temp_taskid_1, 
+                name: "test_task_1",
+                start_time: "10:00", 
+                end_time: "11:00", 
+                duration: 30, 
+                location_lat: 45, 
+                location_lng: 45, 
+                priority: 1, 
+                description: ""
+            })
+            .set("Content-Type", "application/json");
+
+        const task_2_res = await request(app)
+            .post("/addTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: temp_taskid_2, 
+                name: "test_task_2",
+                start_time: "10:00", 
+                end_time: "11:00", 
+                duration: 30, 
+                location_lat: 45, 
+                location_lng: 45, 
+                priority: 1, 
+                description: ""
+            })
+            .set("Content-Type", "application/json");
+
+        const task_3_res = await request(app)
+            .post("/addTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: temp_taskid_3, 
+                name: "test_task_3",
+                start_time: "10:00", 
+                end_time: "11:00", 
+                duration: 30, 
+                location_lat: 45, 
+                location_lng: 45, 
+                priority: 1, 
+                description: ""
+            })
+            .set("Content-Type", "application/json");
+        
+        const response = await request(app)
+            .post("/fetchOptimalRoute")
+            .send({ 
+                allTasksID: [task_1_res.body.new_task_id, task_2_res.body.new_task_id, task_3_res.body.new_task_id],
+                userLocation: {
+                    latitude: 49.269139,
+                    longitude: -123.215108
+                }, 
+                userCurrTime: "10:00"
+            })
+            .set("Content-Type", "application/json");
+
+        expect(response.status).toBe(200);
+        // more expect here
+
+        //clean up
+        const cleanUpResponse_1 = await request(app)
+            .post("/deleteTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: "temp_taskid_1", 
+            })
+            .set("Content-Type", "application/json");
+
+        const cleanUpResponse_2 = await request(app)
+            .post("/deleteTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: "temp_taskid_2", 
+            })
+            .set("Content-Type", "application/json");
+
+        const cleanUpResponse_3 = await request(app)
+            .post("/deleteTask")
+            .send({ 
+                owner_id: validUID, 
+                _id: "temp_taskid_3", 
+            })
+            .set("Content-Type", "application/json");
+    });
+
+    
+});
