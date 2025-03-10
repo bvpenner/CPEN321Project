@@ -16,6 +16,7 @@ android {
 
     // Set a default empty string for webClientId
     val webClientId = ""
+//    val myCredential = ""
 
     defaultConfig {
         applicationId = "com.example.cpen321app"
@@ -27,6 +28,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientId\"")
+//        buildConfigField("String", "MY_CREDENTIAL", "\"$myCredential\"")
     }
 
     buildTypes {
@@ -64,11 +66,13 @@ dependencies {
     implementation(libs.places)
     implementation(libs.firebase.common.ktx)
     implementation(libs.firebase.messaging.ktx)
+//    implementation(libs.androidx.security.crypto.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.rules)
+    implementation(libs.androidx.security.crypto)
 
     // Additional Espresso dependencies
     androidTestImplementation("androidx.test.espresso:espresso-contrib:3.6.1")

@@ -36,6 +36,8 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -78,6 +80,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var taskViewModel: TaskViewModel
     private var server_ip = "18.215.238.145:3000"
 
+    private lateinit var securePreferences: SecurePreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -85,31 +89,42 @@ class MainActivity : AppCompatActivity() {
 
         taskViewModel = (application as GeoTask).taskViewModel
 
-        val credentialManager = CredentialManager.create(this)
-        val rawNonce = UUID.randomUUID().toString()
-        val bytes = rawNonce.toByteArray()
-        val md = MessageDigest.getInstance("SHA-256")
-        val digest = md.digest(bytes)
-        val hashedNonce = digest.fold("") { str, it -> str + "%02x".format(it) }
-        Log.d(TAG, "WEB_CLIENT_ID: ${BuildConfig.WEB_CLIENT_ID}")
+        securePreferences = SecurePreferences(applicationContext)
+        
+        // Get Login Data
+        val name = securePreferences.getSecureValue("name")
+        val email = securePreferences.getSecureValue("email")
+        val u_id = securePreferences.getSecureValue("u_id")
+
+        if(name == null || email == null || u_id == null) {
+            val credentialManager = CredentialManager.create(this)
+            val rawNonce = UUID.randomUUID().toString()
+            val bytes = rawNonce.toByteArray()
+            val md = MessageDigest.getInstance("SHA-256")
+            val digest = md.digest(bytes)
+            val hashedNonce = digest.fold("") { str, it -> str + "%02x".format(it) }
+            Log.d(TAG, "WEB_CLIENT_ID: ${BuildConfig.WEB_CLIENT_ID}")
 
 
-        val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
-            .Builder(BuildConfig.WEB_CLIENT_ID)
-            .setNonce(hashedNonce)
-            .build()
+            val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
+                .Builder(BuildConfig.WEB_CLIENT_ID)
+                .setNonce(hashedNonce)
+                .build()
 
-        val request: GetCredentialRequest = GetCredentialRequest.Builder()
-            .addCredentialOption(signInWithGoogleOption)
-            .build()
+            val request: GetCredentialRequest = GetCredentialRequest.Builder()
+                .addCredentialOption(signInWithGoogleOption)
+                .build()
 
-        activityScope.launch {
-            try {
-                val result = credentialManager.getCredential(request = request, context = this@MainActivity)
-                handleSignIn(result)
-            } catch (e: GetCredentialException) {
-                handleFailure(e)
+            activityScope.launch {
+                try {
+                    val result = credentialManager.getCredential(request = request, context = this@MainActivity)
+                    handleSignIn(result)
+                } catch (e: GetCredentialException) {
+                    handleFailure(e)
+                }
             }
+        } else {
+            signInToBackend(u_id, name, email)
         }
     }
 
@@ -128,15 +143,18 @@ class MainActivity : AppCompatActivity() {
             is CustomCredential -> {
                 if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     try {
+                        Log.d(TAG, credential.data.toString())
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                         val claims = decodeIdToken(googleIdTokenCredential.idToken)
                         val name = claims["name"] as? String ?: "Unknown"
                         val email = claims["email"] as? String ?: "Unknown"
                         val u_id = claims["sub"] as? String ?: "Unknown"
-                        SessionManager.u_id = u_id
-                        sendLoginRequestToServer(u_id, name, email)
-                        sendGetAllTasksToServer(u_id)
-                        signInSuccess(googleIdTokenCredential)
+
+                        securePreferences.saveSecureValue("name", name)
+                        securePreferences.saveSecureValue("email", email)
+                        securePreferences.saveSecureValue("u_id", u_id)
+
+                        signInToBackend(u_id, name, email)
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e(TAG, "Received an invalid Google ID token", e)
                     }
@@ -148,8 +166,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun signInSuccess(googleCredential: GoogleIdTokenCredential) {
-        savedCredential = googleCredential
+    private fun signInToBackend(u_id: String, name: String, email: String) {
+        SessionManager.u_id = u_id
+        sendLoginRequestToServer(u_id, name, email)
+        sendGetAllTasksToServer(u_id)
+        signInSuccess()
+    }
+
+    private fun signInSuccess() {
 
         // Fetch the initial location and store it in SessionManager.
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
