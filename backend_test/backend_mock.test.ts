@@ -4,6 +4,8 @@ import * as dbService from "../database/mongodb-ts/userService";
 import { isStringObject } from "util/types";
 import { ObjectId } from "mongodb";
 import { fetchGeofences } from "../ts-server/src/geofenceService";
+import fetch from "node-fetch";
+import { Client } from "@googlemaps/google-maps-services-js";
 
 /////////////////////////////////////////////////
 // With Mock
@@ -19,6 +21,18 @@ jest.mock("../ts-server/src/geofenceService", () => {
         fetchGeofences: jest.fn(),
     };
 });
+
+jest.mock("node-fetch", () => jest.fn());
+const mockFetch = fetch as jest.Mock;
+
+const googleMapsClientMock = {
+    snapToRoads: jest.fn()
+};
+// jest.mock("@googlemaps/google-maps-services-js", () => ({
+//     Client: jest.fn(() => ({
+//         snapToRoads: jest.fn()
+//     }))
+// }));
 
 
 const mockedDbService = dbService as jest.Mocked<typeof dbService>;
@@ -237,4 +251,47 @@ describe("/fetchGeofences (Mocked)", () => {
         expect(response.status).toBe(500);
         expect(response.body).toHaveProperty("error", "Google API not responding");
     });
+});
+
+describe("/fetchGeofences (Mocked)", () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test("should return 500 when Google Roads API does not respond", async () => {
+        mockFetch.mockResolvedValue({
+            ok: true,
+            json: async () => ({
+                routes: [
+                    {
+                        summary: "Mock Route",
+                        overview_polyline: { points: "mockpolyline" },
+                        legs: [
+                            {
+                                start_location: { lat: 49.269139, lng: -123.215108 },
+                                end_location: { lat: 49.26913, lng: -123.215108 },
+                                distance: { value: 1000 },
+                                duration: { value: 600 },
+                            }
+                        ]
+                    }
+                ]
+            }),
+        });
+    
+        googleMapsClientMock.snapToRoads.mockRejectedValue(new Error("Google Roads API not responding"));
+    
+        const response = await request(app)
+            .post("/fetchGeofences")
+            .send({
+                origin: { latitude: 49.269139, longitude: -123.215108 },
+                destination: { latitude: 49.26913, longitude: -123.215108 },
+            })
+            .set("Content-Type", "application/json");
+    
+        console.log("Actual Response Body:", response.body);
+    
+        expect(response.status).toBe(500);
+        expect(response.body).toHaveProperty("error");
+    });    
 });

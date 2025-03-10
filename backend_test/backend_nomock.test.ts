@@ -277,17 +277,19 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .post("/addTask")
             .send({ 
                 owner_id: validUID, 
-                _id: temp_taskid_1, 
+                _id: "", 
                 name: "test_task_1",
                 start_time: "10:00", 
                 end_time: "11:00", 
                 duration: 30, 
-                location_lat: 45, 
-                location_lng: 45, 
+                location_lat: 49.269139, 
+                location_lng: -123.115108, 
                 priority: 1, 
                 description: ""
             })
             .set("Content-Type", "application/json");
+        expect(task_1_res.status).toBe(200);
+        expect(task_1_res.body).toHaveProperty("new_task_id");
 
         const response = await request(app)
             .post("/fetchOptimalRoute")
@@ -304,12 +306,13 @@ describe("/findOptimalRoute (No Mocks)", () => {
         expect(response.status).toBe(200);
         // more expect
 
+
         //clean up
         const cleanUpResponse_1 = await request(app)
             .post("/deleteTask")
             .send({ 
                 owner_id: validUID, 
-                _id: "temp_taskid_1", 
+                _id: task_1_res.body.new_task_id, 
             })
             .set("Content-Type", "application/json");
     });
@@ -325,13 +328,13 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .post("/addTask")
             .send({ 
                 owner_id: validUID, 
-                _id: temp_taskid_1, 
+                _id: "", 
                 name: "test_task_1",
                 start_time: "10:00", 
                 end_time: "11:00", 
                 duration: 30, 
-                location_lat: 45, 
-                location_lng: 45, 
+                location_lat: 49.269139, 
+                location_lng: -123.135108, 
                 priority: 1, 
                 description: ""
             })
@@ -341,13 +344,13 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .post("/addTask")
             .send({ 
                 owner_id: validUID, 
-                _id: temp_taskid_2, 
+                _id: "", 
                 name: "test_task_2",
                 start_time: "10:00", 
                 end_time: "11:00", 
                 duration: 30, 
-                location_lat: 45, 
-                location_lng: 45, 
+                location_lat: 49.269139, 
+                location_lng: -123.165108, 
                 priority: 1, 
                 description: ""
             })
@@ -357,13 +360,13 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .post("/addTask")
             .send({ 
                 owner_id: validUID, 
-                _id: temp_taskid_3, 
+                _id: "", 
                 name: "test_task_3",
                 start_time: "10:00", 
                 end_time: "11:00", 
                 duration: 30, 
-                location_lat: 45, 
-                location_lng: 45, 
+                location_lat: 49.269139, 
+                location_lng: -123.115108, 
                 priority: 1, 
                 description: ""
             })
@@ -390,7 +393,7 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .post("/deleteTask")
             .send({ 
                 owner_id: validUID, 
-                _id: "temp_taskid_1", 
+                _id: task_1_res.body.new_task_id, 
             })
             .set("Content-Type", "application/json");
 
@@ -398,7 +401,7 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .post("/deleteTask")
             .send({ 
                 owner_id: validUID, 
-                _id: "temp_taskid_2", 
+                _id: task_2_res.body.new_task_id, 
             })
             .set("Content-Type", "application/json");
 
@@ -406,7 +409,7 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .post("/deleteTask")
             .send({ 
                 owner_id: validUID, 
-                _id: "temp_taskid_3", 
+                _id: task_3_res.body.new_task_id, 
             })
             .set("Content-Type", "application/json");
     });
@@ -422,13 +425,13 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .post("/addTask")
             .send({ 
                 owner_id: validUID, 
-                _id: temp_taskid_1, 
+                _id: "", 
                 name: "test_task_1",
                 start_time: "10:00", 
                 end_time: "11:00", 
                 duration: 30, 
-                location_lat: 45, 
-                location_lng: 45, 
+                location_lat: 49.269139, 
+                location_lng: -123.135108, 
                 priority: 1, 
                 description: ""
             })
@@ -438,13 +441,13 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .post("/addTask")
             .send({ 
                 owner_id: validUID, 
-                _id: temp_taskid_2, 
+                _id: "", 
                 name: "test_task_2",
                 start_time: "10:00", 
                 end_time: "11:00", 
                 duration: 30, 
-                location_lat: 45, 
-                location_lng: 45, 
+                location_lat: 49.269139, 
+                location_lng: -123.165108, 
                 priority: 1, 
                 description: ""
             })
@@ -454,13 +457,13 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .post("/addTask")
             .send({ 
                 owner_id: validUID, 
-                _id: temp_taskid_3, 
+                _id: "", 
                 name: "test_task_3",
                 start_time: "10:00", 
                 end_time: "11:00", 
                 duration: 30, 
-                location_lat: 45, 
-                location_lng: 45, 
+                location_lat: 49.269139, 
+                location_lng: -123.115108, 
                 priority: 1, 
                 description: ""
             })
@@ -486,7 +489,7 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .post("/deleteTask")
             .send({ 
                 owner_id: validUID, 
-                _id: "temp_taskid_1", 
+                _id: task_2_res.body.new_task_id, 
             })
             .set("Content-Type", "application/json");
 
@@ -494,7 +497,7 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .post("/deleteTask")
             .send({ 
                 owner_id: validUID, 
-                _id: "temp_taskid_2", 
+                _id: task_1_res.body.new_task_id, 
             })
             .set("Content-Type", "application/json");
 
@@ -502,7 +505,7 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .post("/deleteTask")
             .send({ 
                 owner_id: validUID, 
-                _id: "temp_taskid_3", 
+                _id: task_3_res.body.new_task_id, 
             })
             .set("Content-Type", "application/json");
     });

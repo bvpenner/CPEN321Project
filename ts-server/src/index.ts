@@ -218,29 +218,29 @@ function timeToMinutes(timeStr: string): number {
 /**
  * Calls the Google Distance Matrix API to get time distance between 2 points.
  */
-async function fetch2TaskRouteTime(originTask: Task, destinationTask: Task): Promise<any> {
-	const { default: fetch } = await import('node-fetch');
+// async function fetch2TaskRouteTime(originTask: Task, destinationTask: Task): Promise<any> {
+// 	const { default: fetch } = await import('node-fetch');
 
-	const url = `https://maps.googleapis.com/maps/api/distancematrix/json?` +
-		`&destinations=${destinationTask.location_lat}, ${destinationTask.location_lng}` +
-		`&origins=${originTask.location_lat}, ${originTask.location_lng}` +
-		`&key=${GMap_API_key}`;
+// 	const url = `https://maps.googleapis.com/maps/api/distancematrix/json?` +
+// 		`&destinations=${destinationTask.location_lat}, ${destinationTask.location_lng}` +
+// 		`&origins=${originTask.location_lat}, ${originTask.location_lng}` +
+// 		`&key=${GMap_API_key}`;
 
-	const response = await fetch(url);
-	if (!response.ok) {
-		throw new Error(`Route Request Failed: ${response.statusText}`);
-	}
-	const jsonResponse = await response.json();
-	// console.log("jsonResponse:", jsonResponse);
-	const routeTime = parse2TaskRouteTime(jsonResponse);
-	// console.log("CompactJson:", compactJson);
-	return routeTime;
-}
+// 	const response = await fetch(url);
+// 	if (!response.ok) {
+// 		throw new Error(`Route Request Failed: ${response.statusText}`);
+// 	}
+// 	const jsonResponse = await response.json();
+// 	// console.log("jsonResponse:", jsonResponse);
+// 	const routeTime = parse2TaskRouteTime(jsonResponse);
+// 	// console.log("CompactJson:", compactJson);
+// 	return routeTime;
+// }
 
 // TODO: maybe should do error check
-function parse2TaskRouteTime(jsonData: any): any {
-	return jsonData.rows[0].elements[0].duration.value;
-}
+// function parse2TaskRouteTime(jsonData: any): any {
+// 	return jsonData.rows[0].elements[0].duration.value;
+// }
 
 
 /**

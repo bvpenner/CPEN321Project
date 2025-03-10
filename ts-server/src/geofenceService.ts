@@ -121,7 +121,7 @@ async function findRoadIntersections(points: LatLng[]): Promise<LatLng[]> {
         try {
             const response = await googleMapsClient.snapToRoads({
                 params: {
-                    path: [{ lat: point.latitude, lng: point.longitude }], // ✅ Fix: Pass an array instead of a string
+                    path: [{ lat: point.latitude, lng: point.longitude }],
                     interpolate: false,
                     key: GMap_API_key
                 }
