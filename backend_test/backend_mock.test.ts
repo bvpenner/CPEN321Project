@@ -3,6 +3,7 @@ import { app , db } from "../ts-server/src/index";
 import * as dbService from "../database/mongodb-ts/userService"; 
 import { isStringObject } from "util/types";
 import { ObjectId } from "mongodb";
+import { fetchGeofences } from "../ts-server/src/geofenceService";
 
 /////////////////////////////////////////////////
 // With Mock
@@ -10,6 +11,15 @@ import { ObjectId } from "mongodb";
 /////////////////////////////////////////////////
 
 jest.mock("../database/mongodb-ts/userService");
+
+jest.mock("../ts-server/src/geofenceService", () => {
+    const actualModule = jest.requireActual("../ts-server/src/geofenceService");
+    return {
+        ...actualModule,
+        fetchGeofences: jest.fn(),
+    };
+});
+
 
 const mockedDbService = dbService as jest.Mocked<typeof dbService>;
 const validUID = "test_id_mocked";
@@ -176,33 +186,16 @@ describe("/deleteTask (Mocked)", () => {
 describe("/fetchGeofences (Mocked)", () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        (fetchGeofences as jest.Mock).mockReset();
     });
 
     test("should return 200 for success response", async () => {
-        mockedDbService.getAllTasksInList.mockResolvedValue([
-            {
-                _id: "mock_task_1",
-                name: "Mock Task 1",
-                start: "10:00",
-                end: "11:00",
-                duration: 30,
-                location_lat: 49.269139,
-                location_lng: -123.215108,
-                priority: 1,
-                description: "Test Description"
-            },
-            {
-                _id: "mock_task_2",
-                name: "Mock Task 2",
-                start: "11:00",
-                end: "12:00",
-                duration: 60,
-                location_lat: 49.269140,
-                location_lng: -123.215109,
-                priority: 2,
-                description: "Test Description"
-            }
-        ]);
+        (fetchGeofences as jest.Mock).mockResolvedValue({
+            polygon: [
+                { latitude: 49.269139, longitude: -123.215108 },
+                { latitude: 49.269140, longitude: -123.215109 },
+            ],
+        });
 
         const response = await request(app)
             .post("/fetchGeofences")
@@ -225,5 +218,23 @@ describe("/fetchGeofences (Mocked)", () => {
 
         expect(response.status).toBe(400);
         expect(response.body).toHaveProperty("error");
+    });
+});
+
+
+describe("/fetchGeofences (Mocked)", () => {
+    test("should return 500 when Google API does not respond", async () => {
+        (fetchGeofences as jest.Mock).mockRejectedValue(new Error("Google API not responding"));
+        
+        const response = await request(app)
+            .post("/fetchGeofences")
+            .send({
+                origin: { latitude: 49.269139, longitude: -123.215108 },
+                destination: { latitude: 49.26913, longitude: -123.215108 },
+            })
+            .set("Content-Type", "application/json");
+
+        expect(response.status).toBe(500);
+        expect(response.body).toHaveProperty("error", "Google API not responding");
     });
 });
