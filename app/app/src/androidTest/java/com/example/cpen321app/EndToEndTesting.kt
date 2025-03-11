@@ -10,6 +10,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intending
@@ -43,47 +44,8 @@ import org.mockito.Mockito
 class EndToEndTesting {
 
     @get:Rule
-    val activityRule = IntentsTestRule(MainActivity::class.java, true, false)
+    val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
-    private lateinit var mockGetCredentialResponse: GetCredentialResponse
-    private lateinit var mockCredential: Credential
-
-    @Before
-    fun setUp() {
-//        // Initialize Intents Framework
-//        Intents.init()
-//
-//        val dataBundle: Bundle = Bundle()
-//
-//        dataBundle.putString("com.google.android.libraries.identity.googleid.BUNDLE_KEY_PROFILE_PICTURE_URI", "")
-//        dataBundle.putString("com.google.android.libraries.identity.googleid.BUNDLE_KEY_DISPLAY_NAME", "")
-//        dataBundle.putString("com.google.android.libraries.identity.googleid.BUNDLE_KEY_PHONE_NUMBER", "")
-//        dataBundle.putString("com.google.android.libraries.identity.googleid.BUNDLE_KEY_ID", "")
-//        dataBundle.putString("com.google.android.libraries.identity.googleid.BUNDLE_KEY_GIVEN_NAME", "")
-//        dataBundle.putString("com.google.android.libraries.identity.googleid.BUNDLE_KEY_ID_TOKEN", "")
-//        dataBundle.putString("com.google.android.libraries.identity.googleid.BUNDLE_KEY_FAMILY_NAME", "")
-//
-//        mockCredential = Mockito.mock(Credential::class.java).apply {
-//            Mockito.`when`(this.type).thenReturn(GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)
-//            Mockito.`when`(this.data).thenReturn(dataBundle)
-//        }
-//
-//        mockGetCredentialResponse = Mockito.mock(GetCredentialResponse::class.java).apply {
-//            Mockito.`when`(this.credential).thenReturn(mockCredential)
-//        }
-//
-//        val credentialManager = Mockito.mock(CredentialManager::class.java)
-//        Mockito.`when`(credentialManager.getCredential(Mockito.any() as Context, Mockito.any() as GetCredentialRequest))
-//            .thenReturn(mockGetCredentialResponse)
-//
-//
-
-    }
-
-    @After
-    fun tearDown() {
-        Intents.release()
-    }
 
     @Test
     fun useAppContext() {
@@ -95,9 +57,21 @@ class EndToEndTesting {
     @Test
     fun testManageTask() {
 
+        // Navigate to task window
+        onView(withId(R.id.list_view_button)).perform(click())
+
+        // Add Task
+        testAddTask()
+
+        testDeleteTask()
+
     }
 
     private fun testAddTask() {
+
+        onView(withText("+")).perform(click())
+
+
 
     }
 

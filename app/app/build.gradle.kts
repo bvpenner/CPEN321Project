@@ -69,16 +69,16 @@ dependencies {
 //    implementation(libs.androidx.security.crypto.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.5.0")
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.rules)
     implementation(libs.androidx.security.crypto)
 
     // Additional Espresso dependencies
-    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.6.1")
-    androidTestImplementation("androidx.test.espresso:espresso-intents:3.6.1")
-    androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.6.1")
-    androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.5.0")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.0")
+    androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.5.0")
+    androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
     
     // Mockito for testing
     testImplementation("org.mockito:mockito-core:5.11.0")
