@@ -13,7 +13,8 @@ data class Task(
     val location_lat: Double,
     val location_lng: Double,
     val priority: Int,
-    val description: String
+    val description: String,
+    var isGeofenceEnabled: Boolean = false
 )
 
 data class Geofence_Container(

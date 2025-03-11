@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cpen321app.MapsFragment.Companion.User_Lat
 import com.example.cpen321app.MapsFragment.Companion.User_Lng
+import com.example.cpen321app.TaskAdapter.Companion._geofenceStateMap
 import com.example.cpen321app.TaskViewModel.Companion._taskList
 import com.example.cpen321app.TaskViewModel.Companion.server_ip
 import com.example.cpen321app.databinding.FragmentTaskListBinding
@@ -83,6 +84,7 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
                 sendGetOptimalRouteServer(selectedTasks)
             }
         }
+
     }
 
     // Generates the Google Maps route URL and launches Google Maps.
@@ -152,7 +154,6 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
         popupWindow.showAtLocation(view, android.view.Gravity.BOTTOM, 0, 0)
 
         return true
-
     }
 
     override fun onDestroyView() {

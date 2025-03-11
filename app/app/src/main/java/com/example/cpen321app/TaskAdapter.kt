@@ -1,18 +1,24 @@
 package com.example.cpen321app
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.Switch
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class TaskAdapter(
     private val tasks: List<Task>,
     private val listener: OnItemLongClickListener,
-    private val context: Context
+    private val context: Context,
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+
+    companion object {
+        val _geofenceStateMap: MutableMap<String, Boolean> = mutableMapOf()
+    }
 
     // Track the IDs of selected tasks.
     private val selectedTaskIds = mutableSetOf<String>()
@@ -32,6 +38,7 @@ class TaskAdapter(
         val taskPriority: TextView = itemView.findViewById(R.id.taskPriority)
         val taskDescription: TextView = itemView.findViewById(R.id.taskDescription)
         val checkBoxSelect: CheckBox = itemView.findViewById(R.id.checkBox_select)
+        val geofenceSwitch: Switch = itemView.findViewById(R.id.switch_geofence)
 
         init {
             itemView.setOnLongClickListener(this)
@@ -42,6 +49,12 @@ class TaskAdapter(
                 } else {
                     selectedTaskIds.remove(task.id)
                 }
+            }
+
+            geofenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                val task = tasks[adapterPosition]
+                _geofenceStateMap[task.id] = isChecked
+                Log.d("TaskAdapter", "Task ${task.id} geofence enabled: $isChecked")
             }
         }
 
@@ -68,6 +81,15 @@ class TaskAdapter(
         holder.taskDescription.text = task.description
         // Set checkbox state based on whether the task is selected.
         holder.checkBoxSelect.isChecked = selectedTaskIds.contains(task.id)
+
+        holder.geofenceSwitch.setOnCheckedChangeListener(null)
+        holder.geofenceSwitch.isChecked = _geofenceStateMap[task.id] ?: task.isGeofenceEnabled
+        holder.geofenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+            _geofenceStateMap[task.id] = isChecked
+            // Log.d("TaskAdapter", "Task ${task.id} geofence enabled: $isChecked")
+            val activeGeofences = _geofenceStateMap.filterValues { it }
+            Log.d("TaskAdapter", "Active Geofences: $activeGeofences")
+        }
     }
 
     override fun getItemCount(): Int = tasks.size

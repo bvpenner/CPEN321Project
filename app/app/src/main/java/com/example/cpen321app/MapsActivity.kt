@@ -38,6 +38,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
+import com.example.cpen321app.TaskAdapter.Companion._geofenceStateMap
 
 import com.example.cpen321app.TaskViewModel.Companion.server_ip
 import com.example.cpen321app.TaskViewModel.Companion._taskList
@@ -53,6 +54,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     private val handler = Handler(Looper.getMainLooper()) // Runs on main thread
     private lateinit var geofenceupdateRunnable: Runnable
     private lateinit var geofencealertRunnable: Runnable
+    private val polygonMap = mutableMapOf<String, Polygon>()
 
     companion object {
         var User_Lat: Double = 0.0
@@ -75,16 +77,43 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         geofenceupdateRunnable = object : Runnable {
             override fun run() {
-                val firstTask = _taskList.value?.firstOrNull()
-                if (firstTask != null) {
-                    val firstTaskLocation = LatLng(firstTask.location_lat, firstTask.location_lng)
+//                val firstTask = _taskList.value?.firstOrNull()
+//                if (firstTask != null) {
+//                    val firstTaskLocation = LatLng(firstTask.location_lat, firstTask.location_lng)
+//
+//                    sendFetchGeofencesRequest(firstTaskLocation, firstTaskLocation, firstTask.id, firstTask.name) {
+//                        handler.post {
+//                            mMap.addMarker(MarkerOptions().position(firstTaskLocation).title(firstTask.name))
+//                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(firstTaskLocation, 14f))
+//                        }
+//                        handler.postDelayed(this, 300000)
+//                    }
+//                } else {
+//                    handler.postDelayed(this, 300000)
+//                }
 
-                    sendFetchGeofencesRequest(firstTaskLocation, firstTaskLocation, firstTask.id, firstTask.name) {
-                        handler.post {
-                            mMap.addMarker(MarkerOptions().position(firstTaskLocation).title(firstTask.name))
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(firstTaskLocation, 14f))
+                val activeGeofences = _geofenceStateMap.filterValues { it }
+                val activeGeofences_length = activeGeofences.size
+                val pendingRequests = activeGeofences.size
+                var completedRequests = 0
+                Log.d(TAG, "[activeGeofences_length] " + activeGeofences_length)
+                if (pendingRequests > 0) {
+                    for (taskid in activeGeofences.keys) {
+                        val task = _taskList.value?.find { it.id == taskid }
+                        val taskLocation = task?.let { LatLng(it.location_lat, task.location_lng) }
+
+                        if (taskLocation != null) {
+                            sendFetchGeofencesRequest(taskLocation, taskLocation, task.id, task.name) {
+                                Log.d(TAG, "Task ${task.id} completed.")
+
+                                completedRequests++
+
+                                if (completedRequests == pendingRequests) {
+                                    Log.d(TAG, "All geofence requests completed. Scheduling next run.")
+                                    handler.postDelayed(this, 300000)
+                                }
+                            }
                         }
-                        handler.postDelayed(this, 300000)
                     }
                 } else {
                     handler.postDelayed(this, 300000)
@@ -107,8 +136,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                             }
                         }
                     }
-                } else {
-                    Log.d(TAG, "Geofence map is null")
                 }
                 handler.postDelayed(this, 10000)
             }
@@ -278,7 +305,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e(TAG, "Failed to send fetchRoute request: ${e.message}")
+                val retryDelay = 2000L
+                Log.d(TAG, "Retrying fetchRoute request in $retryDelay ms... ")
+                Handler(Looper.getMainLooper()).postDelayed({
+                    sendFetchGeofencesRequest(origin, destination, taskid, taskname, onComplete)
+                }, retryDelay)
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -304,10 +335,24 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     Log.d(TAG, "polygonPoints response: ${polygonPoints.size}")
 
 
-                    addGeofence(taskid, taskname, polygonPoints)
+//                    addGeofence(taskid, taskname, polygonPoints)
                     if (isAdded && isVisible) {
                         requireActivity().runOnUiThread {
-                            var polygon = drawPolygon(polygonPoints)
+                            if (polygonMap.containsKey(taskid)) {
+                                var polygon = polygonMap[taskid]
+                                polygon?.remove()
+                                polygonMap.remove(taskid)
+                                polygon = drawPolygon(polygonPoints)
+                                if (polygon != null) {
+                                    polygonMap[taskid] = polygon
+                                }
+                            } else {
+                                var polygon = drawPolygon(polygonPoints)
+                                if (polygon != null) {
+                                    polygonMap[taskid] = polygon
+                                }
+                            }
+
                         }
                     }
 

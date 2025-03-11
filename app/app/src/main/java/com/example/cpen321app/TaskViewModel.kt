@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.cpen321app.MainActivity.Companion
+import com.google.android.gms.maps.model.LatLng
 import org.json.JSONObject
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -23,6 +24,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         private const val TAG = "TaskViewModel"
         public var server_ip = "18.215.238.145:3000";
         val _taskList = MutableLiveData<MutableList<Task>>()
+        val _geofenceList = MutableLiveData<MutableList<List<LatLng>>>()
     }
 
     init {
@@ -106,7 +108,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun logAllTasks() {
-        _taskList.value?.forEach { Log.d(TAG, it.name) }
+//        _taskList.value?.forEach { Log.d(TAG, it.name) }
     }
 
     private fun <T> MutableLiveData<T>.notifyObservers() {
@@ -200,7 +202,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
 
         val request = Request.Builder()
             .url(url)
-            .get() // ✅ Use GET request
+            .get()
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {

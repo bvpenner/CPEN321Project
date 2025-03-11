@@ -85,6 +85,7 @@ class AddTask : AppCompatActivity() {
                 val newTask = Task(id, name, start, end, duration, latitude, longitude, priority, description)
                 taskViewModel.addTask(newTask)
                 taskViewModel.logAllTasks()
+                taskViewModel.refreshTasklist()
                 finish()
             }
         }
