@@ -1,9 +1,11 @@
 import request from "supertest";
-import { app , db } from "../ts-server/src/index";
-import * as dbService from "../database/mongodb-ts/userService"; 
+import { app, db } from "../ts-server/src/index";
+import * as dbService from "../database/mongodb-ts/userService";
 import { isStringObject } from "util/types";
 import { ObjectId } from "mongodb";
 import { fetchGeofences } from "../ts-server/src/geofenceService";
+import { fetchAllTaskRouteTime } from "../ts-server/src/fetchRouteService";
+import { getTasksById } from "../database/mongodb-ts/userService";
 import fetch from "node-fetch";
 import { Client } from "@googlemaps/google-maps-services-js";
 
@@ -19,6 +21,18 @@ jest.mock("../ts-server/src/geofenceService", () => {
     return {
         ...actualModule,
         fetchGeofences: jest.fn(),
+    };
+});
+
+jest.mock(".../ts-server/src/fetchRouteService", () => ({
+    fetchAllTaskRouteTime: jest.fn(),
+}));
+
+jest.mock("../database/mongodb-ts/userService", () => {
+    const actualModule = jest.requireActual("../database/mongodb-ts/userService");
+    return {
+        ...actualModule,
+        getTasksById: jest.fn(),
     };
 });
 
@@ -239,7 +253,7 @@ describe("/fetchGeofences (Mocked)", () => {
 describe("/fetchGeofences (Mocked)", () => {
     test("should return 500 when Google API does not respond", async () => {
         (fetchGeofences as jest.Mock).mockRejectedValue(new Error("Google API not responding"));
-        
+
         const response = await request(app)
             .post("/fetchGeofences")
             .send({
@@ -278,9 +292,9 @@ describe("/fetchGeofences (Mocked)", () => {
                 ]
             }),
         });
-    
+
         googleMapsClientMock.snapToRoads.mockRejectedValue(new Error("Google Roads API not responding"));
-    
+
         const response = await request(app)
             .post("/fetchGeofences")
             .send({
@@ -288,10 +302,121 @@ describe("/fetchGeofences (Mocked)", () => {
                 destination: { latitude: 49.26913, longitude: -123.215108 },
             })
             .set("Content-Type", "application/json");
-    
+
         console.log("Actual Response Body:", response.body);
-    
+
         expect(response.status).toBe(500);
         expect(response.body).toHaveProperty("error");
-    });    
+    });
+});
+
+/////////////////////////////////////////////////
+// FindOptimalRoute mocked tests 
+/////////////////////////////////////////////////
+
+describe("/fetchOptimalRoute", () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test("case 1: user gives all required info, but Google map distance matrix API failed", async () => {
+        // status code OK means fine, otherwise failed
+        // fetchAllTaskRouteTime.mockRejectedValue(new Error('Google Maps fail!'));     // this does not work
+        (fetchAllTaskRouteTime as jest.Mock).mockRejectedValue(new Error('Google Maps distance matrix fail!'));
+
+        //add new tasks
+        const task_1_res = await request(app)
+            .post("/addTask")
+            .send({
+                owner_id: validUID,
+                _id: "",
+                name: "test_task_1",
+                start_time: "10:00",
+                end_time: "11:00",
+                duration: 30,
+                location_lat: 49.254830,
+                location_lng: -123.236329,
+                priority: 1,
+                description: ""
+            })
+            .set("Content-Type", "application/json");
+        expect(task_1_res.status).toBe(200);
+        expect(task_1_res.body).toHaveProperty("new_task_id");
+
+        const response = await request(app)
+            .post("/fetchOptimalRoute")
+            .send({
+                allTasksID: [task_1_res.body.new_task_id],
+                userLocation: {
+                    latitude: 49.265819,
+                    longitude: -123.249290
+                },
+                userCurrTime: "9:00"
+            })
+            .set("Content-Type", "application/json");
+
+        expect(response.status).toBe(500);
+        expect(response.body).toHaveProperty("error");
+
+
+        //clean up
+        const cleanUpResponse_1 = await request(app)
+            .post("/deleteTask")
+            .send({
+                owner_id: validUID,
+                _id: task_1_res.body.new_task_id,
+            })
+            .set("Content-Type", "application/json");
+    });
+
+    test("case 2: user gives all required info, but getTaskById fails???possible?", async () => {
+        // status code OK means fine, otherwise failed
+        // fetchAllTaskRouteTime.mockRejectedValue(new Error('Google Maps fail!'));     // this does not work
+        (getTasksById as jest.Mock).mockRejectedValue(new Error(''));
+
+        //add new tasks
+        const task_1_res = await request(app)
+            .post("/addTask")
+            .send({
+                owner_id: validUID,
+                _id: "",
+                name: "test_task_1",
+                start_time: "10:00",
+                end_time: "11:00",
+                duration: 30,
+                location_lat: 49.254830,
+                location_lng: -123.236329,
+                priority: 1,
+                description: ""
+            })
+            .set("Content-Type", "application/json");
+        expect(task_1_res.status).toBe(200);
+        expect(task_1_res.body).toHaveProperty("new_task_id");
+
+        const response = await request(app)
+            .post("/fetchOptimalRoute")
+            .send({
+                allTasksID: [-1],
+                userLocation: {
+                    latitude: 49.265819,
+                    longitude: -123.249290
+                },
+                userCurrTime: "9:00"
+            })
+            .set("Content-Type", "application/json");
+
+        expect(response.status).toBe(500);
+        expect(response.body).toHaveProperty("error");
+
+        //clean up
+        const cleanUpResponse_1 = await request(app)
+            .post("/deleteTask")
+            .send({
+                owner_id: validUID,
+                _id: task_1_res.body.new_task_id,
+            })
+            .set("Content-Type", "application/json");
+    });
+
+    //another one for db disconnected?
 });
