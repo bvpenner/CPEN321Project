@@ -93,10 +93,16 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 //                }
 
                 val activeGeofences = _geofenceStateMap.filterValues { it }
-                val activeGeofences_length = activeGeofences.size
                 val pendingRequests = activeGeofences.size
                 var completedRequests = 0
-                Log.d(TAG, "[activeGeofences_length] " + activeGeofences_length)
+//                Log.d(TAG, "[activeGeofences_length] " + activeGeofences_length)
+
+                polygonMap.keys.toList().forEach { key ->
+                    if (key !in activeGeofences.keys) {
+                        polygonMap[key]?.remove()
+                        polygonMap.remove(key)
+                    }
+                }
                 if (pendingRequests > 0) {
                     for (taskid in activeGeofences.keys) {
                         val task = _taskList.value?.find { it.id == taskid }
