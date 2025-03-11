@@ -225,8 +225,8 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .send({ 
                 allTasksID: [],
                 userLocation: {
-                    latitude: 49.269139,
-                    longitude: -123.215108
+                    latitude: 49.265819,
+                    longitude: -123.249290
                 }, 
                 userCurrTime: "10:00"
             })
@@ -239,10 +239,10 @@ describe("/findOptimalRoute (No Mocks)", () => {
         const response = await request(app)
             .post("/fetchOptimalRoute")
             .send({ 
-                allTasksID: [],
+                allTasksID: [1],
                 userLocation: {
-                    latitude: 49.269139,
-                    longitude: -123.215108
+                    latitude: 49.265819,
+                    longitude: -123.249290
                 }, 
                 userCurrTime: ""
             })
@@ -255,7 +255,7 @@ describe("/findOptimalRoute (No Mocks)", () => {
         const response = await request(app)
             .post("/fetchOptimalRoute")
             .send({ 
-                allTasksID: [],
+                allTasksID: [1],
                 userLocation: {
                     latitude: 0,
                     longitude: 0
@@ -271,8 +271,6 @@ describe("/findOptimalRoute (No Mocks)", () => {
         
         //add new tasks
         //specific fields tbd
-        var temp_taskid_1: ObjectId = new ObjectId(); 
-
         const task_1_res = await request(app)
             .post("/addTask")
             .send({ 
@@ -282,8 +280,8 @@ describe("/findOptimalRoute (No Mocks)", () => {
                 start_time: "10:00", 
                 end_time: "11:00", 
                 duration: 30, 
-                location_lat: 49.269139, 
-                location_lng: -123.115108, 
+                location_lat: 49.254830, 
+                location_lng: -123.236329, 
                 priority: 1, 
                 description: ""
             })
@@ -296,14 +294,19 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .send({ 
                 allTasksID: [task_1_res.body.new_task_id],
                 userLocation: {
-                    latitude: 49.269139,
-                    longitude: -123.215108
+                    latitude: 49.265819,
+                    longitude: -123.249290
                 }, 
-                userCurrTime: "10:00"
+                userCurrTime: "9:00"
             })
             .set("Content-Type", "application/json");
 
         expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("taskIds");
+        expect(response.body).toHaveProperty("time_cost");
+        expect(response.body.taskIDs.length).toBe(1);
+
+        // res.json({"taskIds": taskIds, "time_cost": result[1]});	
         // more expect
 
 
@@ -321,9 +324,6 @@ describe("/findOptimalRoute (No Mocks)", () => {
         
         //add new tasks
         //specific fields tbd
-        var temp_taskid_1: ObjectId = new ObjectId(); 
-        var temp_taskid_2: ObjectId = new ObjectId(); 
-        var temp_taskid_3: ObjectId = new ObjectId(); 
         const task_1_res = await request(app)
             .post("/addTask")
             .send({ 
@@ -333,10 +333,10 @@ describe("/findOptimalRoute (No Mocks)", () => {
                 start_time: "10:00", 
                 end_time: "11:00", 
                 duration: 30, 
-                location_lat: 49.269139, 
-                location_lng: -123.135108, 
+                location_lat: 49.254830, 
+                location_lng: -123.236329, 
                 priority: 1, 
-                description: ""
+                description: "save on food"
             })
             .set("Content-Type", "application/json");
 
@@ -347,12 +347,12 @@ describe("/findOptimalRoute (No Mocks)", () => {
                 _id: "", 
                 name: "test_task_2",
                 start_time: "10:00", 
-                end_time: "11:00", 
-                duration: 30, 
-                location_lat: 49.269139, 
-                location_lng: -123.165108, 
+                end_time: "12:00", 
+                duration: 10, 
+                location_lat: 49.231437, 
+                location_lng: -123.155529, 
                 priority: 1, 
-                description: ""
+                description: "cake shop"
             })
             .set("Content-Type", "application/json");
 
@@ -362,13 +362,13 @@ describe("/findOptimalRoute (No Mocks)", () => {
                 owner_id: validUID, 
                 _id: "", 
                 name: "test_task_3",
-                start_time: "10:00", 
-                end_time: "11:00", 
-                duration: 30, 
-                location_lat: 49.269139, 
-                location_lng: -123.115108, 
+                start_time: "13:00", 
+                end_time: "18:00", 
+                duration: 40, 
+                location_lat: 49.1748, 
+                location_lng: -123.1311, 
                 priority: 1, 
-                description: ""
+                description: "T&T supermarket"
             })
             .set("Content-Type", "application/json");
         
@@ -377,14 +377,17 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .send({ 
                 allTasksID: [task_1_res.body.new_task_id, task_2_res.body.new_task_id, task_3_res.body.new_task_id],
                 userLocation: {
-                    latitude: 49.269139,
-                    longitude: -123.215108
+                    latitude: 49.265819,
+                    longitude: -123.249290
                 }, 
-                userCurrTime: "10:00"
+                userCurrTime: "9:00"
             })
             .set("Content-Type", "application/json");
 
         expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("taskIds");
+        expect(response.body).toHaveProperty("time_cost");
+        expect(response.body.taskIDs.length).toBe(3);
         // more expect here
 
 
@@ -418,9 +421,6 @@ describe("/findOptimalRoute (No Mocks)", () => {
         
         //add new tasks
         //specific fields tbd
-        var temp_taskid_1: ObjectId = new ObjectId(); 
-        var temp_taskid_2: ObjectId = new ObjectId(); 
-        var temp_taskid_3: ObjectId = new ObjectId(); 
         const task_1_res = await request(app)
             .post("/addTask")
             .send({ 
@@ -430,10 +430,10 @@ describe("/findOptimalRoute (No Mocks)", () => {
                 start_time: "10:00", 
                 end_time: "11:00", 
                 duration: 30, 
-                location_lat: 49.269139, 
-                location_lng: -123.135108, 
+                location_lat: 49.254830, 
+                location_lng: -123.236329, 
                 priority: 1, 
-                description: ""
+                description: "save on food"
             })
             .set("Content-Type", "application/json");
 
@@ -444,12 +444,12 @@ describe("/findOptimalRoute (No Mocks)", () => {
                 _id: "", 
                 name: "test_task_2",
                 start_time: "10:00", 
-                end_time: "11:00", 
-                duration: 30, 
-                location_lat: 49.269139, 
-                location_lng: -123.165108, 
+                end_time: "12:00", 
+                duration: 10, 
+                location_lat: 49.231437, 
+                location_lng: -123.155529, 
                 priority: 1, 
-                description: ""
+                description: "cake shop"
             })
             .set("Content-Type", "application/json");
 
@@ -459,13 +459,13 @@ describe("/findOptimalRoute (No Mocks)", () => {
                 owner_id: validUID, 
                 _id: "", 
                 name: "test_task_3",
-                start_time: "10:00", 
-                end_time: "11:00", 
-                duration: 30, 
-                location_lat: 49.269139, 
-                location_lng: -123.115108, 
+                start_time: "13:00", 
+                end_time: "18:00", 
+                duration: 40, 
+                location_lat: 49.1748, 
+                location_lng: -123.1311, 
                 priority: 1, 
-                description: ""
+                description: "T&T supermarket"
             })
             .set("Content-Type", "application/json");
         
@@ -474,14 +474,18 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .send({ 
                 allTasksID: [task_1_res.body.new_task_id, task_2_res.body.new_task_id, task_3_res.body.new_task_id],
                 userLocation: {
-                    latitude: 49.269139,
-                    longitude: -123.215108
+                    latitude: 49.265819,
+                    longitude: -123.249290
                 }, 
                 userCurrTime: "10:00"
             })
             .set("Content-Type", "application/json");
 
         expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("taskIds");
+        expect(response.body).toHaveProperty("time_cost");
+        expect(response.body.taskIDs.length).toBe(0);
+        expect(response.body.time_cost).toBe(-1);
         // more expect here
 
         //clean up
