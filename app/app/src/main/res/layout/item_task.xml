@@ -62,6 +62,29 @@
             android:textSize="16sp" />
     </LinearLayout>
 
+    <!-- Geofence Toggle -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Geofence"
+            android:textSize="14sp"
+            android:paddingBottom="4dp"/>
+
+        <Switch
+            android:id="@+id/switch_geofence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="Off"
+            android:textOn="On"
+            android:checked="false"/>
+    </LinearLayout>
+
     <!-- Hidden fields (if needed) -->
     <TextView
         android:id="@+id/taskId"
