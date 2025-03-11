@@ -79,6 +79,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.0")
     androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.5.0")
     androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
     
     // Mockito for testing
     testImplementation("org.mockito:mockito-core:5.11.0")
