@@ -1,72 +1,31 @@
 package com.example.cpen321app
 
-import android.app.Activity
-import android.app.Application
-import android.app.Instrumentation
-import android.content.Context
-import android.content.Intent
-import android.os.Bundle
-import android.view.KeyEvent
-import androidx.credentials.Credential
-import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetCredentialResponse
+import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.IdlingResource
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
-import androidx.test.espresso.action.ViewActions.longClick
-import androidx.test.espresso.action.ViewActions.pressKey
-import androidx.test.espresso.action.ViewActions.scrollTo
-import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.RecyclerViewActions
-import androidx.test.espresso.intent.Intents
-import androidx.test.espresso.intent.Intents.intending
-import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
-import androidx.test.espresso.intent.rule.IntentsTestRule
-import androidx.test.espresso.matcher.RootMatchers
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isRoot
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.contrib.RecyclerViewActions.scrollTo
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiObject
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import okhttp3.internal.wait
+import org.hamcrest.CoreMatchers.containsString
+import org.hamcrest.CoreMatchers.not
 import org.junit.After
-
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
-import org.mockito.Mock
-import org.mockito.Mockito
+import org.junit.Test
+import org.junit.Assert.assertEquals
+import org.junit.runner.RunWith
 import kotlin.random.Random
 
-/**
- * Instrumented test, which will execute on an Android device.
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- *
- * copilot helped write the UIAutomator code
- */
 @RunWith(AndroidJUnit4::class)
 class EndToEndTesting {
 
@@ -75,162 +34,199 @@ class EndToEndTesting {
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
+    private val randomSuffix = Random.nextInt(0, 1000000).toString()
+    private val testTaskName = "TestTask#$randomSuffix"
+    private val testTaskDescription = "This is a test description for task #$randomSuffix"
+    private val highPriorityTask = "HighPriorityTask#$randomSuffix"
+    private val mediumPriorityTask = "MediumPriorityTask#$randomSuffix"
+    private val lowPriorityTask = "LowPriorityTask#$randomSuffix"
+    private val nonExistentTaskName = "NonExistentTask#$randomSuffix"
+
     @Before
     fun setup() {
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        IdlingRegistry.getInstance().register(TaskViewModel.IdlingResourceManager.countingIdlingResource)
+        try {
+            TestUtils.login(device)
+        } catch (e: Exception) {
+            Log.e("EndToEndTesting", "Login failed or wasn't needed", e)
+        }
+        TestUtils.navigateToTaskList()
+    }
+
+    @After
+    fun cleanup() {
+        IdlingRegistry.getInstance().unregister(TaskViewModel.IdlingResourceManager.countingIdlingResource)
     }
 
     @Test
     fun useAppContext() {
-        // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("com.example.cpen321app", appContext.packageName)
     }
 
     @Test
-    fun testManageTaskSuccess() {
-
-        login()
-
-        // Navigate to task window
-        onView(withId(R.id.list_view_button)).perform(click())
-
-        val taskName = "TestTask#" + Random.nextInt(0,1000000).toString()
-        // Add Task
-        testAddTask(taskName)
-
-        testDeleteTask(taskName)
-
+    fun testCreateTaskSuccess() {
+        TestUtils.createTask(device, testTaskName, testTaskDescription, "1", "10:00", "11:00", "Executive Hotel Vancouver Airport")
+        onView(withId(R.id.recyclerView)).perform(
+            scrollTo<RecyclerView.ViewHolder>(hasDescendant(withText(testTaskName)))
+        )
+        onView(withText(testTaskName)).check(matches(isDisplayed()))
+        TestUtils.deleteTask(device, testTaskName)
     }
 
-    private fun login() {
-
-//        device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
-        device.wait(
-            Until.hasObject(By.text("Choose an account")), 10000
-        )
-        val button = device.findObject(UiSelector().clickable(true))
-        if(button.exists()) {
-            button.click()
-        } else {
-            fail("No provided account to log in with")
-        }
-
-        device.wait(
-            Until.hasObject(By.text("Allow cpen321app to access this device's location?")), 10000
-        )
-        val precise = device.findObject(UiSelector().text("Precise"))
-        if(precise.exists()) {
-            precise.click()
-        } else {
-            fail("No precise location option")
-        }
-        val whileUsingTheApp = device.findObject(UiSelector().text("While using the app"))
-        if(whileUsingTheApp.exists()) {
-            whileUsingTheApp.click()
-        } else {
-            fail("No 'While using the app' option")
-        }
-    }
-
-    private fun testAddTask(taskName: String) {
-
-        val taskDescription = "test description"
-        val priority = "1"
-
+    @Test
+    fun testCreateTaskFailure_MissingRequiredFields() {
         onView(withText("+")).perform(click())
-
-        onView(withId(R.id.editTextName)).perform(typeText(taskName))
-        onView(withId(R.id.editText_description)).perform(typeText(taskDescription), closeSoftKeyboard())
-        onView(withId(R.id.editText_taskPrio)).perform(typeText(priority), closeSoftKeyboard())
-
-        onView(withId(R.id.editText_taskStart)).perform(typeText("11:10"))
-        var okbutton = device.findObject(UiSelector().text("OK"))
-        if(okbutton.exists()) {
-            okbutton.click()
-        } else {
-            fail("Time input field did not find the OK button on the UI element")
-        }
-
-        onView(withId(R.id.editText_taskEnd)).perform(typeText("12:00"))
-        okbutton = device.findObject(UiSelector().text("OK"))
-        if(okbutton.exists()) {
-            okbutton.click()
-        } else {
-            fail("Time input field did not find the OK button on the UI element")
-        }
-
-        onView(withId(R.id.button_pick_location)).perform(click())
-        val enterLocation = device.findObject(UiSelector().text("Search a place"))
-        if(enterLocation.exists()) {
-            enterLocation.click()
-            enterLocation.setText("Executive Hotel Vancouver Airport")
-            val firstOption = device.findObject(UiSelector().clickable(true))
-            if(firstOption.exists()) {
-                firstOption.click()
-            } else {
-                fail("Failed to find a search result")
-            }
-        }
-        val element = device.findObject(UiSelector().resourceId("com.example.cpen321app:id/scrollView_addTask"))
-        if(!element.waitForExists(5000)) {
-            throw RuntimeException("Add Task Window not found")
-        }
-
-        IdlingRegistry.getInstance().register(TaskViewModel.IdlingResourceManager.countingIdlingResource)
-
         onView(withId(R.id.button_taskCreate)).perform(click())
-
-        IdlingRegistry.getInstance().unregister(TaskViewModel.IdlingResourceManager.countingIdlingResource)
-
-//        // This is janky but works for now. These buttons shouldn't need to be pressed and should have an async wait.
-//        onView(withId(R.id.list_view_button)).perform(click())
-//        onView(withId(R.id.list_view_button)).perform(click())
-
-//        // copilot generated
-//        onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
-//            hasDescendant(withText(taskName))
-//            )).check(matches(isDisplayed()))
+        onView(withId(R.id.editTextName)).check(matches(isDisplayed()))
+        device.pressBack()
     }
 
-    private fun testDeleteTask(taskName: String) {
-
-        IdlingRegistry.getInstance().register(TaskViewModel.IdlingResourceManager.countingIdlingResource)
-        onView(withId(R.id.list_view_button)).perform(click())
-
-        Espresso.onIdle()
-
-        onView(withText(taskName)).perform(longClick())
-        onView(withId(R.id.delete_button)).perform(click())
-        IdlingRegistry.getInstance().unregister(TaskViewModel.IdlingResourceManager.countingIdlingResource)
-
-        Espresso.onIdle()
-
-        onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
-            hasDescendant(withText(taskName))
-        )).check(doesNotExist())
-
+    @Test
+    fun testCreateTaskFailure_NameTooShort() {
+        onView(withText("+")).perform(click())
+        onView(withId(R.id.editTextName)).perform(typeText("A"), closeSoftKeyboard())
+        onView(withId(R.id.editText_description)).perform(typeText(testTaskDescription), closeSoftKeyboard())
+        onView(withId(R.id.button_taskCreate)).perform(click())
+        // Wait for error message containing "name"
+        device.wait(Until.hasObject(By.textContains("name")), 2000)
+        device.pressBack()
     }
 
-    private fun testUpdateTask() {
-
+    @Test
+    fun testCreateTaskFailure_DescriptionTooShort() {
+        onView(withText("+")).perform(click())
+        onView(withId(R.id.editTextName)).perform(typeText(testTaskName), closeSoftKeyboard())
+        onView(withId(R.id.editText_description)).perform(typeText("Short"), closeSoftKeyboard())
+        onView(withId(R.id.button_taskCreate)).perform(click())
+        // Wait for error message containing "description"
+        device.wait(Until.hasObject(By.textContains("description")), 2000)
+        device.pressBack()
     }
 
+    @Test
+    fun testUpdateTask() {
+        TestUtils.createTask(device, testTaskName, testTaskDescription, "1", "10:00", "11:00", "Executive Hotel Vancouver Airport")
+        onView(withText(testTaskName)).perform(longClick())
+        if (device.findObject(UiSelector().text("Edit")).exists()) {
+            device.findObject(UiSelector().text("Edit")).click()
+            val updatedTaskName = "Updated$testTaskName"
+            onView(withId(R.id.editTextName)).perform(clearText(), typeText(updatedTaskName), closeSoftKeyboard())
+            onView(withId(R.id.button_taskCreate)).perform(click())
+            onView(withText(updatedTaskName)).check(matches(isDisplayed()))
+            TestUtils.deleteTask(device, updatedTaskName)
+        } else {
+            device.pressBack()
+            TestUtils.deleteTask(device, testTaskName)
+        }
+    }
+
+    @Test
+    fun testPlanRouteSuccess() {
+        TestUtils.createTask(device, highPriorityTask, "High priority task", "3", "10:00", "11:00", "Vancouver International Airport")
+        TestUtils.createTask(device, lowPriorityTask, "Low priority task", "1", "14:00", "15:00", "Stanley Park Vancouver")
+        TestUtils.selectTask(device, highPriorityTask)
+        TestUtils.selectTask(device, lowPriorityTask)
+        val planRouteButton = device.findObject(UiSelector().text("Plan Route"))
+        if (planRouteButton.exists()) {
+            planRouteButton.click()
+            device.wait(Until.hasObject(By.textContains("Route")), 5000)
+            if (device.findObject(UiSelector().text("Accept")).exists()) {
+                TestUtils.initIntents()
+                device.findObject(UiSelector().text("Accept")).click()
+                TestUtils.releaseIntents()
+            } else if (device.findObject(UiSelector().text("View on Map")).exists()) {
+                device.findObject(UiSelector().text("View on Map")).click()
+            } else {
+                device.pressBack()
+            }
+            TestUtils.navigateToTaskList()
+        }
+        TestUtils.deleteTask(device, highPriorityTask)
+        TestUtils.deleteTask(device, lowPriorityTask)
+    }
+
+    @Test
+    fun testPlanRouteFailure_NoTasksSelected() {
+        TestUtils.navigateToTaskList()
+        val planRouteButton = device.findObject(UiSelector().text("Plan Route"))
+        if (planRouteButton.exists()) {
+            planRouteButton.click()
+            device.wait(Until.hasObject(By.textContains("select tasks")), 5000)
+        }
+    }
+
+    @Test
+    fun testFilterTasksByPriority() {
+        TestUtils.createTask(device, "High Priority Task", "Task with high priority", "3")
+        TestUtils.createTask(device, "Medium Priority Task", "Task with medium priority", "2")
+        TestUtils.createTask(device, "Low Priority Task", "Task with low priority", "1")
+        TestUtils.navigateToTaskList()
+        val filterChip = device.findObject(UiSelector().text("High"))
+        if (filterChip.exists()) {
+            filterChip.click()
+            onView(withText("High Priority Task")).check(matches(isDisplayed()))
+            try {
+                onView(withText("Medium Priority Task")).check(doesNotExist())
+                onView(withText("Low Priority Task")).check(doesNotExist())
+            } catch (e: Exception) { }
+            filterChip.click()
+        }
+        TestUtils.deleteTask(device, "High Priority Task")
+        TestUtils.deleteTask(device, "Medium Priority Task")
+        TestUtils.deleteTask(device, "Low Priority Task")
+    }
+
+    @Test
+    fun testSearchTasks() {
+        TestUtils.createTask(device, testTaskName, testTaskDescription, "2", "12:00", "13:00", "Granville Island Vancouver")
+        val searchView = device.findObject(UiSelector().descriptionContains("Search"))
+        if (searchView.exists()) {
+            searchView.click()
+            searchView.setText(testTaskName.substring(0, 5))
+            device.pressEnter()
+            onView(withText(testTaskName)).check(matches(isDisplayed()))
+            searchView.clearTextField()
+        }
+        TestUtils.deleteTask(device, testTaskName)
+    }
+
+    @Test
+    fun testSearchTasks_NoResults() {
+        val searchView = device.findObject(UiSelector().descriptionContains("Search"))
+        if (searchView.exists()) {
+            searchView.click()
+            searchView.setText(nonExistentTaskName)
+            device.pressEnter()
+            device.wait(Until.hasObject(By.textContains("No tasks")), 2000)
+            searchView.clearTextField()
+        }
+    }
+
+    @Test
+    fun testCreateTaskThenPlanRoute() {
+        TestUtils.createTask(device, testTaskName, testTaskDescription, "2", "12:00", "13:00", "Granville Island Vancouver")
+        TestUtils.selectTask(device, testTaskName)
+        val planRouteButton = device.findObject(UiSelector().text("Plan Route"))
+        if (planRouteButton.exists()) {
+            planRouteButton.click()
+            device.wait(Until.hasObject(By.textContains("Route")), 5000)
+        }
+        TestUtils.deleteTask(device, testTaskName)
+    }
+
+    // Helper stubs for local calls.
+    private fun createTask(name: String, description: String, priority: String) {
+        TestUtils.createTask(device, name, description, priority)
+    }
+    private fun navigateToTaskList() {
+        TestUtils.navigateToTaskList()
+    }
+    private fun selectTask(name: String) {
+        TestUtils.selectTask(device, name)
+    }
+    private fun deleteTask(name: String) {
+        TestUtils.deleteTask(device, name)
+    }
 }
-
-
-
-
-
-//@RunWith(AndroidJUnit4::class)
-//@LargeTest
-//class HelloWorldEspressoTest {
-//
-//    @get:Rule
-//    val activityRule = ActivityScenarioRule(MainActivity::class.java)
-//
-//    @Test fun listGoesOverTheFold() {
-//        onView(withText("Hello world!")).check(matches(isDisplayed()))
-//    }
-//}

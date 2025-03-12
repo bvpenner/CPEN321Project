@@ -67,6 +67,8 @@ dependencies {
     implementation(libs.firebase.common.ktx)
     implementation(libs.firebase.messaging.ktx)
     implementation(libs.androidx.espresso.idling.resource)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.junit.ktx)
 //    implementation(libs.androidx.security.crypto.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -85,7 +87,8 @@ dependencies {
     // Mockito for testing
     testImplementation("org.mockito:mockito-core:5.11.0")
     androidTestImplementation("org.mockito:mockito-android:5.11.0")
-    
+    androidTestImplementation("org.hamcrest:hamcrest-library:2.2")
+
     // Fragment testing
     debugImplementation("androidx.fragment:fragment-testing:1.7.0")
     
@@ -93,7 +96,7 @@ dependencies {
     androidTestImplementation("androidx.work:work-testing:2.10.0")
     
     // Hamcrest for matchers
-    androidTestImplementation("org.hamcrest:hamcrest-library:2.2")
+    androidTestImplementation(libs.hamcrest.hamcrest.library)
 
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
