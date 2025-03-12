@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.places)
     implementation(libs.firebase.common.ktx)
     implementation(libs.firebase.messaging.ktx)
+    implementation(libs.androidx.espresso.idling.resource)
 //    implementation(libs.androidx.security.crypto.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -75,10 +76,10 @@ dependencies {
     implementation(libs.androidx.security.crypto)
 
     // Additional Espresso dependencies
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")
     androidTestImplementation("androidx.test.espresso:espresso-contrib:3.5.0")
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.0")
     androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.5.0")
-    androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
     
     // Mockito for testing
