@@ -123,7 +123,7 @@ function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][], userC
 		}
 	}
 
-	// Explore all possible first-tasks
+	// Explore all possible first-taskss
 	for (let i = 1; i < taskDistanceGraph.length; i++) {
 		const e_0i = taskDistanceGraph[0][i];
 		const waitingTime = Math.max(0, tasksArr[i - 1].start_time - (timeCounter + e_0i));
@@ -131,7 +131,11 @@ function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][], userC
 
 		const unfinishedTaskSet = new Set(tasksSet);
 		unfinishedTaskSet.delete(i);
-
+		//added
+		if (unfinishedTaskSet.size === 0) {
+			resultTracking.push([timeCost, [0]]);
+			break;
+		}
 		findOptimalRouteHelper(tasksArr, taskDistanceGraph, unfinishedTaskSet, [i], timeCounter + timeCost, timeCost, resultTracking);
 	}
 
