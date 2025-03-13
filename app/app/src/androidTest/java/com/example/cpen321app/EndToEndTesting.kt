@@ -36,6 +36,7 @@ import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.intent.rule.IntentsTestRule
 import androidx.test.espresso.matcher.RootMatchers
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
@@ -52,6 +53,7 @@ import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import okhttp3.internal.wait
+import org.hamcrest.Matchers.not
 import org.junit.After
 import org.junit.Assert
 
@@ -100,13 +102,25 @@ class EndToEndTesting {
         // Navigate to task window
         onView(withId(R.id.list_view_button)).perform(click())
 
-        val taskName = "TestTask#" + Random.nextInt(0,1000000).toString()
+        val taskName = getRandomTestTaskName()
         // Add Task
         testAddTask(taskName)
 
         testDeleteTask(taskName)
-
     }
+
+    @Test
+    fun testCreateTask_InputInvalidLongLat() {
+
+        login()
+
+        onView(withId(R.id.list_view_button)).perform(click())
+
+        val taskName = getRandomTestTaskName()
+
+        testFailAddTaskLat(taskName)
+    }
+
 
     private fun login() {
 
@@ -254,7 +268,7 @@ class EndToEndTesting {
 
     }
 
-    fun waitFor(delay: Long): ViewAction {
+    private fun waitFor(delay: Long): ViewAction {
         return object : ViewAction {
             override fun getConstraints() = isRoot()
             override fun getDescription() = "Wait for $delay milliseconds."
@@ -264,6 +278,64 @@ class EndToEndTesting {
         }
     }
 
+    private fun getRandomTestTaskName(): String {
+        val taskName = "TestTask#" + Random.nextInt(0, 1000000).toString()
+        return taskName
+    }
+
+    private fun testFailAddTaskLat(taskName: String) {
+
+        val taskDescription = "test description"
+        val priority = "1"
+        val taskInvalidLat = "100.0"
+        val taskLng = "50.0"
+
+        onView(withText("+")).perform(click())
+
+        onView(withId(R.id.editTextName)).perform(typeText(taskName))
+        onView(withId(R.id.editText_description)).perform(typeText(taskDescription), closeSoftKeyboard())
+        onView(withId(R.id.editText_taskPrio)).perform(typeText(priority), closeSoftKeyboard())
+
+        onView(withId(R.id.editText_taskStart)).perform(typeText("11:10"))
+        var okbutton = device.findObject(UiSelector().text("OK"))
+        if(okbutton.exists()) {
+            okbutton.click()
+        } else {
+            fail("Time input field did not find the OK button on the UI element")
+        }
+
+        onView(withId(R.id.editText_taskEnd)).perform(typeText("12:00"))
+        okbutton = device.findObject(UiSelector().text("OK"))
+        if(okbutton.exists()) {
+            okbutton.click()
+        } else {
+            fail("Time input field did not find the OK button on the UI element")
+        }
+
+        onView(withId(R.id.editText_taskLat)).perform(typeText(taskInvalidLat), closeSoftKeyboard())
+        onView(withId(R.id.editText_taskLng)).perform(typeText(taskLng), closeSoftKeyboard())
+
+        onView(isRoot()).perform(closeSoftKeyboard())
+
+        onView(withId(R.id.button_taskCreate)).perform(click())
+
+        // None of this code works to intercept a toast....
+
+//        val toast1 = device.wait(Until.hasObject(By.text("Valid Latitude Required: Between -90 and 90 degrees")), 5000);
+////        val toast = device.findObject(By.text("Valid Latitude Required: Between -90 and 90 degrees"))
+//        assertTrue("Help", toast1)
+
+//        device.wait(Until.hasObject(By.textContains("Valid Latitude Required: Between -90 and 90 degrees")), 5000);
+//        assertNotNull("Toast not found!", device.findObject(By.textContains("Valid Latitude Required: Between -90 and 90 degrees")));
+
+
+//        onView(isRoot()).perform(waitFor(500))
+
+        onView(withText("Valid Latitude Required: Between -90 and 90 degrees"))
+            .inRoot(ToastMatcher())
+            .check(matches(isDisplayed()))
+
+    }
 
 }
 
