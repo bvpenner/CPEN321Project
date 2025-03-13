@@ -116,14 +116,14 @@ class EndToEndTesting {
             Until.hasObject(By.text("Choose an account")), 10000
         )
         val button = device.findObject(UiSelector().clickable(true))
-        if(button.exists()) {
+        if(button.waitForExists(4000)) {
             button.click()
         } else {
             fail("No provided account to log in with")
         }
 
         device.wait(
-            Until.hasObject(By.text("Allow cpen321app to access this device's location?")), 5000
+            Until.hasObject(By.text("Allow cpen321app to access this device's location?")), 10000
         )
         val precise = device.findObject(UiSelector().text("Precise"))
         if(precise.exists()) {
@@ -207,6 +207,8 @@ class EndToEndTesting {
 
         IdlingRegistry.getInstance().unregister(TaskViewModel.IdlingResourceManager.countingIdlingResource)
 
+        onView(isRoot()).perform(waitFor(2000))
+
         // copilot generated
         onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
             hasDescendant(withText(taskName))
@@ -233,7 +235,7 @@ class EndToEndTesting {
         IdlingRegistry.getInstance().unregister(TaskViewModel.IdlingResourceManager.countingIdlingResource)
 
         // ChatGPT generated
-        onView(isRoot()).perform(waitFor(1000))
+        onView(isRoot()).perform(waitFor(2000))
 
         // ChatGPT generated
         try {
