@@ -206,7 +206,7 @@ class EndToEndTesting {
         onView(withId(R.id.button_taskCreate)).perform(click())
 
         IdlingRegistry.getInstance().unregister(TaskViewModel.IdlingResourceManager.countingIdlingResource)
-        
+
         // copilot generated
         onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
             hasDescendant(withText(taskName))
