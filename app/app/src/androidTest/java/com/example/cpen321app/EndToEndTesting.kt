@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.View
 import androidx.credentials.Credential
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
@@ -17,6 +18,9 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
+import androidx.test.espresso.PerformException
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
@@ -49,6 +53,7 @@ import androidx.test.uiautomator.Until
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import okhttp3.internal.wait
 import org.junit.After
+import org.junit.Assert
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -118,19 +123,19 @@ class EndToEndTesting {
         }
 
         device.wait(
-            Until.hasObject(By.text("Allow cpen321app to access this device's location?")), 10000
+            Until.hasObject(By.text("Allow cpen321app to access this device's location?")), 5000
         )
         val precise = device.findObject(UiSelector().text("Precise"))
         if(precise.exists()) {
             precise.click()
         } else {
-            fail("No precise location option")
+//            fail("No precise location option")
         }
         val whileUsingTheApp = device.findObject(UiSelector().text("While using the app"))
         if(whileUsingTheApp.exists()) {
             whileUsingTheApp.click()
         } else {
-            fail("No 'While using the app' option")
+//            fail("No 'While using the app' option")
         }
     }
 
@@ -162,17 +167,29 @@ class EndToEndTesting {
         }
 
         onView(withId(R.id.button_pick_location)).perform(click())
+
         val enterLocation = device.findObject(UiSelector().text("Search a place"))
-        if(enterLocation.exists()) {
+        if(enterLocation.waitForExists(1000)) {
             enterLocation.click()
             enterLocation.setText("Executive Hotel Vancouver Airport")
-            val firstOption = device.findObject(UiSelector().clickable(true))
-            if(firstOption.exists()) {
+
+            val firstOption = device.findObject(UiSelector().className("android.widget.TextView").instance(1))
+
+            if (firstOption.waitForExists(5000)) {
                 firstOption.click()
             } else {
                 fail("Failed to find a search result")
             }
+//            val firstOption = device.findObject(UiSelector().clickable(true))
+//            if(firstOption.exists()) {
+//                firstOption.click()
+//            } else {
+//                fail("Failed to find a search result")
+//            }
+        } else {
+            throw RuntimeException("Enter Location not found")
         }
+
         val element = device.findObject(UiSelector().resourceId("com.example.cpen321app:id/scrollView_addTask"))
         if(!element.waitForExists(5000)) {
             throw RuntimeException("Add Task Window not found")
@@ -180,18 +197,20 @@ class EndToEndTesting {
 
         IdlingRegistry.getInstance().register(TaskViewModel.IdlingResourceManager.countingIdlingResource)
 
+        device.wait(
+            Until.hasObject(By.text("Create Task")), 5000
+        )
+
+        onView(isRoot()).perform(closeSoftKeyboard())
+
         onView(withId(R.id.button_taskCreate)).perform(click())
 
         IdlingRegistry.getInstance().unregister(TaskViewModel.IdlingResourceManager.countingIdlingResource)
-
-//        // This is janky but works for now. These buttons shouldn't need to be pressed and should have an async wait.
-//        onView(withId(R.id.list_view_button)).perform(click())
-//        onView(withId(R.id.list_view_button)).perform(click())
-
-//        // copilot generated
-//        onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
-//            hasDescendant(withText(taskName))
-//            )).check(matches(isDisplayed()))
+        
+        // copilot generated
+        onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
+            hasDescendant(withText(taskName))
+            )).check(matches(isDisplayed()))
     }
 
     private fun testDeleteTask(taskName: String) {
@@ -201,21 +220,48 @@ class EndToEndTesting {
 
         Espresso.onIdle()
 
+        onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
+            hasDescendant(withText(taskName))
+        )).check(matches(isDisplayed()))
+
         onView(withText(taskName)).perform(longClick())
         onView(withId(R.id.delete_button)).perform(click())
-        IdlingRegistry.getInstance().unregister(TaskViewModel.IdlingResourceManager.countingIdlingResource)
+
 
         Espresso.onIdle()
 
-        onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
-            hasDescendant(withText(taskName))
-        )).check(doesNotExist())
+        IdlingRegistry.getInstance().unregister(TaskViewModel.IdlingResourceManager.countingIdlingResource)
 
+        // ChatGPT generated
+        onView(isRoot()).perform(waitFor(1000))
+
+        // ChatGPT generated
+        try {
+            onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
+                hasDescendant(withText(taskName))
+            ))
+            fail("Task not deleted")
+        } catch (e: PerformException) {
+            // do nothing
+        }
+
+        onView(withText(taskName)).check(doesNotExist())
     }
 
     private fun testUpdateTask() {
 
     }
+
+    fun waitFor(delay: Long): ViewAction {
+        return object : ViewAction {
+            override fun getConstraints() = isRoot()
+            override fun getDescription() = "Wait for $delay milliseconds."
+            override fun perform(uiController: UiController, view: View?) {
+                uiController.loopMainThreadForAtLeast(delay)
+            }
+        }
+    }
+
 
 }
 

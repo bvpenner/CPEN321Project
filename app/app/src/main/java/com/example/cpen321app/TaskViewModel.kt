@@ -53,8 +53,14 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         // Remove task from backend.
         IdlingResourceManager.countingIdlingResource.increment()
         sendDeleteTaskRequest(task);
-        _taskList.value?.remove(task)
+        _taskList.value?.let {
+            it.remove(task)
+            _taskList.postValue(it)
+        }
         _taskList.notifyObservers()
+
+        Log.d(TAG, "Current tasks: ${_taskList.value?.map { it.name }}")
+
         IdlingResourceManager.countingIdlingResource.decrement()
     }
 
