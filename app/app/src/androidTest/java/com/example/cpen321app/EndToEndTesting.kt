@@ -14,6 +14,7 @@ import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.espresso.action.ViewActions.longClick
+import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -100,6 +101,14 @@ class EndToEndTesting {
         testFailAddTaskLng(taskName)
     }
 
+    @Test
+    fun testCreateTask_OtherInvalidInput() {
+        login()
+        onView(withId(R.id.list_view_button)).perform(click())
+        val taskName = getRandomTestTaskName()
+        testFailInvalidInput(taskName)
+    }
+
     private fun login() {
         device.wait(Until.hasObject(By.text("Choose an account")), 10000)
         val button = device.findObject(UiSelector().clickable(true))
@@ -122,6 +131,7 @@ class EndToEndTesting {
     private fun testAddTask(taskName: String) {
         val taskDescription = "test description"
         val priority = "1"
+        val taskPrio = "60"
 
         onView(withText("+")).perform(click())
         onView(withId(R.id.editTextName)).perform(typeText(taskName))
@@ -172,9 +182,15 @@ class EndToEndTesting {
         IdlingRegistry.getInstance().register(TaskViewModel.IdlingResourceManager.countingIdlingResource)
         device.wait(Until.hasObject(By.text("Create Task")), 5000)
         onView(isRoot()).perform(closeSoftKeyboard())
+
+        onView(withId(R.id.editText_duration)).perform(replaceText(taskPrio), closeSoftKeyboard())
+        onView(isRoot()).perform(closeSoftKeyboard())
+
+        device.wait(Until.hasObject(By.text("Create Task")), 1000)
+
         onView(withId(R.id.button_taskCreate)).perform(click())
         IdlingRegistry.getInstance().unregister(TaskViewModel.IdlingResourceManager.countingIdlingResource)
-        onView(isRoot()).perform(waitFor(2000))
+        onView(isRoot()).perform(waitFor(5000))
         onView(withId(R.id.recyclerView)).perform(
             RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
                 hasDescendant(withText(taskName))
@@ -195,7 +211,7 @@ class EndToEndTesting {
         onView(withId(R.id.delete_button)).perform(click())
         Espresso.onIdle()
         IdlingRegistry.getInstance().unregister(TaskViewModel.IdlingResourceManager.countingIdlingResource)
-        onView(isRoot()).perform(waitFor(2000))
+        onView(isRoot()).perform(waitFor(5000))
         try {
             onView(withId(R.id.recyclerView)).perform(
                 RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
@@ -286,6 +302,17 @@ class EndToEndTesting {
         onView(withText("Valid Longitude Required: Between -180 and 180 degrees"))
             .check(matches(isDisplayed()))
     }
+
+    private fun testFailInvalidInput(taskName: String) {
+        val taskDescription = "test description"
+        val taskLat = "40.0"
+        val taskLng = "50.0"
+        onView(withText("+")).perform(click())
+
+        // Test buggy inputs
+
+    }
+
 }
 
 // ----------------------

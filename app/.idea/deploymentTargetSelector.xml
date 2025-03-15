@@ -27,9 +27,6 @@
       <SelectionState runConfigName="testManageTaskSuccess()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="RouteWorkerTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
     </selectionStates>
   </component>
 </project>
