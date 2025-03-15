@@ -30,6 +30,9 @@
       <SelectionState runConfigName="testCreateTask_InputInvalidLongLat()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="testManageTaskSuccess()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

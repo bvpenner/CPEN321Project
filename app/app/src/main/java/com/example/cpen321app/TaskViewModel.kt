@@ -24,7 +24,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
 
     val taskList: LiveData<MutableList<Task>> get() = _taskList
 
-    private var server_ip = "18.215.238.145:3000";
+    private var server_ip = "13.216.143.65:3000";
 
     companion object {
         private const val TAG = "TaskViewModel"

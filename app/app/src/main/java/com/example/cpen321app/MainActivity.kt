@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
     private var savedCredential: GoogleIdTokenCredential? = null
     private var screen: String = "map"
     private lateinit var taskViewModel: TaskViewModel
-    private var server_ip = "18.215.238.145:3000"
+    private var server_ip = "13.216.143.65:3000"
 
     private lateinit var securePreferences: SecurePreferences
 
