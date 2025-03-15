@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import { Client } from "@googlemaps/google-maps-services-js";
 
+
 interface LatLng {
 	latitude: number;
 	longitude: number;
@@ -116,27 +117,94 @@ async function generateGeofence(origin: SimpleLatLng): Promise<LatLng[]> {
  */
 async function findRoadIntersections(points: LatLng[]): Promise<LatLng[]> {
     const intersections: LatLng[] = [];
+	const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 
     for (const point of points) {
         try {
-            const response = await googleMapsClient.snapToRoads({
-                params: {
-                    path: [{ lat: point.latitude, lng: point.longitude }],
-                    interpolate: false,
-                    key: GMap_API_key
-                }
-            });
+			console.log(`points: ${point.latitude} ${point.longitude}`);
 
-            if (response.data.snappedPoints && response.data.snappedPoints.length > 0) {
-                const snappedPoint = response.data.snappedPoints[0].location;
-                intersections.push({ latitude: snappedPoint.latitude, longitude: snappedPoint.longitude });
+			const query = `
+                [out:json][timeout:10];
+                (
+                  node(around:1000,${point.latitude},${point.longitude});
+                )->.all_nodes;
+
+                (
+				way(around:500,${point.latitude},${point.longitude}) ["highway"];
+				way(around:500,${point.latitude},${point.longitude}) ["railway"];
+				way(around:500,${point.latitude},${point.longitude}) ["path"];
+				way(around:500,${point.latitude},${point.longitude}) ["cycleway"];
+				)->.all_ways;
+
+                node.all_nodes(if:count(ways) > 1);
+                out;
+            `.replace(/\s+/g, " "); 
+
+            const url = `${OVERPASS_URL}?data=${query}`;
+            // console.log("Requesting Overpass API:", url);
+
+            const response = await fetch(url);
+            const text = await response.text();
+			// console.log(text)
+            if (text.startsWith("<")) {
+                throw new Error("Overpass API returned HTML instead of JSON (likely rate-limited).");
+            }
+			
+			const data = JSON.parse(text);
+			
+			if (!data.elements) {
+                console.log("⚠️ No elements found in response:", data);
+                continue;
+            }
+
+			console.log(`data.elements.length: ${data.elements.length}`)
+
+            if (data.elements.length > 0) {
+                let nearestIntersection = null;
+                let minDistance = Infinity;
+
+                for (const node of data.elements) {
+                    if (!node.lat || !node.lon){
+						console.log('Skip invalid nodes')
+						continue;
+					}  // Skip invalid nodes
+
+                    const distance = Math.hypot(
+                        point.latitude - node.lat,
+                        point.longitude - node.lon
+                    );
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        nearestIntersection = { latitude: node.lat, longitude: node.lon };
+                    }
+                }
+
+                if (nearestIntersection) {
+					console.log("[Add intersection]" + nearestIntersection.latitude +" "+ nearestIntersection.longitude)
+                    intersections.push(nearestIntersection);
+                } else {
+					nearestIntersection = { latitude: point.latitude, longitude: point.longitude };
+					intersections.push(nearestIntersection);
+                    console.log("🚨 No valid intersection found for:", point);
+                }
+            } else {
+				var nearestIntersection = { latitude: point.latitude, longitude: point.longitude };
+				intersections.push(nearestIntersection);
+                console.log("❌ No nearby intersections found for:", point);
             }
         } catch (error) {
-            console.error("Error fetching road intersection:", error);
+			var nearestIntersection = { latitude: point.latitude, longitude: point.longitude };
+			intersections.push(nearestIntersection);
+            console.log("Error fetching road intersection:", error);
         }
     }
+	console.log(`fetch finishes: ${intersections.length}`)
+	console.log(intersections)
     return intersections;
 }
+
+
 
 /**
  * Computes the geofence polygon by sorting points based on angle from the center.

@@ -26,11 +26,6 @@ interface LatLng {
 	longitude: number;
 }
 
-interface SimpleLatLng {
-	lat: number;
-	lng: number;
-}
-
 
 // Request body interface for /fetchGeofences endpoint
 interface RouteRequestBody {
@@ -51,7 +46,7 @@ interface AddTaskRequestBody {
 	description: string;
 }
 
-class Task {
+export class Task {
 	public _id: string;
 	public start_time: number;
 	public end_time: number;    // latest time to reach a task
@@ -131,9 +126,10 @@ function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][], userC
 
 		const unfinishedTaskSet = new Set(tasksSet);
 		unfinishedTaskSet.delete(i);
-		//added
+
+		//added for length == 1 case
 		if (unfinishedTaskSet.size === 0) {
-			resultTracking.push([timeCost, [0]]);
+			resultTracking.push([timeCost, [1]]);
 			break;
 		}
 		findOptimalRouteHelper(tasksArr, taskDistanceGraph, unfinishedTaskSet, [i], timeCounter + timeCost, timeCost, resultTracking);
@@ -146,7 +142,7 @@ function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][], userC
 	// find the sequence with the minimal time cost
 	let selectedIndex = 0;
 	let minTimeCost = resultTracking[0][0];
-
+	
 	for (let i = 1; i < resultTracking.length; i++) {
 		if (resultTracking[i][0] < minTimeCost) {
 			minTimeCost = resultTracking[i][0];
@@ -307,15 +303,9 @@ app.post('/addTask', async (req: Request<{}, any, AddTaskRequestBody>, res: Resp
 		}
 		else { // modify existing task
 			var task_id = await dbService.modifyTask(_id, name, start_time, end_time, duration, location_lat, location_lng, priority, description)
-			if (task_id == _id) {
-				res.status(200).json({
-					"new_task_id": task_id
-				});
-			} else {
-				res.status(500).json({
-					"error": "modifyTask failed, check server log"
-				});
-			}
+			res.status(200).json({
+				"new_task_id": task_id
+			});
 		}
 
 	} catch (error: any) {
@@ -388,7 +378,10 @@ app.post('/deleteTask', async (req: Request<{}, any, {owner_id: string, _id: str
 app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody>, res: Response): Promise<void> => {
 	try {
 		const { allTasksID, userLocation, userCurrTime } = req.body;
-		if (allTasksID.length == 0 || !userLocation || !userCurrTime) {
+		if (allTasksID.length == 0 
+			|| !userLocation 
+			|| !userCurrTime 
+			|| (userLocation.latitude == 0 && userLocation.longitude == 0)) {
 			res.status(400).json({ error: 'Missing origin or destination coordinates.' });
 			return;
 		}
@@ -415,7 +408,7 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 		console.log(`[Optimal Route] found: ${taskIds}`);
 		res.json({"taskIds": taskIds, "time_cost": result[1]});	
 	} catch (error: any) {
-		console.error(error);
+		// console.error(error);
 		res.status(500).json({ error: error.message });
 	}
 });

@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import { Client } from "@googlemaps/google-maps-services-js";
+import { Task } from "./index";
 
 const googleMapsClient = new Client({});        //unsure about this
 const GMap_API_key = "AIzaSyBoG58gmt5sB4p6dmwZBz40Doa_xn8zkks"
@@ -7,29 +8,6 @@ const GMap_API_key = "AIzaSyBoG58gmt5sB4p6dmwZBz40Doa_xn8zkks"
 interface LatLng {
 	latitude: number;
 	longitude: number;
-}
-
-class Task {
-	public _id: string;
-	public start_time: number;
-	public end_time: number;    // latest time to reach a task
-	public duration: number;    // in minutes
-	public location_lat: number;
-	public location_lng: number;
-	public priority: number;
-	public description: string;
-
-	constructor(_id: string, start_time: number, end_time: number, duration: number, location_lat: number, location_lng: number, priority: number, description: string) {
-		this._id = _id;
-		this.start_time = start_time;
-		this.end_time = end_time;
-		this.duration = duration;
-		this.location_lat = location_lat;
-		this.location_lng = location_lng;
-		this.priority = priority;
-		this.description = description;
-	}
-
 }
 
 /**

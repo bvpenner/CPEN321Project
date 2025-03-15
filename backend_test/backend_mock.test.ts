@@ -8,6 +8,8 @@ import { fetchAllTaskRouteTime } from "../ts-server/src/fetchRouteService";
 import { getTasksById } from "../database/mongodb-ts/userService";
 import fetch from "node-fetch";
 import { Client } from "@googlemaps/google-maps-services-js";
+import fetchMock from 'fetch-mock-jest';
+import type { FetchMockSandbox } from 'fetch-mock';
 
 /////////////////////////////////////////////////
 // With Mock
@@ -15,7 +17,22 @@ import { Client } from "@googlemaps/google-maps-services-js";
 /////////////////////////////////////////////////
 
 jest.mock("../database/mongodb-ts/userService");
+jest.mock('node-fetch', () => jest.fn());
 
+
+class MockResponse {
+    ok: boolean;
+    statusText: string;
+    constructor(public body: any, init: { status: number; statusText: string }) {
+      this.ok = init.status < 400;
+      this.statusText = init.statusText;
+    }
+    json() {
+      return Promise.resolve(this.body);
+    }
+  }
+
+  
 jest.mock("../ts-server/src/geofenceService", () => {
     const actualModule = jest.requireActual("../ts-server/src/geofenceService");
     return {
@@ -24,19 +41,22 @@ jest.mock("../ts-server/src/geofenceService", () => {
     };
 });
 
-jest.mock(".../ts-server/src/fetchRouteService", () => ({
-    fetchAllTaskRouteTime: jest.fn(),
-}));
+// jest.mock("node-fetch", () => {
+//     const actualModule = jest.requireActual("node-fetch");
+//     return {
+//         ...actualModule,
+//         fetch: jest.fn(),
+//     };
+// });
 
-jest.mock("../database/mongodb-ts/userService", () => {
-    const actualModule = jest.requireActual("../database/mongodb-ts/userService");
+jest.mock("../ts-server/src/fetchRouteService", () => {
+    const actualModule = jest.requireActual("../ts-server/src/fetchRouteService");
     return {
         ...actualModule,
-        getTasksById: jest.fn(),
+        fetchAllTaskRouteTime: jest.fn(),
     };
 });
 
-jest.mock("node-fetch", () => jest.fn());
 const mockFetch = fetch as jest.Mock;
 
 const googleMapsClientMock = {
@@ -103,6 +123,7 @@ describe("/getAllTasks (Mocked)", () => {
 describe("/login (Mocked)", () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        (fetchAllTaskRouteTime as jest.Mock).mockReset();
     });
 
     test("should return a mocked user", async () => {
@@ -135,6 +156,7 @@ describe("/login (Mocked)", () => {
 describe("/addTask (Mocked)", () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        (fetchAllTaskRouteTime as jest.Mock).mockReset();
     });
 
     test("should return 200 for success create new task", async () => {
@@ -215,6 +237,7 @@ describe("/fetchGeofences (Mocked)", () => {
     beforeEach(() => {
         jest.clearAllMocks();
         (fetchGeofences as jest.Mock).mockReset();
+        (fetchAllTaskRouteTime as jest.Mock).mockReset();
     });
 
     test("should return 200 for success response", async () => {
@@ -274,7 +297,7 @@ describe("/fetchGeofences (Mocked)", () => {
 
     test("should return 500 when Google Roads API does not respond", async () => {
         mockFetch.mockResolvedValue({
-            ok: true,
+            ok: false,
             json: async () => ({
                 routes: [
                     {
@@ -317,12 +340,17 @@ describe("/fetchGeofences (Mocked)", () => {
 describe("/fetchOptimalRoute", () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        mockFetch.mockClear();
+        mockFetch.mockRestore();
     });
 
     test("case 1: user gives all required info, but Google map distance matrix API failed", async () => {
         // status code OK means fine, otherwise failed
         // fetchAllTaskRouteTime.mockRejectedValue(new Error('Google Maps fail!'));     // this does not work
-        (fetchAllTaskRouteTime as jest.Mock).mockRejectedValue(new Error('Google Maps distance matrix fail!'));
+        //(fetchAllTaskRouteTime as jest.Mock).mockRejectedValue(new Error('Google Maps distance matrix fail!'));
+        (fetch as jest.Mock).mockResolvedValue(
+            new MockResponse(null, { status: 500, statusText: "Internal Server Error" })
+          );
 
         //add new tasks
         const task_1_res = await request(app)

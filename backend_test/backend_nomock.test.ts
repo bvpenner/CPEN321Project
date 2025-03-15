@@ -304,7 +304,7 @@ describe("/findOptimalRoute (No Mocks)", () => {
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty("taskIds");
         expect(response.body).toHaveProperty("time_cost");
-        expect(response.body.taskIDs.length).toBe(1);
+        expect(response.body.taskIds.length).toBe(1);
 
         // res.json({"taskIds": taskIds, "time_cost": result[1]});	
         // more expect
@@ -387,7 +387,7 @@ describe("/findOptimalRoute (No Mocks)", () => {
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty("taskIds");
         expect(response.body).toHaveProperty("time_cost");
-        expect(response.body.taskIDs.length).toBe(3);
+        expect(response.body.taskIds.length).toBe(3);
         // more expect here
 
 
@@ -427,8 +427,8 @@ describe("/findOptimalRoute (No Mocks)", () => {
                 owner_id: validUID, 
                 _id: "", 
                 name: "test_task_1",
-                start_time: "10:00", 
-                end_time: "11:00", 
+                start_time: "9:30", 
+                end_time: "10:00", 
                 duration: 30, 
                 location_lat: 49.254830, 
                 location_lng: -123.236329, 
@@ -474,8 +474,8 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .send({ 
                 allTasksID: [task_1_res.body.new_task_id, task_2_res.body.new_task_id, task_3_res.body.new_task_id],
                 userLocation: {
-                    latitude: 49.265819,
-                    longitude: -123.249290
+                    latitude: 49.175211,
+                    longitude: -123.130497
                 }, 
                 userCurrTime: "10:00"
             })
@@ -484,7 +484,7 @@ describe("/findOptimalRoute (No Mocks)", () => {
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty("taskIds");
         expect(response.body).toHaveProperty("time_cost");
-        expect(response.body.taskIDs.length).toBe(0);
+        expect(response.body.taskIds.length).toBe(0);
         expect(response.body.time_cost).toBe(-1);
         // more expect here
 
