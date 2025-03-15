@@ -149,7 +149,7 @@ class RouteWorker(appContext: Context, workerParams: WorkerParameters) : Worker(
     }
 
     // Order tasks based on proximity from the current location using a nearest-neighbor algorithm.
-    private fun orderTasksByNearestNeighbor(currentLat: Double, currentLng: Double, tasks: List<Task>): List<Task> {
+    fun orderTasksByNearestNeighbor(currentLat: Double, currentLng: Double, tasks: List<Task>): List<Task> {
         val remaining = tasks.toMutableList()
         val ordered = mutableListOf<Task>()
         var currentLatVar = currentLat
@@ -179,7 +179,7 @@ class RouteWorker(appContext: Context, workerParams: WorkerParameters) : Worker(
     }
 
     // Display a notification that launches Google Maps with the computed route.
-    private fun showRouteNotification(context: Context, mapsUrl: String) {
+    fun showRouteNotification(context: Context, mapsUrl: String) {
         // For Android 13+, ensure POST_NOTIFICATIONS permission is granted.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
