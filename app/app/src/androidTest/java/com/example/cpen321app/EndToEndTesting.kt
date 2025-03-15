@@ -110,7 +110,7 @@ class EndToEndTesting {
     }
 
     @Test
-    fun testCreateTask_InputInvalidLongLat() {
+    fun testCreateTask_InputInvalidLat() {
 
         login()
 
@@ -119,6 +119,18 @@ class EndToEndTesting {
         val taskName = getRandomTestTaskName()
 
         testFailAddTaskLat(taskName)
+    }
+
+    @Test
+    fun testCreateTask_InputInvalidLng() {
+
+        login()
+
+        onView(withId(R.id.list_view_button)).perform(click())
+
+        val taskName = getRandomTestTaskName()
+
+        testFailAddTaskLng(taskName)
     }
 
 
@@ -310,31 +322,52 @@ class EndToEndTesting {
 
         onView(withId(R.id.button_taskCreate)).perform(click())
 
-        // None of this code works to intercept a toast....
-        // ChatGPT and Copilot Generated
-
-//        val toast1 = device.wait(Until.hasObject(By.text("Valid Latitude Required: Between -90 and 90 degrees")), 5000);
-////        val toast = device.findObject(By.text("Valid Latitude Required: Between -90 and 90 degrees"))
-//        assertTrue("Help", toast1)
-
-//        device.wait(Until.hasObject(By.textContains("Valid Latitude Required: Between -90 and 90 degrees")), 5000);
-//        assertNotNull("Toast not found!", device.findObject(By.textContains("Valid Latitude Required: Between -90 and 90 degrees")));
-
-
-//        onView(isRoot()).perform(waitFor(500))
-
-//        onView(isRoot()).perform(waitFor(2000))
-
-//        val toastMessage = device.findObject(UiSelector().text("Valid Latitude Required: Between -90 and 90 degrees"))
-//        assertTrue("Toast Message not displayed or incorrect", toastMessage.exists())
-
-//        val toast = device.findObject(UiSelector().className("android.widget.Toast"))
-//        assertTrue("Toast not displayed", toast.exists())
-
         onView(withText("Valid Latitude Required: Between -90 and 90 degrees"))
-            .inRoot(ToastMatcher())
             .check(matches(isDisplayed()))
 
     }
+
+    private fun testFailAddTaskLng(taskName: String) {
+
+        val taskDescription = "test description"
+        val priority = "1"
+        val taskLat = "40.0"
+        val taskInvalidLng = "300.0"
+
+        onView(withText("+")).perform(click())
+
+        onView(withId(R.id.editTextName)).perform(typeText(taskName))
+        onView(withId(R.id.editText_description)).perform(typeText(taskDescription), closeSoftKeyboard())
+        onView(withId(R.id.editText_taskPrio)).perform(typeText(priority), closeSoftKeyboard())
+
+        onView(withId(R.id.editText_taskStart)).perform(typeText("11:10"))
+        var okbutton = device.findObject(UiSelector().text("OK"))
+        if(okbutton.exists()) {
+            okbutton.click()
+        } else {
+            fail("Time input field did not find the OK button on the UI element")
+        }
+
+        onView(withId(R.id.editText_taskEnd)).perform(typeText("12:00"))
+        okbutton = device.findObject(UiSelector().text("OK"))
+        if(okbutton.exists()) {
+            okbutton.click()
+        } else {
+            fail("Time input field did not find the OK button on the UI element")
+        }
+
+        onView(withId(R.id.editText_taskLat)).perform(typeText(taskLat), closeSoftKeyboard())
+        onView(withId(R.id.editText_taskLng)).perform(typeText(taskInvalidLng), closeSoftKeyboard())
+
+        onView(isRoot()).perform(closeSoftKeyboard())
+
+        onView(withId(R.id.button_taskCreate)).perform(click())
+
+        onView(withText("Valid Longitude Required: Between -180 and 180 degrees"))
+            .check(matches(isDisplayed()))
+
+    }
+
+
 
 }
