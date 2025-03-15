@@ -194,12 +194,6 @@ class EndToEndTesting {
             } else {
                 fail("Failed to find a search result")
             }
-//            val firstOption = device.findObject(UiSelector().clickable(true))
-//            if(firstOption.exists()) {
-//                firstOption.click()
-//            } else {
-//                fail("Failed to find a search result")
-//            }
         } else {
             throw RuntimeException("Enter Location not found")
         }
@@ -264,10 +258,7 @@ class EndToEndTesting {
         onView(withText(taskName)).check(doesNotExist())
     }
 
-    private fun testUpdateTask() {
-
-    }
-
+    // Written by ChatGPT
     private fun waitFor(delay: Long): ViewAction {
         return object : ViewAction {
             override fun getConstraints() = isRoot()
@@ -320,6 +311,7 @@ class EndToEndTesting {
         onView(withId(R.id.button_taskCreate)).perform(click())
 
         // None of this code works to intercept a toast....
+        // ChatGPT and Copilot Generated
 
 //        val toast1 = device.wait(Until.hasObject(By.text("Valid Latitude Required: Between -90 and 90 degrees")), 5000);
 ////        val toast = device.findObject(By.text("Valid Latitude Required: Between -90 and 90 degrees"))
@@ -331,6 +323,14 @@ class EndToEndTesting {
 
 //        onView(isRoot()).perform(waitFor(500))
 
+//        onView(isRoot()).perform(waitFor(2000))
+
+//        val toastMessage = device.findObject(UiSelector().text("Valid Latitude Required: Between -90 and 90 degrees"))
+//        assertTrue("Toast Message not displayed or incorrect", toastMessage.exists())
+
+//        val toast = device.findObject(UiSelector().className("android.widget.Toast"))
+//        assertTrue("Toast not displayed", toast.exists())
+
         onView(withText("Valid Latitude Required: Between -90 and 90 degrees"))
             .inRoot(ToastMatcher())
             .check(matches(isDisplayed()))
@@ -338,19 +338,3 @@ class EndToEndTesting {
     }
 
 }
-
-
-
-
-
-//@RunWith(AndroidJUnit4::class)
-//@LargeTest
-//class HelloWorldEspressoTest {
-//
-//    @get:Rule
-//    val activityRule = ActivityScenarioRule(MainActivity::class.java)
-//
-//    @Test fun listGoesOverTheFold() {
-//        onView(withText("Hello world!")).check(matches(isDisplayed()))
-//    }
-//}

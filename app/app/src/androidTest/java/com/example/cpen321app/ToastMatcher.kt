@@ -33,5 +33,6 @@ class ToastMatcher : TypeSafeMatcher<Root>() {
             }
         }
         return false
+
     }
 }

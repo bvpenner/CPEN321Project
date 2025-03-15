@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -78,9 +79,9 @@ class AddTask : AppCompatActivity() {
             val description = findViewById<EditText>(R.id.editText_description).text.toString()
 
             if (latitude !in -90.0..90.0) {
-                Toast.makeText(this, "Valid Latitude Required: Between -90 and 90 degrees", Toast.LENGTH_SHORT).show()
+                Snackbar.make(findViewById(R.id.scrollView_addTask), "Valid Latitude Required: Between -90 and 90 degrees", Snackbar.LENGTH_SHORT).show()
             } else if (longitude !in -180.0..180.0) {
-                Toast.makeText(this, "Valid Longitude Required: Between -180 and 180 degrees", Toast.LENGTH_SHORT).show()
+                Snackbar.make(findViewById(R.id.scrollView_addTask), "Valid Longitude Required: Between -180 and 180 degrees", Snackbar.LENGTH_SHORT).show()
             } else {
                 val newTask = Task(id, name, start, end, duration, latitude, longitude, priority, description)
                 taskViewModel.addTask(newTask)
