@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const Mongo_URL = "mongodb://localhost:27017/mydatabase"
+const Mongo_URL = process.env.MONGO_URI || "mongodb://localhost:27017/mydatabase"
 const client = new MongoClient(Mongo_URL);
 
 async function connectDB() {

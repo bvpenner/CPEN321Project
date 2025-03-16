@@ -30,6 +30,11 @@ jobs:
         run: |
           npx jest --version  # Check if Jest is installed
 
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.9.0
+        with:
+          mongodb-version: '5.0
+              
       - name: Run Jest Tests
         run: |
           cd backend_test

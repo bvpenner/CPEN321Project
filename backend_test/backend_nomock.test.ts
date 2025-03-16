@@ -198,7 +198,7 @@ describe("/fetchGeofences (No Mocks)", () => {
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty("polygon");
         expect(Array.isArray(response.body.polygon)).toBe(true);
-    });
+    }, 60000);
 });
 
 
