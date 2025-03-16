@@ -477,12 +477,13 @@ abstract class BaseUITest {
                     .fromParent(UiSelector().textContains(taskName))
             )
 
+            if(checkbox.exists() && checkbox.isChecked) {
+                println("Checkbox for task '$taskName' is already checked")
+                return true
+            }
+
             if (checkbox.exists()) {
                 // If already checked, return success
-                if (checkbox.isChecked) {
-                    println("Checkbox for task '$taskName' is already checked")
-                    return true
-                }
 
                 // Click and verify
                 checkbox.click()
@@ -509,11 +510,11 @@ abstract class BaseUITest {
                     checkboxById.click()
                     device.waitForIdle()
                     Thread.sleep(500)
+                }
 
-                    if (checkboxById.isChecked) {
-                        println("Successfully selected task by ID: '$taskName'")
-                        return true
-                    }
+                if (checkboxById.exists() && checkboxById.isChecked) {
+                    println("Successfully selected task by ID: '$taskName'")
+                    return true
                 } else {
                     // Direct coordinate click based on layout knowledge
                     println("Checkbox not found, trying direct coordinate click")
