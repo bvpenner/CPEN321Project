@@ -370,23 +370,16 @@ abstract class BaseUITest {
         onView(isRoot()).perform(waitForView(R.id.recyclerView, 3000))
     }
 
-    protected fun addTaskWithCoordinates(
-        name: String,
-        description: String,
-        priority: String,
-        duration: String,
-        latitude: String,
-        longitude: String
-    ) {
+    protected fun addTaskWithCoordinates(task: LimitedTask) {
         beginAddTask()
 
         val taskParams = TaskInputParams(
-            name = name,
-            description = description,
-            priority = priority,
-            duration = duration,
-            latitude = latitude,
-            longitude = longitude
+            name = task.name,
+            description = task.description,
+            priority = task.priority,
+            duration = task.duration,
+            latitude = task.latitude,
+            longitude = task.longitude
         )
 
         fillTaskForm(taskParams)

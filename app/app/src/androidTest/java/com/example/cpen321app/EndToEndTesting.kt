@@ -186,9 +186,9 @@ class EndToEndTesting : BaseUITest() {
         val task2 = getRandomTestTaskName()
 
         println("Creating task 1: $task1")
-        addTaskWithCoordinates(task1, "Route Test 1", "1", "60", "49.2600", "-123.1400")
+        addTaskWithCoordinates(LimitedTask(task1, "Route Test 1", "1", "60", "49.2600", "-123.1400"))
         println("Creating task 2: $task2")
-        addTaskWithCoordinates(task2, "Route Test 2", "2", "30", "49.2800", "-123.1200")
+        addTaskWithCoordinates(LimitedTask(task2, "Route Test 2", "2", "30", "49.2800", "-123.1200"))
 
         createdTestTasks.add(task1)
         createdTestTasks.add(task2)

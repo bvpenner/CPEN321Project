@@ -72,14 +72,14 @@ class GeofenceTest : BaseUITest() {
         navigateToTaskList()
 
         // Add task with coordinates
-        addTaskWithCoordinates(
+        addTaskWithCoordinates( LimitedTask(
             taskName,
             "Geofence Test Description",
             "1",
             "30",
             "49.2600",
             "-123.1400"
-        )
+        ))
         createdTestTasks.add(taskName)
 
         // Verify task was created
@@ -114,8 +114,8 @@ class GeofenceTest : BaseUITest() {
         navigateToTaskList()
 
         // Add tasks with coordinates
-        addTaskWithCoordinates(task1, "Geofence Route Test 1", "1", "30", "49.2600", "-123.1400")
-        addTaskWithCoordinates(task2, "Geofence Route Test 2", "2", "45", "49.2800", "-123.1200")
+        addTaskWithCoordinates(LimitedTask(task1, "Geofence Route Test 1", "1", "30", "49.2600", "-123.1400"))
+        addTaskWithCoordinates(LimitedTask(task2, "Geofence Route Test 2", "2", "45", "49.2800", "-123.1200"))
 
         createdTestTasks.add(task1)
         createdTestTasks.add(task2)
@@ -181,8 +181,8 @@ class GeofenceTest : BaseUITest() {
         navigateToTaskList()
 
         // Add tasks
-        addTaskWithCoordinates(task1, "Geofence Toggle Test 1", "1", "30", "49.2600", "-123.1400")
-        addTaskWithCoordinates(task2, "Geofence Toggle Test 2", "2", "45", "49.2800", "-123.1200")
+        addTaskWithCoordinates(LimitedTask(task1, "Geofence Toggle Test 1", "1", "30", "49.2600", "-123.1400"))
+        addTaskWithCoordinates(LimitedTask(task2, "Geofence Toggle Test 2", "2", "45", "49.2800", "-123.1200"))
 
         createdTestTasks.add(task1)
         createdTestTasks.add(task2)
