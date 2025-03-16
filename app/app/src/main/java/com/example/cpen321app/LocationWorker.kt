@@ -21,27 +21,23 @@ class LocationWorker(appContext: Context, workerParams: WorkerParameters): Worke
     }
 
     override fun doWork(): Result {
-        return try {
-            Log.d(TAG, "Doing Work")
+        Log.d(TAG, "Doing Work")
 
-            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(applicationContext)
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(applicationContext)
 
-            if (ActivityCompat.checkSelfPermission(this.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Log.e(TAG, "Worker Failed Location Permissions Check")
-                return Result.failure()
-            }
+        if (ActivityCompat.checkSelfPermission(this.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "Worker Failed Location Permissions Check")
+            return Result.failure()
+        }
 
-            val location = Tasks.await(fusedLocationClient.lastLocation)
+        val location = Tasks.await(fusedLocationClient.lastLocation)
 
-            if(location != null) {
-                Log.d(TAG, "Location: Latitude: ${location.latitude}, Longitude: ${location.longitude}")
+        if(location != null) {
+            Log.d(TAG, "Location: Latitude: ${location.latitude}, Longitude: ${location.longitude}")
 //                sendLocationToServer(location)
-                Result.success()
-            } else {
-                Result.retry()
-            }
-        } catch (e: Exception) {
-            Result.failure()
+            return Result.success()
+        } else {
+            return Result.retry()
         }
     }
 
