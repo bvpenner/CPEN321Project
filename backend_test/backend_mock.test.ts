@@ -345,9 +345,14 @@ describe("/fetchOptimalRoute", () => {
     });
 
     test("case 1: user gives all required info, but Google map distance matrix API failed", async () => {
-        // status code OK means fine, otherwise failed
-        // fetchAllTaskRouteTime.mockRejectedValue(new Error('Google Maps fail!'));     // this does not work
-        //(fetchAllTaskRouteTime as jest.Mock).mockRejectedValue(new Error('Google Maps distance matrix fail!'));
+        /*
+        input: valid user location in lat, lng
+               valid user time
+               task list of length 1
+        expected status code: 500
+        expected behavior: Google map distance matrix API return an error, database unchanged at the end
+        expected output: get an route time failed error with specific error msg
+        */
         (fetch as jest.Mock).mockResolvedValue(
             new MockResponse(null, { status: 500, statusText: "Internal Server Error" })
           );
@@ -397,9 +402,15 @@ describe("/fetchOptimalRoute", () => {
             .set("Content-Type", "application/json");
     });
 
-    test("case 2: user gives all required info, but getTaskById fails???possible?", async () => {
-        // status code OK means fine, otherwise failed
-        // fetchAllTaskRouteTime.mockRejectedValue(new Error('Google Maps fail!'));     // this does not work
+    test("case 2: user gives all required info, but getTaskById fails", async () => {
+        /*
+        input: valid user location in lat, lng
+               valid user time
+               task list of length 1
+        expected status code: 500
+        expected behavior: database cannot find task, database unchanged at the end
+        expected output: get an error msg about task not found in db
+        */
         (getTasksById as jest.Mock).mockRejectedValue(new Error(''));
 
         //add new tasks
@@ -446,5 +457,4 @@ describe("/fetchOptimalRoute", () => {
             .set("Content-Type", "application/json");
     });
 
-    //another one for db disconnected?
 });
