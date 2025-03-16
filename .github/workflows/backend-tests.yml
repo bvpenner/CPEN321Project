@@ -30,4 +30,5 @@ jobs:
       - name: Run Jest Tests
         run: |
           cd backend  # Change directory if necessary
+          npx jest nonfunctional.test.ts
           npx jest backend_test/backend_nomock.test.ts backend_test/backend_mock.test.ts --coverage --runInBand
