@@ -224,26 +224,7 @@ class EndToEndTesting : BaseUITest() {
         Thread.sleep(1000)
 
         // Click Plan Route button
-        println("Clicking Plan Route button...")
-        val planRouteButton = device.findObject(UiSelector().text("Plan Route"))
-        if (planRouteButton.exists()) {
-            planRouteButton.click()
-            println("Clicked Plan Route button with UiAutomator")
-        } else {
-            // Fallback to Espresso or other methods
-            try {
-                onView(withId(R.id.buttonPlanRoute)).perform(click())
-                println("Clicked Plan Route button with Espresso")
-            } catch (e: Exception) {
-                println("Error clicking Plan Route button: ${e.message}")
-
-                // Try clicking at the bottom center of the screen where the button likely is
-                val displayWidth = device.displayWidth
-                val displayHeight = device.displayHeight
-                device.click(displayWidth / 2, displayHeight - 100)
-                println("Clicked at bottom center as last resort")
-            }
-        }
+        clickPlanRouteButton()
 
         // Wait for notification
         println("Waiting for route notification...")
@@ -277,7 +258,30 @@ class EndToEndTesting : BaseUITest() {
 
         println("Route optimization test completed")
     }
-    
+
+    private fun clickPlanRouteButton() {
+        println("Clicking Plan Route button...")
+        val planRouteButton = device.findObject(UiSelector().text("Plan Route"))
+        if (planRouteButton.exists()) {
+            planRouteButton.click()
+            println("Clicked Plan Route button with UiAutomator")
+        } else {
+            // Fallback to Espresso or other methods
+            try {
+                onView(withId(R.id.buttonPlanRoute)).perform(click())
+                println("Clicked Plan Route button with Espresso")
+            } catch (e: Exception) {
+                println("Error clicking Plan Route button: ${e.message}")
+
+                // Try clicking at the bottom center of the screen where the button likely is
+                val displayWidth = device.displayWidth
+                val displayHeight = device.displayHeight
+                device.click(displayWidth / 2, displayHeight - 100)
+                println("Clicked at bottom center as last resort")
+            }
+        }
+    }
+
     private fun verifyAndSelectTasksWithFallbacks(task1: String, task2: String): Boolean {
         println("Dumping view hierarchy for debugging...")
         try {
