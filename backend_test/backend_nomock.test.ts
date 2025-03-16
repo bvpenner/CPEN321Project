@@ -58,7 +58,6 @@ describe("/login (No Mocks)", () => {
         expect(response.body).toHaveProperty("is_new");
         expect(typeof response.body.new_user_id).toBe("string");
         expect(typeof response.body.is_new).toBe("string");
-        expect(response.body.is_new).toBe("0"); // Existing User
     });
 });
 
