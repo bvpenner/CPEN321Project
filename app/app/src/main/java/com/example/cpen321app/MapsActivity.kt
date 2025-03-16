@@ -218,41 +218,37 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
 
     private fun startLocationUpdates() {
-        try {
-            val locationProvider = when {
-                ContextCompat.checkSelfPermission(
-                    requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED -> LocationManager.GPS_PROVIDER
+        val locationProvider = when {
+            ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> LocationManager.GPS_PROVIDER
 
-                ContextCompat.checkSelfPermission(
-                    requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED -> LocationManager.NETWORK_PROVIDER
+            ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> LocationManager.NETWORK_PROVIDER
 
-                else -> null
-            }
+            else -> null
+        }
 
-            if (locationProvider != null) {
-                locationManager.requestLocationUpdates(
-                    locationProvider,
-                    0L,
-                    0f,
-                    object : LocationListener {
-                        override fun onLocationChanged(location: Location) {
-                            User_Lat = location.latitude
-                            User_Lng = location.longitude
-                        }
+        if (locationProvider != null) {
+            locationManager.requestLocationUpdates(
+                locationProvider,
+                0L,
+                0f,
+                object : LocationListener {
+                    override fun onLocationChanged(location: Location) {
+                        User_Lat = location.latitude
+                        User_Lng = location.longitude
+                    }
 
-                        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-                        override fun onProviderEnabled(provider: String) {}
-                        override fun onProviderDisabled(provider: String) {}
-                    },
-                    Looper.getMainLooper()
-                )
-            } else {
-                Log.e("MainActivity", "No location permission granted.")
-            }
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Error fetching location updates: ${e.message}")
+                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+                    override fun onProviderEnabled(provider: String) {}
+                    override fun onProviderDisabled(provider: String) {}
+                },
+                Looper.getMainLooper()
+            )
+        } else {
+            Log.e("MainActivity", "No location permission granted.")
         }
     }
 
