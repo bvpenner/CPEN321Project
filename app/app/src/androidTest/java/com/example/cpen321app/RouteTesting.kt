@@ -54,11 +54,7 @@ class RouteWorkerTest {
             })
             .build() as RouteWorker
     }
-
-    /**
-     * Creates a test task with specified parameters
-     * Matches the actual Task constructor parameter order
-     */
+    
     private fun createTestTask(
         id: String,
         name: String,
