@@ -162,21 +162,16 @@ class AddTask : AppCompatActivity() {
         val endText = editTextEnd.text.toString()
 
         if (startText.isNotEmpty() && endText.isNotEmpty()) {
-            try {
-                val startDate = timeFormat.parse(startText)
-                val endDate = timeFormat.parse(endText)
-                if (startDate != null && endDate != null) {
-                    var diff = endDate.time - startDate.time
-                    // If diff is negative, assume the end time is on the next day.
-                    if (diff < 0) {
-                        diff += 24 * 60 * 60 * 1000
-                    }
-                    val durationMinutes = diff / (60 * 1000)
-                    editTextDuration.setText(durationMinutes.toString())
+            val startDate = timeFormat.parse(startText)
+            val endDate = timeFormat.parse(endText)
+            if (startDate != null && endDate != null) {
+                var diff = endDate.time - startDate.time
+                // If diff is negative, assume the end time is on the next day.
+                if (diff < 0) {
+                    diff += 24 * 60 * 60 * 1000
                 }
-            } catch (e: Exception) {
-                // Ignore parse errors and let the user override.
-                e.printStackTrace()
+                val durationMinutes = diff / (60 * 1000)
+                editTextDuration.setText(durationMinutes.toString())
             }
         }
     }
