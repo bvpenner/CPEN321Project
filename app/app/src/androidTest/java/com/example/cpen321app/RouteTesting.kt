@@ -52,20 +52,6 @@ class RouteWorkerTest {
             .build() as RouteWorker
     }
 
-    private fun createTestTask(
-        id: String,
-        name: String,
-        startTime: String,
-        endTime: String,
-        duration: Int,
-        latitude: Double,
-        longitude: Double,
-        priority: Int,
-        description: String
-    ): Task {
-        return Task(id, name, startTime, endTime, duration, latitude, longitude, priority, description)
-    }
-
     @Test
     fun testRouteWorker_EmptyTaskList() {
         // Arrange
@@ -82,7 +68,7 @@ class RouteWorkerTest {
     fun testRouteWorker_SingleTask() {
         // Arrange
         val worker = createTestWorker()
-        val singleTask = createTestTask(
+        val singleTask = Task(
             "1", "Single Task", "10:00", "11:00",
             60, 49.28, -123.12, 1, "Test description"
         )
@@ -104,9 +90,9 @@ class RouteWorkerTest {
 
         // Create test tasks with known locations
         val tasks = listOf(
-            createTestTask("1", "Task A", "10:00", "11:00", 60, 49.28, -123.12, 1, "Desc A"),
-            createTestTask("2", "Task B", "10:30", "11:30", 60, 49.29, -123.13, 1, "Desc B"),
-            createTestTask("3", "Task C", "11:00", "12:00", 60, 49.30, -123.14, 1, "Desc C")
+            Task("1", "Task A", "10:00", "11:00", 60, 49.28, -123.12, 1, "Desc A"),
+            Task("2", "Task B", "10:30", "11:30", 60, 49.29, -123.13, 1, "Desc B"),
+            Task("3", "Task C", "11:00", "12:00", 60, 49.30, -123.14, 1, "Desc C")
         )
 
         // Act - Order tasks by nearest neighbor algorithm
@@ -126,9 +112,9 @@ class RouteWorkerTest {
 
         // Create test tasks
         val tasks = listOf(
-            createTestTask("1", "Task A", "10:00", "11:00", 60, 49.28, -123.12, 1, "Desc A"),
-            createTestTask("2", "Task B", "10:30", "11:30", 60, 49.29, -123.13, 1, "Desc B"),
-            createTestTask("3", "Task C", "11:00", "12:00", 60, 49.30, -123.14, 1, "Desc C")
+            Task("1", "Task A", "10:00", "11:00", 60, 49.28, -123.12, 1, "Desc A"),
+            Task("2", "Task B", "10:30", "11:30", 60, 49.29, -123.13, 1, "Desc B"),
+            Task("3", "Task C", "11:00", "12:00", 60, 49.30, -123.14, 1, "Desc C")
         )
 
         // Act - Order tasks from a different starting position
@@ -150,9 +136,9 @@ class RouteWorkerTest {
 
         // Create test tasks in shuffled order
         val tasks = listOf(
-            createTestTask("3", "Task C", "11:00", "12:00", 60, 49.30, -123.14, 1, "Desc C"),
-            createTestTask("1", "Task A", "10:00", "11:00", 60, 49.28, -123.12, 1, "Desc A"),
-            createTestTask("2", "Task B", "10:30", "11:30", 60, 49.29, -123.13, 1, "Desc B")
+            Task("3", "Task C", "11:00", "12:00", 60, 49.30, -123.14, 1, "Desc C"),
+            Task("1", "Task A", "10:00", "11:00", 60, 49.28, -123.12, 1, "Desc A"),
+            Task("2", "Task B", "10:30", "11:30", 60, 49.29, -123.13, 1, "Desc B")
         )
 
         // Act
@@ -188,8 +174,8 @@ class RouteWorkerTest {
         // Arrange
         val worker = createTestWorker()
         val tasks = listOf(
-            createTestTask("1", "Task A", "10:00", "11:00", 60, 49.28, -123.12, 1, "Desc A"),
-            createTestTask("2", "Task B", "10:30", "11:30", 60, 49.29, -123.13, 1, "Desc B")
+            Task("1", "Task A", "10:00", "11:00", 60, 49.28, -123.12, 1, "Desc A"),
+            Task("2", "Task B", "10:30", "11:30", 60, 49.29, -123.13, 1, "Desc B")
         )
 
         // Act - Use reflection to access private method
