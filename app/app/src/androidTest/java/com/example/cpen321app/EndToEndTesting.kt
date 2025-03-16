@@ -70,6 +70,25 @@ class EndToEndTesting : BaseUITest() {
         super.cleanup()
     }
 
+    private fun handleLocationSettingsPrompt() {
+        device.wait(Until.hasObject(By.text("Choose an account")), 10000)
+        val button = device.findObject(UiSelector().clickable(true))
+        if (button.waitForExists(4000)) {
+            button.click()
+        } else {
+            fail("No provided account to log in with")
+        }
+        device.wait(Until.hasObject(By.text("Allow cpen321app to access this device's location?")), 10000)
+        val precise = device.findObject(UiSelector().text("Precise"))
+        if (precise.exists()) {
+            precise.click()
+        }
+        val whileUsingTheApp = device.findObject(UiSelector().text("While using the app"))
+        if (whileUsingTheApp.exists()) {
+            whileUsingTheApp.click()
+        }
+    }
+
     @Test
     fun useAppContext() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
@@ -79,6 +98,8 @@ class EndToEndTesting : BaseUITest() {
     @Test
     fun testManageTaskSuccess() {
         login()
+        // Handle the location permission prompt, if it appears
+        handleLocationSettingsPrompt()
         navigateToTaskList()
         val taskName = getRandomTestTaskName()
 
@@ -95,6 +116,7 @@ class EndToEndTesting : BaseUITest() {
     @Test
     fun testCreateTask_InputInvalidLat() {
         login()
+        handleLocationSettingsPrompt()
         navigateToTaskList()
 
         val invalidAddTaskParams = TaskInputParams(
@@ -116,6 +138,7 @@ class EndToEndTesting : BaseUITest() {
     @Test
     fun testCreateTask_InputInvalidLng() {
         login()
+        handleLocationSettingsPrompt()
         navigateToTaskList()
 
         val invalidAddTaskParams = TaskInputParams(
@@ -137,6 +160,7 @@ class EndToEndTesting : BaseUITest() {
     @Test
     fun testCreateTask_OtherInvalidInput() {
         login()
+        handleLocationSettingsPrompt()
         navigateToTaskList()
         beginAddTask()
 
@@ -176,9 +200,11 @@ class EndToEndTesting : BaseUITest() {
         onView(withText("Priority must be 1-3."))
             .check(matches(isDisplayed()))
     }
+
     @Test
     fun testRouteOptimization() {
         login()
+        handleLocationSettingsPrompt()
         navigateToTaskList()
 
         // Add multiple tasks at different locations
@@ -326,10 +352,10 @@ class EndToEndTesting : BaseUITest() {
 
                 val task2Elem = device.findObject(UiSelector().textContains(task2))
                 if (!found2 && task2Elem.exists()) {
-                        found2 = true
-                        println("Found task 2, selecting it...")
-                        val bounds = task2Elem.visibleBounds
-                        device.click(bounds.left - 40, bounds.centerY())
+                    found2 = true
+                    println("Found task 2, selecting it...")
+                    val bounds = task2Elem.visibleBounds
+                    device.click(bounds.left - 40, bounds.centerY())
                 }
 
                 // If both found, we're done

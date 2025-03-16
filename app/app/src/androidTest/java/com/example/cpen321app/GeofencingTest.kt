@@ -3,6 +3,7 @@ package com.example.cpen321app
 import android.Manifest
 import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import android.os.SystemClock
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -35,11 +36,18 @@ import org.junit.runner.RunWith
 class GeofenceTest : BaseUITest() {
 
     @get:Rule
-    val permissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.POST_NOTIFICATIONS
-    )
+    val permissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        GrantPermissionRule.grant(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS
+        )
+    } else {
+        GrantPermissionRule.grant(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+    }
 
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
@@ -72,14 +80,16 @@ class GeofenceTest : BaseUITest() {
         navigateToTaskList()
 
         // Add task with coordinates
-        addTaskWithCoordinates( LimitedTask(
-            taskName,
-            "Geofence Test Description",
-            "1",
-            "30",
-            "49.2600",
-            "-123.1400"
-        ))
+        addTaskWithCoordinates(
+            LimitedTask(
+                taskName,
+                "Geofence Test Description",
+                "1",
+                "30",
+                "49.2600",
+                "-123.1400"
+            )
+        )
         createdTestTasks.add(taskName)
 
         // Verify task was created
