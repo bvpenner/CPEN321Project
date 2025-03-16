@@ -38,4 +38,5 @@ jobs:
       - name: Run Jest Tests
         run: |
           cd backend_test
+          npx jest nonfunctional.test.ts --preset=ts-jest
           npx jest backend_nomock.test.ts backend_mock.test.ts --coverage --runInBand
