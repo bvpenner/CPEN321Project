@@ -227,53 +227,7 @@ class MainActivity : AppCompatActivity() {
         )
         bottomNavigationView.layoutParams = bottomNavLayoutParams
 
-        constraintLayout.addView(frameLayout)
-        constraintLayout.addView(bottomNavigationView)
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(constraintLayout)
-        constraintSet.connect(
-            frameLayout.id,
-            ConstraintSet.TOP,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.TOP
-        )
-        constraintSet.connect(
-            frameLayout.id,
-            ConstraintSet.BOTTOM,
-            bottomNavigationView.id,
-            ConstraintSet.TOP
-        )
-        constraintSet.connect(
-            frameLayout.id,
-            ConstraintSet.START,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.START
-        )
-        constraintSet.connect(
-            frameLayout.id,
-            ConstraintSet.END,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.END
-        )
-        constraintSet.connect(
-            bottomNavigationView.id,
-            ConstraintSet.BOTTOM,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.BOTTOM
-        )
-        constraintSet.connect(
-            bottomNavigationView.id,
-            ConstraintSet.START,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.START
-        )
-        constraintSet.connect(
-            bottomNavigationView.id,
-            ConstraintSet.END,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.END
-        )
-        constraintSet.applyTo(constraintLayout)
+        setUpConstraintLayout(constraintLayout, frameLayout, bottomNavigationView)
 
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -327,6 +281,60 @@ class MainActivity : AppCompatActivity() {
 
         val progressBar = findViewById<ProgressBar>(R.id.progressBar)
         constraintLayout.removeView(progressBar)
+    }
+
+    private fun setUpConstraintLayout(
+        constraintLayout: ConstraintLayout,
+        frameLayout: FrameLayout,
+        bottomNavigationView: BottomNavigationView
+    ) {
+        constraintLayout.addView(frameLayout)
+        constraintLayout.addView(bottomNavigationView)
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(constraintLayout)
+        constraintSet.connect(
+            frameLayout.id,
+            ConstraintSet.TOP,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.TOP
+        )
+        constraintSet.connect(
+            frameLayout.id,
+            ConstraintSet.BOTTOM,
+            bottomNavigationView.id,
+            ConstraintSet.TOP
+        )
+        constraintSet.connect(
+            frameLayout.id,
+            ConstraintSet.START,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.START
+        )
+        constraintSet.connect(
+            frameLayout.id,
+            ConstraintSet.END,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.END
+        )
+        constraintSet.connect(
+            bottomNavigationView.id,
+            ConstraintSet.BOTTOM,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.BOTTOM
+        )
+        constraintSet.connect(
+            bottomNavigationView.id,
+            ConstraintSet.START,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.START
+        )
+        constraintSet.connect(
+            bottomNavigationView.id,
+            ConstraintSet.END,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.END
+        )
+        constraintSet.applyTo(constraintLayout)
     }
 
     private fun scheduleRouteWorker() {
