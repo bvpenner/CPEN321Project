@@ -277,13 +277,7 @@ class EndToEndTesting : BaseUITest() {
 
         println("Route optimization test completed")
     }
-
-    /**
-     * Comprehensive verification and selection with multiple fallbacks
-     */
-    /**
-     * Comprehensive verification and selection with multiple fallbacks
-     */
+    
     private fun verifyAndSelectTasksWithFallbacks(task1: String, task2: String): Boolean {
         println("Dumping view hierarchy for debugging...")
         try {
