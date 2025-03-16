@@ -81,7 +81,6 @@ class TaskAdapter(
         holder.taskDescription.text = task.description
         // Set checkbox state based on whether the task is selected.
         holder.checkBoxSelect.isChecked = selectedTaskIds.contains(task.id)
-
         holder.geofenceSwitch.setOnCheckedChangeListener(null)
         holder.geofenceSwitch.isChecked = _geofenceStateMap[task.id] ?: task.isGeofenceEnabled
         holder.geofenceSwitch.setOnCheckedChangeListener { _, isChecked ->
