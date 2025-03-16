@@ -509,20 +509,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun decodeIdToken(idToken: String): Map<String, Any> {
-        return try {
-            val parts = idToken.split(".")
-            if (parts.size == 3) {
-                val payload = parts[1]
-                val decodedBytes = Base64.decode(payload, Base64.URL_SAFE)
-                val decodedString = String(decodedBytes, Charsets.UTF_8)
-                val jsonObject = JSONObject(decodedString)
-                jsonObject.toMap()
-            } else {
-                emptyMap()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error decoding ID token: ${e.message}")
-            emptyMap()
+        val parts = idToken.split(".")
+        if (parts.size == 3) {
+            val payload = parts[1]
+            val decodedBytes = Base64.decode(payload, Base64.URL_SAFE)
+            val decodedString = String(decodedBytes, Charsets.UTF_8)
+            val jsonObject = JSONObject(decodedString)
+            return jsonObject.toMap()
+        } else {
+            return emptyMap()
         }
     }
 
