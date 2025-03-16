@@ -4,6 +4,8 @@ import { connectDB } from '../../database/mongodb-ts/database';
 import * as dbService from "../../database/mongodb-ts/userService";
 import { Console } from 'console';
 import { Client } from "@googlemaps/google-maps-services-js";
+import { fetchGeofences } from './geofenceService';
+import { fetchAllTaskRouteTime } from './fetchRouteService';
 
 
 const app = express();
@@ -24,19 +26,6 @@ interface LatLng {
 	longitude: number;
 }
 
-interface SimpleLatLng {
-	lat: number;
-	lng: number;
-}
-
-interface CompactRoute {
-	summary: string;
-	distance: number;
-	duration: number;
-	start_location: SimpleLatLng;
-	end_location: SimpleLatLng;
-	polyline: string;
-}
 
 // Request body interface for /fetchGeofences endpoint
 interface RouteRequestBody {
@@ -57,7 +46,7 @@ interface AddTaskRequestBody {
 	description: string;
 }
 
-class Task {
+export class Task {
 	public _id: string;
 	public start_time: number;
 	public end_time: number;    // latest time to reach a task
@@ -84,149 +73,16 @@ interface RouteTimeRequestBody {
 	allTasksID: number[];
 	userLocation: LatLng;
 	userCurrTime: string;
-	userCurrTime: string;
 }
 
 /**
  * Calls the Google Directions API and processes the response.
  */
-const googleMapsClient = new Client({});
-const EARTH_RADIUS_KM = 6371;
 
-async function fetchGeofences(origin: LatLng, destination: LatLng): Promise<any> {
-	const { default: fetch } = await import('node-fetch');
 
-	const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}` +
-		`&destination=${destination.latitude},${destination.longitude}&alternatives=true&key=${GMap_API_key}`;
 
-	const response = await fetch(url);
-	if (!response.ok) {
-		throw new Error(`Route Request Failed: ${response.statusText}`);
-	}
-	const jsonResponse = await response.json();
-	
-	const compactJson = parseRoute(jsonResponse, destination);
-	return compactJson;
-}
 
-/**
- * Processes the route JSON and builds a geofence using a 3km geocircle.
- */
-async function parseRoute(jsonData: any, destination: LatLng): Promise<any> {
-	const routes = jsonData.routes;
-	const compactRoutes: CompactRoute[] = [];
-	const destinationLatLng: SimpleLatLng = { lat: destination.latitude, lng: destination.longitude };
 
-	for (const route of routes) {
-		const summary: string = route.summary;
-		const polyline: string = route.overview_polyline.points;
-		const leg = route.legs[0];
-		const startLocation = leg.start_location;
-		const endLocation = leg.end_location;
-
-		const totalDistance: number = leg.distance.value;
-		const totalDuration: number = leg.duration.value;
-
-		const compactRoute: CompactRoute = {
-			summary,
-			distance: totalDistance,
-			duration: totalDuration,
-			start_location: startLocation,
-			end_location: endLocation,
-			polyline
-		};
-
-		compactRoutes.push(compactRoute);
-	}
-
-	const geofence = await generateGeofence(destinationLatLng);
-	// console.log("geofence.length:" + geofence.length)
-	// return { routes: compactRoutes, polygon: geofence };
-	return { polygon: geofence };
-}
-
-/**
- * Computes a geofence based on a 3km radius circle.
- * Finds main street intersection points using the Google Roads API.
- */
-
-async function generateGeofence(origin: SimpleLatLng): Promise<LatLng[]> {
-    const numPoints = 36; 
-    const radiusKm = 300;
-    const circlePoints: LatLng[] = [];
-
-    // Generate circle boundary points
-    for (let i = 0; i < numPoints; i++) {
-        const angle = (i * 10) * (Math.PI / 180); // Convert degrees to radians
-        const latOffset = (radiusKm / EARTH_RADIUS_KM) * Math.sin(angle);
-        const lngOffset = (radiusKm / (EARTH_RADIUS_KM * Math.cos(origin.lat * Math.PI / 180))) * Math.cos(angle);
-
-        const newPoint: LatLng = {
-            latitude: origin.lat + latOffset,
-            longitude: origin.lng + lngOffset
-        };
-
-        circlePoints.push(newPoint);
-    }
-
-    // ✅ Find intersections with roads
-    const intersections = await findRoadIntersections(circlePoints);
-
-    // ✅ Select key intersections to form the polygon
-    const polygonCoordinates = computePolygonCoordinates(intersections);
-
-    return polygonCoordinates;
-}
-
-/**
- * Finds the intersections of the circle boundary points with roads using Google Roads API.
- */
-async function findRoadIntersections(points: LatLng[]): Promise<LatLng[]> {
-    const intersections: LatLng[] = [];
-
-    for (const point of points) {
-        try {
-            const response = await googleMapsClient.snapToRoads({
-                params: {
-                    path: [{ lat: point.latitude, lng: point.longitude }], // ✅ Fix: Pass an array instead of a string
-                    interpolate: false,
-                    key: GMap_API_key
-                }
-            });
-
-            if (response.data.snappedPoints && response.data.snappedPoints.length > 0) {
-                const snappedPoint = response.data.snappedPoints[0].location;
-                intersections.push({ latitude: snappedPoint.latitude, longitude: snappedPoint.longitude });
-            }
-        } catch (error) {
-            console.error("Error fetching road intersection:", error);
-        }
-    }
-    return intersections;
-}
-
-/**
- * Computes the geofence polygon by sorting points based on angle from the center.
- */
-function computePolygonCoordinates(points: LatLng[]): LatLng[] {
-    if (points.length < 3) {
-        return [];
-    }
-
-    const center = points.reduce(
-        (acc, point) => ({ lat: acc.lat + point.latitude, lng: acc.lng + point.longitude }),
-        { lat: 0, lng: 0 }
-    );
-    center.lat /= points.length;
-    center.lng /= points.length;
-
-    const sortedPoints = points.slice().sort((a, b) => {
-        const angleA = Math.atan2(a.latitude - center.lat, a.longitude - center.lng);
-        const angleB = Math.atan2(b.latitude - center.lat, b.longitude - center.lng);
-        return angleA - angleB;
-    });
-    return sortedPoints;
-}
 
 /***************************************************
  * Find optimal route
@@ -262,7 +118,7 @@ function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][], userC
 		}
 	}
 
-	// Explore all possible first-tasks
+	// Explore all possible first-taskss
 	for (let i = 1; i < taskDistanceGraph.length; i++) {
 		const e_0i = taskDistanceGraph[0][i];
 		const waitingTime = Math.max(0, tasksArr[i - 1].start_time - (timeCounter + e_0i));
@@ -271,6 +127,11 @@ function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][], userC
 		const unfinishedTaskSet = new Set(tasksSet);
 		unfinishedTaskSet.delete(i);
 
+		//added for length == 1 case
+		if (unfinishedTaskSet.size === 0) {
+			resultTracking.push([timeCost, [1]]);
+			break;
+		}
 		findOptimalRouteHelper(tasksArr, taskDistanceGraph, unfinishedTaskSet, [i], timeCounter + timeCost, timeCost, resultTracking);
 	}
 
@@ -281,7 +142,7 @@ function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][], userC
 	// find the sequence with the minimal time cost
 	let selectedIndex = 0;
 	let minTimeCost = resultTracking[0][0];
-
+	
 	for (let i = 1; i < resultTracking.length; i++) {
 		if (resultTracking[i][0] < minTimeCost) {
 			minTimeCost = resultTracking[i][0];
@@ -358,95 +219,32 @@ function timeToMinutes(timeStr: string): number {
 /**
  * Calls the Google Distance Matrix API to get time distance between 2 points.
  */
-async function fetch2TaskRouteTime(originTask: Task, destinationTask: Task): Promise<any> {
-	const { default: fetch } = await import('node-fetch');
+// async function fetch2TaskRouteTime(originTask: Task, destinationTask: Task): Promise<any> {
+// 	const { default: fetch } = await import('node-fetch');
 
-	const url = `https://maps.googleapis.com/maps/api/distancematrix/json?` +
-		`&destinations=${destinationTask.location_lat}, ${destinationTask.location_lng}` +
-		`&origins=${originTask.location_lat}, ${originTask.location_lng}` +
-		`&key=${GMap_API_key}`;
+// 	const url = `https://maps.googleapis.com/maps/api/distancematrix/json?` +
+// 		`&destinations=${destinationTask.location_lat}, ${destinationTask.location_lng}` +
+// 		`&origins=${originTask.location_lat}, ${originTask.location_lng}` +
+// 		`&key=${GMap_API_key}`;
 
-	const response = await fetch(url);
-	if (!response.ok) {
-		throw new Error(`Route Request Failed: ${response.statusText}`);
-	}
-	const jsonResponse = await response.json();
-	// console.log("jsonResponse:", jsonResponse);
-	const routeTime = parse2TaskRouteTime(jsonResponse);
-	// console.log("CompactJson:", compactJson);
-	return routeTime;
-}
+// 	const response = await fetch(url);
+// 	if (!response.ok) {
+// 		throw new Error(`Route Request Failed: ${response.statusText}`);
+// 	}
+// 	const jsonResponse = await response.json();
+// 	// console.log("jsonResponse:", jsonResponse);
+// 	const routeTime = parse2TaskRouteTime(jsonResponse);
+// 	// console.log("CompactJson:", compactJson);
+// 	return routeTime;
+// }
 
 // TODO: maybe should do error check
-function parse2TaskRouteTime(jsonData: any): any {
-	return jsonData.rows[0].elements[0].duration.value;
-}
+// function parse2TaskRouteTime(jsonData: any): any {
+// 	return jsonData.rows[0].elements[0].duration.value;
+// }
 
 
-/**
- * Calls the Google Distance Matrix API with a list of task locations.
- * Alternative request format to make fewer requests
- */
-async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Promise<any> {
-	const { default: fetch } = await import('node-fetch');
 
-	const url = buildURL(allTask, userLocation)
-
-	const response = await fetch(url);
-	if (!response.ok) {
-		throw new Error(`Route Time Request Failed: ${response.statusText}`);
-	}
-	const jsonResponse = await response.json();
-	const timeDistanceMatrix = parseAllTaskRouteTime(jsonResponse);
-	// console.log("CompactJson:", jsonResponse);
-	return timeDistanceMatrix;
-}
-
-function buildURL(allTask: Task[], userLocation: LatLng): any {
-	// Convert this array into the parameter string required by the Distance Matrix API.
-	const destinationsParam = allTask
-		.map(task => `${task.location_lat},${task.location_lng}`)
-		.join('|');
-
-	//include user location!!
-	const allDestinationsParam = `${userLocation.latitude},${userLocation.longitude}|` + destinationsParam;
-	// console.log(allDestinationsParam)
-	const originsParam = allTask
-		.map(task => `${task.location_lat},${task.location_lng}`)
-		.join('|');
-
-	const allOriginsParam = `${userLocation.latitude},${userLocation.longitude}|` + originsParam;
-
-	// Construct the final URL
-	const url = `https://maps.googleapis.com/maps/api/distancematrix/json?` +
-		`origins=${allOriginsParam}&destinations=${allDestinationsParam}` +
-		`&key=${GMap_API_key}`;
-
-	return url;
-}
-
-// TODO: to be verified (logic)!!!
-function parseAllTaskRouteTime(jsonData: any): any {
-	const durationsMatrix: number[][] = []; // 2D matrix to store durations
-
-	//each row is one origin to each destinations
-	for (let i = 0; i < jsonData.rows.length; i++) {
-		const row = jsonData.rows[i];
-		const durationRow: number[] = []; // Store durations for this row
-
-		for (let j = 0; j < row.elements.length; j++) {
-			const element = row.elements[j];
-			durationRow.push(element.duration.value / 60); // Extracting duration value, original in second
-		}
-
-		durationsMatrix.push(durationRow);
-	}
-
-	// Print the 2D matrix
-	// console.log("durationsMatrix");
-	// console.log(durationsMatrix);
-	return durationsMatrix
-}
 
 
 // -------------------------
@@ -461,9 +259,10 @@ app.post('/fetchGeofences', async (req: Request<{}, any, RouteRequestBody>, res:
 			return;
 		}
 		const result = await fetchGeofences(origin, destination);
+		console.log("fetchGeofences result: " + result)
 		res.json(result);
 	} catch (error: any) {
-		console.error(error);
+		// console.error(error);
 		res.status(500).json({ error: error.message });
 	}
 });
@@ -483,7 +282,7 @@ app.post('/login', async (req: Request<{}, any, {u_id:string, name: string, emai
 			"is_new": new_user_id[1]
 		});
 	} catch (error: any) {
-		console.error(error);
+		// console.error(error);
 		res.status(500).json({ error: error.message });
 	}
 })
@@ -504,15 +303,9 @@ app.post('/addTask', async (req: Request<{}, any, AddTaskRequestBody>, res: Resp
 		}
 		else { // modify existing task
 			var task_id = await dbService.modifyTask(_id, name, start_time, end_time, duration, location_lat, location_lng, priority, description)
-			if (task_id == _id) {
-				res.status(200).json({
-					"new_task_id": task_id
-				});
-			} else {
-				res.status(500).json({
-					"error": "modifyTask failed, check server log"
-				});
-			}
+			res.status(200).json({
+				"new_task_id": task_id
+			});
 		}
 
 	} catch (error: any) {
@@ -553,7 +346,7 @@ app.get('/getAllTasks', async (req: Request, res: Response): Promise<void> => {
 			"task_list": task_list || []
 		});
 	} catch (error: any) {
-		console.error(error);
+		// console.error(error);
 		res.status(500).json({ error: error.message });
 	}
 });
@@ -573,7 +366,7 @@ app.post('/deleteTask', async (req: Request<{}, any, {owner_id: string, _id: str
 		});
 
 	} catch (error: any) {
-		console.error(error);
+		// console.error(error);
 		res.status(500).json({ error: error.message });
 	}
 })
@@ -585,7 +378,10 @@ app.post('/deleteTask', async (req: Request<{}, any, {owner_id: string, _id: str
 app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody>, res: Response): Promise<void> => {
 	try {
 		const { allTasksID, userLocation, userCurrTime } = req.body;
-		if (allTasksID.length == 0 || !userLocation || !userCurrTime) {
+		if (allTasksID.length == 0 
+			|| !userLocation 
+			|| !userCurrTime 
+			|| (userLocation.latitude == 0 && userLocation.longitude == 0)) {
 			res.status(400).json({ error: 'Missing origin or destination coordinates.' });
 			return;
 		}
@@ -612,12 +408,18 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 		console.log(`[Optimal Route] found: ${taskIds}`);
 		res.json({"taskIds": taskIds, "time_cost": result[1]});	
 	} catch (error: any) {
-		console.error(error);
+		// console.error(error);
 		res.status(500).json({ error: error.message });
 	}
 });
 
 
-app.listen(PORT, () => {
-	console.log(`Server is running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}
+
+
+
+export {app, db};
