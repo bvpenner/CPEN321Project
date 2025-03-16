@@ -295,49 +295,7 @@ class EndToEndTesting : BaseUITest() {
         // Try multiple approaches to find and select tasks
 
         // APPROACH 1: Try UiScrollable
-        try {
-            println("APPROACH 1: Using UiScrollable")
-
-            // Find the RecyclerView
-            val recyclerView = UiScrollable(UiSelector().className("androidx.recyclerview.widget.RecyclerView"))
-            recyclerView.setAsVerticalList()
-
-            // Try to find tasks
-            println("Searching for task 1: $task1")
-            if (recyclerView.scrollIntoView(UiSelector().textContains(task1))) {
-                println("Found task 1, selecting it...")
-                val taskElement = device.findObject(UiSelector().textContains(task1))
-                if (taskElement.exists()) {
-                    // Click to the left of it
-                    val bounds = taskElement.visibleBounds
-                    device.click(bounds.left - 40, bounds.centerY())
-                    println("Selected task 1")
-                }
-            } else {
-                println("UiScrollable couldn't find task 1")
-            }
-
-            // Briefly wait
-            Thread.sleep(500)
-
-            // Now find task 2
-            println("Searching for task 2: $task2")
-            if (recyclerView.scrollIntoView(UiSelector().textContains(task2))) {
-                println("Found task 2, selecting it...")
-                val taskElement = device.findObject(UiSelector().textContains(task2))
-                if (taskElement.exists()) {
-                    // Click to the left of it
-                    val bounds = taskElement.visibleBounds
-                    device.click(bounds.left - 40, bounds.centerY())
-                    println("Selected task 2")
-                    return true
-                }
-            } else {
-                println("UiScrollable couldn't find task 2")
-            }
-        } catch (e: Exception) {
-            println("APPROACH 1 failed: ${e.message}")
-        }
+        if (approch1(task1, task2)) return true
 
         // APPROACH 2: Try manual scrolling and searching
         try {
@@ -400,11 +358,67 @@ class EndToEndTesting : BaseUITest() {
         }
 
         // APPROACH 3: Last resort - click at expected positions
+        if (approach3()) return true
+
+        // None of our approaches worked
+        return false
+    }
+
+    private fun approch1(task1: String, task2: String): Boolean {
+        try {
+            println("APPROACH 1: Using UiScrollable")
+
+            // Find the RecyclerView
+            val recyclerView =
+                UiScrollable(UiSelector().className("androidx.recyclerview.widget.RecyclerView"))
+            recyclerView.setAsVerticalList()
+
+            // Try to find tasks
+            println("Searching for task 1: $task1")
+            if (recyclerView.scrollIntoView(UiSelector().textContains(task1))) {
+                println("Found task 1, selecting it...")
+                val taskElement = device.findObject(UiSelector().textContains(task1))
+                if (taskElement.exists()) {
+                    // Click to the left of it
+                    val bounds = taskElement.visibleBounds
+                    device.click(bounds.left - 40, bounds.centerY())
+                    println("Selected task 1")
+                }
+            } else {
+                println("UiScrollable couldn't find task 1")
+            }
+
+            // Briefly wait
+            Thread.sleep(500)
+
+            // Now find task 2
+            println("Searching for task 2: $task2")
+            if (recyclerView.scrollIntoView(UiSelector().textContains(task2))) {
+                println("Found task 2, selecting it...")
+                val taskElement = device.findObject(UiSelector().textContains(task2))
+                if (taskElement.exists()) {
+                    // Click to the left of it
+                    val bounds = taskElement.visibleBounds
+                    device.click(bounds.left - 40, bounds.centerY())
+                    println("Selected task 2")
+                    return true
+                }
+            } else {
+                println("UiScrollable couldn't find task 2")
+            }
+        } catch (e: Exception) {
+            println("APPROACH 1 failed: ${e.message}")
+        }
+        return false
+    }
+
+    private fun approach3(): Boolean {
         try {
             println("APPROACH 3: Clicking at expected positions")
 
             // Get the RecyclerView bounds
-            val recyclerView = device.findObject(UiSelector().className("androidx.recyclerview.widget.RecyclerView"))
+            val recyclerView =
+                device.findObject(UiSelector().className("androidx.recyclerview.widget.RecyclerView"))
             if (recyclerView.exists()) {
                 val bounds = recyclerView.visibleBounds
 
@@ -425,8 +439,6 @@ class EndToEndTesting : BaseUITest() {
         } catch (e: Exception) {
             println("APPROACH 3 failed: ${e.message}")
         }
-
-        // None of our approaches worked
         return false
     }
 }
