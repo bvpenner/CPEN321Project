@@ -1,0 +1,33 @@
+name: Run Backend Jest Tests
+
+on:
+  push:
+    branches:
+      - main  # Run tests on every push to main
+  pull_request:
+    branches:
+      - main  # Run tests on PRs to main
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          cd backend  # Change to the correct backend folder if necessary
+          npm ci  # Installs dependencies from package-lock.json for consistency
+
+      - name: Run Jest Tests
+        run: |
+          cd backend  # Change directory if necessary
+          npx jest backend_test/backend_nomock.test.ts backend_test/backend_mock.test.ts --coverage --runInBand
