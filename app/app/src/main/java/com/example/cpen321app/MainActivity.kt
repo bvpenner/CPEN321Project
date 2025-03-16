@@ -207,6 +207,10 @@ class MainActivity : AppCompatActivity() {
         // taskViewModel.updateTaskListTesting()
 
         // Set up UI components.
+        setUpUIComponents()
+    }
+
+    private fun setUpUIComponents() {
         val frameLayout = FrameLayout(this).apply { id = View.generateViewId() }
         val bottomNavigationView = BottomNavigationView(this).apply {
             id = View.generateViewId()
@@ -214,7 +218,8 @@ class MainActivity : AppCompatActivity() {
         }
         val constraintLayout = findViewById<ConstraintLayout>(R.id.main)
         val frameLayoutParams = ConstraintLayout.LayoutParams(
-            ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+            ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
         )
         frameLayout.layoutParams = frameLayoutParams
         val bottomNavLayoutParams = ConstraintLayout.LayoutParams(
@@ -226,26 +231,65 @@ class MainActivity : AppCompatActivity() {
         constraintLayout.addView(bottomNavigationView)
         val constraintSet = ConstraintSet()
         constraintSet.clone(constraintLayout)
-        constraintSet.connect(frameLayout.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        constraintSet.connect(frameLayout.id, ConstraintSet.BOTTOM, bottomNavigationView.id, ConstraintSet.TOP)
-        constraintSet.connect(frameLayout.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        constraintSet.connect(frameLayout.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constraintSet.connect(bottomNavigationView.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        constraintSet.connect(bottomNavigationView.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        constraintSet.connect(bottomNavigationView.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constraintSet.connect(
+            frameLayout.id,
+            ConstraintSet.TOP,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.TOP
+        )
+        constraintSet.connect(
+            frameLayout.id,
+            ConstraintSet.BOTTOM,
+            bottomNavigationView.id,
+            ConstraintSet.TOP
+        )
+        constraintSet.connect(
+            frameLayout.id,
+            ConstraintSet.START,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.START
+        )
+        constraintSet.connect(
+            frameLayout.id,
+            ConstraintSet.END,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.END
+        )
+        constraintSet.connect(
+            bottomNavigationView.id,
+            ConstraintSet.BOTTOM,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.BOTTOM
+        )
+        constraintSet.connect(
+            bottomNavigationView.id,
+            ConstraintSet.START,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.START
+        )
+        constraintSet.connect(
+            bottomNavigationView.id,
+            ConstraintSet.END,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.END
+        )
         constraintSet.applyTo(constraintLayout)
 
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.list_view_button -> {
 
-                    supportFragmentManager.beginTransaction().replace(frameLayout.id, TaskListFragment()).commit()
+                    supportFragmentManager.beginTransaction()
+                        .replace(frameLayout.id, TaskListFragment()).commit()
                     true
                 }
+
                 R.id.map_view_button -> {
-                    supportFragmentManager.beginTransaction().replace(frameLayout.id, MapsFragment()).commit()
+                    supportFragmentManager.beginTransaction()
+                        .replace(frameLayout.id, MapsFragment()).commit()
                     true
                 }
+
                 else -> false
             }
         }
@@ -256,13 +300,26 @@ class MainActivity : AppCompatActivity() {
             textSize = 24f
             layoutParams = ConstraintLayout.LayoutParams(150, 150)
             id = View.generateViewId()
-            background = AppCompatResources.getDrawable(this@MainActivity, R.drawable.add_task_button)
+            background =
+                AppCompatResources.getDrawable(this@MainActivity, R.drawable.add_task_button)
         }
         constraintLayout.addView(addTaskButton)
         val addTaskButtonConstraintSet = ConstraintSet()
         addTaskButtonConstraintSet.clone(constraintLayout)
-        addTaskButtonConstraintSet.connect(addTaskButton.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 60)
-        addTaskButtonConstraintSet.connect(addTaskButton.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 60)
+        addTaskButtonConstraintSet.connect(
+            addTaskButton.id,
+            ConstraintSet.END,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.END,
+            60
+        )
+        addTaskButtonConstraintSet.connect(
+            addTaskButton.id,
+            ConstraintSet.TOP,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.TOP,
+            60
+        )
         addTaskButtonConstraintSet.applyTo(constraintLayout)
         addTaskButton.setOnClickListener {
             startActivity(Intent(this@MainActivity, AddTask::class.java))
