@@ -362,9 +362,9 @@ class RouteWorkerTest {
             })
             .build() as RouteWorker
         val tasks = listOf(
-            Task("1", "Task A", "10:00", "11:00", 1.0, 49.28, -123.12, 1, "Desc A"),
-            Task("2", "Task B", "10:30", "11:30", 1.0, 49.29, -123.13, 1, "Desc B"),
-            Task("3", "Task C", "11:00", "12:00", 1.0, 49.30, -123.14, 1, "Desc C")
+            Task("1", "Task A", "10:00", "11:00", 1, 49.28, -123.12, 1, "Desc A"),
+            Task("2", "Task B", "10:30", "11:30", 1, 49.29, -123.13, 1, "Desc B"),
+            Task("3", "Task C", "11:00", "12:00", 1, 49.30, -123.14, 1, "Desc C")
         )
         val orderedTasks = worker.orderTasksByNearestNeighbor(49.28, -123.12, tasks)
         assertEquals("Task A", orderedTasks[0].name)

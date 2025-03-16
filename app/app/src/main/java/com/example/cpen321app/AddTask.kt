@@ -74,7 +74,7 @@ class AddTask : AppCompatActivity() {
             val name = findViewById<EditText>(R.id.editTextName).text.toString().trim()
             val start = editTextStart.text.toString().trim()
             val end = editTextEnd.text.toString().trim()
-            val duration = findViewById<EditText>(R.id.editText_duration).text.toString().trim().toDoubleOrNull() ?: 0.0
+            val duration = findViewById<EditText>(R.id.editText_duration).text.toString().trim().toIntOrNull() ?: 0
             val latitude = findViewById<EditText>(R.id.editText_taskLat).text.toString().trim().toDoubleOrNull() ?: 0.0
             val longitude = findViewById<EditText>(R.id.editText_taskLng).text.toString().trim().toDoubleOrNull() ?: 0.0
             val priority = findViewById<EditText>(R.id.editText_taskPrio).text.toString().trim().toIntOrNull() ?: 1
@@ -110,7 +110,7 @@ class AddTask : AppCompatActivity() {
                     "End must be after or equal to the start",
                     Snackbar.LENGTH_SHORT
                 ).show()
-            } else if(duration <= 0.000000001) {
+            } else if(duration <= 0) {
                 Snackbar.make(
                     findViewById(R.id.scrollView_addTask),
                     "Duration must be greater than 0.",

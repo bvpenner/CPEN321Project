@@ -122,7 +122,7 @@ class RouteWorker(appContext: Context, workerParams: WorkerParameters) : Worker(
                     name = taskJson.getString("name"),
                     start = taskJson.getString("start"),
                     end = taskJson.getString("end"),
-                    duration = taskJson.getDouble("duration"),
+                    duration = taskJson.getInt("duration"),
                     location_lat = taskJson.getDouble("location_lat"),
                     location_lng = taskJson.getDouble("location_lng"),
                     priority = taskJson.getInt("priority"),

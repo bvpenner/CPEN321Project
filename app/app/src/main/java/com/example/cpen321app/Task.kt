@@ -9,7 +9,7 @@ data class Task(
     val name: String,
     val start: String,
     val end: String,
-    var duration: Double,
+    var duration: Int,
     val location_lat: Double,
     val location_lng: Double,
     val priority: Int,
