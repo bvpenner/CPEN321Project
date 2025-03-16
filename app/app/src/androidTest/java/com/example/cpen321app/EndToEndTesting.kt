@@ -358,24 +358,20 @@ class EndToEndTesting : BaseUITest() {
                 println("Scroll attempt $attempts/$maxAttempts")
 
                 // Check if tasks are visible
-                if (!found1) {
-                    val task1Elem = device.findObject(UiSelector().textContains(task1))
-                    if (task1Elem.exists()) {
-                        found1 = true
-                        println("Found task 1, selecting it...")
-                        val bounds = task1Elem.visibleBounds
-                        device.click(bounds.left - 40, bounds.centerY())
-                    }
+                val task1Elem = device.findObject(UiSelector().textContains(task1))
+                if (!found1 && task1Elem.exists()) {
+                    found1 = true
+                    println("Found task 1, selecting it...")
+                    val bounds = task1Elem.visibleBounds
+                    device.click(bounds.left - 40, bounds.centerY())
                 }
 
-                if (!found2) {
-                    val task2Elem = device.findObject(UiSelector().textContains(task2))
-                    if (task2Elem.exists()) {
+                val task2Elem = device.findObject(UiSelector().textContains(task2))
+                if (!found2 && task2Elem.exists()) {
                         found2 = true
                         println("Found task 2, selecting it...")
                         val bounds = task2Elem.visibleBounds
                         device.click(bounds.left - 40, bounds.centerY())
-                    }
                 }
 
                 // If both found, we're done
