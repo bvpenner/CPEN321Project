@@ -265,18 +265,7 @@ abstract class BaseUITest {
     protected fun selectLocationFromMap() {
         // Search for location
         val searchTexts = listOf("Search a place", "Search", "Search here", "Enter location")
-        var searchFound = false
-
-        for (searchText in searchTexts) {
-            val enterLocation = device.findObject(UiSelector().textContains(searchText))
-            if (enterLocation.waitForExists(SHORT_WAIT)) {
-                enterLocation.click()
-                // Enter a recognizable location
-                enterLocation.setText("Executive Hotel Vancouver Airport")
-                searchFound = true
-                break
-            }
-        }
+        var searchFound = performSearch(searchTexts, false)
 
         if (!searchFound) {
             // Try clicking on the search box by resource ID if text matching failed
@@ -340,6 +329,21 @@ abstract class BaseUITest {
             // Give it some time anyway
             onView(isRoot()).perform(waitFor(2000))
         }
+    }
+
+    private fun performSearch(searchTexts: List<String>, searchFound: Boolean): Boolean {
+        var searchFound1 = searchFound
+        for (searchText in searchTexts) {
+            val enterLocation = device.findObject(UiSelector().textContains(searchText))
+            if (enterLocation.waitForExists(SHORT_WAIT)) {
+                enterLocation.click()
+                // Enter a recognizable location
+                enterLocation.setText("Executive Hotel Vancouver Airport")
+                searchFound1 = true
+                break
+            }
+        }
+        return searchFound1
     }
 
     protected fun createTask() {

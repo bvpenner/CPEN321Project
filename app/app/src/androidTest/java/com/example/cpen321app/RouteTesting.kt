@@ -54,7 +54,7 @@ class RouteWorkerTest {
             })
             .build() as RouteWorker
     }
-    
+
     private fun createTestTask(
         id: String,
         name: String,
