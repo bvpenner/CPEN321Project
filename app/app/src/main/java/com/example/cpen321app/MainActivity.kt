@@ -226,13 +226,10 @@ class MainActivity : AppCompatActivity() {
             ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT
         )
         bottomNavigationView.layoutParams = bottomNavLayoutParams
-
         setUpConstraintLayout(constraintLayout, frameLayout, bottomNavigationView)
-
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.list_view_button -> {
-
                     supportFragmentManager.beginTransaction()
                         .replace(frameLayout.id, TaskListFragment()).commit()
                     true
@@ -243,12 +240,10 @@ class MainActivity : AppCompatActivity() {
                         .replace(frameLayout.id, MapsFragment()).commit()
                     true
                 }
-
                 else -> false
             }
         }
         supportFragmentManager.beginTransaction().replace(frameLayout.id, MapsFragment()).commit()
-
         val addTaskButton = Button(this).apply {
             text = "+"
             textSize = 24f
@@ -282,7 +277,7 @@ class MainActivity : AppCompatActivity() {
         val progressBar = findViewById<ProgressBar>(R.id.progressBar)
         constraintLayout.removeView(progressBar)
     }
-
+    
     private fun setUpConstraintLayout(
         constraintLayout: ConstraintLayout,
         frameLayout: FrameLayout,
