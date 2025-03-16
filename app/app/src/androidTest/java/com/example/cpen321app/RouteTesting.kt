@@ -37,10 +37,7 @@ class RouteWorkerTest {
         context = ApplicationProvider.getApplicationContext()
         executor = Executors.newSingleThreadExecutor()
     }
-
-    /**
-     * Creates a testable instance of RouteWorker
-     */
+    
     private fun createTestWorker(): RouteWorker {
         return TestWorkerBuilder<RouteWorker>(context, executor)
             .setWorkerFactory(object : androidx.work.WorkerFactory() {
