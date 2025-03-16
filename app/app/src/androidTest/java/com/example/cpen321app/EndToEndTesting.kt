@@ -307,9 +307,58 @@ class EndToEndTesting {
         val taskDescription = "test description"
         val taskLat = "40.0"
         val taskLng = "50.0"
+        val taskDuration = "60"
+        val taskPrio = "1"
+
+        val invalidName = " "
+        val invalidDuration = "0"
+        val invalidPrio = "4"
+
         onView(withText("+")).perform(click())
 
         // Test buggy inputs
+
+        onView(withId(R.id.editTextName)).perform(typeText(taskName))
+        onView(withId(R.id.editText_description))
+            .perform(typeText(taskDescription), closeSoftKeyboard())
+        onView(withId(R.id.editText_taskPrio)).perform(typeText(taskPrio), closeSoftKeyboard())
+        onView(withId(R.id.editText_taskStart)).perform(click())
+        val okButton = device.findObject(UiSelector().text("OK"))
+        if (okButton.exists()) {
+            okButton.click()
+        } else {
+            fail("Time picker did not show OK button for start time")
+        }
+        onView(withId(R.id.editText_taskEnd)).perform(click())
+        val okButton2 = device.findObject(UiSelector().text("OK"))
+        if (okButton2.exists()) {
+            okButton2.click()
+        } else {
+            fail("Time picker did not show OK button for end time")
+        }
+        onView(withId(R.id.editText_taskLat)).perform(typeText(taskLat), closeSoftKeyboard())
+        onView(withId(R.id.editText_taskLng)).perform(typeText(taskLng), closeSoftKeyboard())
+        onView(isRoot()).perform(closeSoftKeyboard())
+
+        onView(withId(R.id.editTextName)).perform(replaceText(invalidName), closeSoftKeyboard())
+
+        onView(withId(R.id.button_taskCreate)).perform(click())
+        onView(withText("Valid name required"))
+            .check(matches(isDisplayed()))
+
+        onView(withId(R.id.editTextName)).perform(replaceText(taskName), closeSoftKeyboard())
+        onView(withId(R.id.editText_duration)).perform(replaceText(invalidDuration), closeSoftKeyboard())
+
+        onView(withId(R.id.button_taskCreate)).perform(click())
+        onView(withText("Duration must be greater than 0."))
+            .check(matches(isDisplayed()))
+
+        onView(withId(R.id.editText_duration)).perform(replaceText(taskDuration), closeSoftKeyboard())
+        onView(withId(R.id.editText_taskPrio)).perform(replaceText(invalidPrio), closeSoftKeyboard())
+
+        onView(withId(R.id.button_taskCreate)).perform(click())
+        onView(withText("Priority must be 1-3."))
+            .check(matches(isDisplayed()))
 
     }
 
