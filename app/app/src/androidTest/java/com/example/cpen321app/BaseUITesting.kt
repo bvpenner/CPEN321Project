@@ -553,10 +553,10 @@ abstract class BaseUITest {
                         .fromParent(UiSelector().textContains(taskName))
                 )
 
-                if (geofenceSwitch.exists()) {
-                    if (!geofenceSwitch.isChecked) {
-                        geofenceSwitch.click()
-                    }
+                if (geofenceSwitch.exists() && !geofenceSwitch.isChecked) {
+                    geofenceSwitch.click()
+                    return
+                } else if(geofenceSwitch.exists()) {
                     return
                 }
 
