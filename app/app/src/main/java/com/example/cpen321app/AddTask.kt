@@ -35,20 +35,7 @@ class AddTask : AppCompatActivity() {
         taskViewModel = (application as GeoTask).taskViewModel
 
         // Initialize the location picker launcher.
-        locationPickerLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data = result.data
-                val latitude = data?.getDoubleExtra("latitude", 0.0)
-                val longitude = data?.getDoubleExtra("longitude", 0.0)
-                if (latitude != null && longitude != null) {
-                    findViewById<EditText>(R.id.editText_taskLat).setText(latitude.toString())
-                    findViewById<EditText>(R.id.editText_taskLng).setText(longitude.toString())
-                    Toast.makeText(this, "Location Selected: ($latitude, $longitude)", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
+        locationPickerLauncher()
 
         // When the user taps the "Pick Location" button, launch the location search activity.
         findViewById<Button>(R.id.button_pick_location).setOnClickListener {
@@ -87,47 +74,44 @@ class AddTask : AppCompatActivity() {
             } else if (longitude !in -180.0..180.0) {
                 Snackbar.make(findViewById(R.id.scrollView_addTask), "Valid Longitude Required: Between -180 and 180 degrees", Snackbar.LENGTH_SHORT).show()
             } else if(name.trim() == "") {
-                Snackbar.make(
-                    findViewById(R.id.scrollView_addTask),
-                    "Valid name required",
-                    Snackbar.LENGTH_SHORT
-                ).show()
+                Snackbar.make(findViewById(R.id.scrollView_addTask), "Valid name required", Snackbar.LENGTH_SHORT).show()
             } else if(start.trim() == "" || !start.matches(Regex("^(?:[01]\\d|2[0-3]):[0-5]\\d\$"))) {
-                Snackbar.make(
-                    findViewById(R.id.scrollView_addTask),
-                    "Valid start required",
-                    Snackbar.LENGTH_SHORT
-                ).show()
+                Snackbar.make(findViewById(R.id.scrollView_addTask), "Valid start required", Snackbar.LENGTH_SHORT).show()
             } else if(end.trim() == "" || !end.matches(Regex("^(?:[01]\\d|2[0-3]):[0-5]\\d\$"))) {
-                Snackbar.make(
-                    findViewById(R.id.scrollView_addTask),
-                    "Valid end required",
-                    Snackbar.LENGTH_SHORT
-                ).show()
+                Snackbar.make(findViewById(R.id.scrollView_addTask), "Valid end required", Snackbar.LENGTH_SHORT).show()
             } else if(!isTimeAfterOrEqual(start, end)) {
-                Snackbar.make(
-                    findViewById(R.id.scrollView_addTask),
-                    "End must be after or equal to the start",
-                    Snackbar.LENGTH_SHORT
-                ).show()
+                Snackbar.make(findViewById(R.id.scrollView_addTask), "End must be after or equal to the start", Snackbar.LENGTH_SHORT).show()
             } else if(duration <= 0) {
-                Snackbar.make(
-                    findViewById(R.id.scrollView_addTask),
-                    "Duration must be greater than 0.",
-                    Snackbar.LENGTH_SHORT
-                ).show()
+                Snackbar.make(findViewById(R.id.scrollView_addTask), "Duration must be greater than 0.", Snackbar.LENGTH_SHORT).show()
             } else if(priority > 3 || priority < 1) {
-                Snackbar.make(
-                    findViewById(R.id.scrollView_addTask),
-                    "Priority must be 1-3.",
-                    Snackbar.LENGTH_SHORT
-                ).show()
+                Snackbar.make(findViewById(R.id.scrollView_addTask), "Priority must be 1-3.", Snackbar.LENGTH_SHORT).show()
             } else {
                 val newTask = Task(id, name, start, end, duration, latitude, longitude, priority, description)
                 taskViewModel.addTask(newTask)
                 taskViewModel.logAllTasks()
                 taskViewModel.refreshTasklist()
                 finish()
+            }
+        }
+    }
+
+    private fun locationPickerLauncher() {
+        locationPickerLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data
+                val latitude = data?.getDoubleExtra("latitude", 0.0)
+                val longitude = data?.getDoubleExtra("longitude", 0.0)
+                if (latitude != null && longitude != null) {
+                    findViewById<EditText>(R.id.editText_taskLat).setText(latitude.toString())
+                    findViewById<EditText>(R.id.editText_taskLng).setText(longitude.toString())
+                    Toast.makeText(
+                        this,
+                        "Location Selected: ($latitude, $longitude)",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }
