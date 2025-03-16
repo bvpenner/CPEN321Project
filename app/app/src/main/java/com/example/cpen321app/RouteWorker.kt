@@ -108,26 +108,22 @@ class RouteWorker(appContext: Context, workerParams: WorkerParameters) : Worker(
     // Parse the JSON response into a list of Task objects.
     private fun parseTasksFromResponse(jsonResponse: String): List<Task> {
         val tasks = mutableListOf<Task>()
-        try {
-            val resultJson = JSONObject(jsonResponse)
-            val taskListJsonArray = resultJson.getJSONArray("task_list")
-            for (i in 0 until taskListJsonArray.length()) {
-                val taskJson = taskListJsonArray.getJSONObject(i)
-                val task = Task(
-                    id = taskJson.getString("_id"),
-                    name = taskJson.getString("name"),
-                    start = taskJson.getString("start"),
-                    end = taskJson.getString("end"),
-                    duration = taskJson.getInt("duration"),
-                    location_lat = taskJson.getDouble("location_lat"),
-                    location_lng = taskJson.getDouble("location_lng"),
-                    priority = taskJson.getInt("priority"),
-                    description = taskJson.getString("description")
-                )
-                tasks.add(task)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error parsing tasks: ${e.message}")
+        val resultJson = JSONObject(jsonResponse)
+        val taskListJsonArray = resultJson.getJSONArray("task_list")
+        for (i in 0 until taskListJsonArray.length()) {
+            val taskJson = taskListJsonArray.getJSONObject(i)
+            val task = Task(
+                id = taskJson.getString("_id"),
+                name = taskJson.getString("name"),
+                start = taskJson.getString("start"),
+                end = taskJson.getString("end"),
+                duration = taskJson.getInt("duration"),
+                location_lat = taskJson.getDouble("location_lat"),
+                location_lng = taskJson.getDouble("location_lng"),
+                priority = taskJson.getInt("priority"),
+                description = taskJson.getString("description")
+            )
+            tasks.add(task)
         }
         return tasks
     }

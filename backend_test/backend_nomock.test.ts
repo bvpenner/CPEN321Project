@@ -219,6 +219,14 @@ describe("/fetchGeofences (No Mocks)", () => {
 
 describe("/findOptimalRoute (No Mocks)", () => {
     test("case 1: user selected no task", async () => {
+        /*
+        input: valid user location in lat, lng
+               valid user time
+               empty task list (selected)
+        expected status code: 400
+        expected behavior: none
+        expected output: error msg, missing input infomation
+        */       
         const response = await request(app)
             .post("/fetchOptimalRoute")
             .send({ 
@@ -235,6 +243,14 @@ describe("/findOptimalRoute (No Mocks)", () => {
     });
 
     test("case 2: user gives no time", async () => {
+        /*
+        input: valid user location in lat, lng
+               invalid user time
+               non empty task list
+        expected status code: 400
+        expected behavior: none
+        expected output: error msg, missing input infomation
+        */
         const response = await request(app)
             .post("/fetchOptimalRoute")
             .send({ 
@@ -250,7 +266,15 @@ describe("/findOptimalRoute (No Mocks)", () => {
         expect(response.status).toBe(400);
     });
 
-    test("case 3: user gives no location", async () => {
+    test("case 3: user gives no or invalid location", async () => {
+        /*
+        input: invalid user location in lat, lng
+               valid user time
+               task list of length 1
+        expected status code: 400
+        expected behavior: none
+        expected output: error msg, missing input infomation
+        */
         const response = await request(app)
             .post("/fetchOptimalRoute")
             .send({ 
@@ -267,9 +291,14 @@ describe("/findOptimalRoute (No Mocks)", () => {
     });
 
     test("case 4: user gives all required info, single tasks, viable route", async () => {
-        
-        //add new tasks
-        //specific fields tbd
+        /*
+        input: valid user location in lat, lng
+               valid user time
+               task list of length 1
+        expected status code: 200
+        expected behavior: database is unchanged at the end
+        expected output: a valid route contain one task & a time cost
+        */
         const task_1_res = await request(app)
             .post("/addTask")
             .send({ 
@@ -320,9 +349,14 @@ describe("/findOptimalRoute (No Mocks)", () => {
     });
 
     test("case 5: user gives all required info, multiple tasks, viable route", async () => {
-        
-        //add new tasks
-        //specific fields tbd
+        /*
+        input: valid user location in lat, lng
+               valid user time
+               task list of length 3
+        expected status code: 200
+        expected behavior: database is unchanged at the end
+        expected output: a valid sequence contain 3 tasks & a time cost
+        */
         const task_1_res = await request(app)
             .post("/addTask")
             .send({ 
@@ -387,7 +421,6 @@ describe("/findOptimalRoute (No Mocks)", () => {
         expect(response.body).toHaveProperty("taskIds");
         expect(response.body).toHaveProperty("time_cost");
         expect(response.body.taskIds.length).toBe(3);
-        // more expect here
 
 
         //clean up
@@ -417,9 +450,14 @@ describe("/findOptimalRoute (No Mocks)", () => {
     });
 
     test("case 6: user gives all required info, multiple tasks, no viable route", async () => {
-        
-        //add new tasks
-        //specific fields tbd
+        /*
+        input: valid user location in lat, lng
+               valid user time
+               task list of length 3
+        expected status code: 200
+        expected behavior: database is unchanged at the end
+        expected output: an empty sequence due to no viable option and a time cost of -1
+        */
         const task_1_res = await request(app)
             .post("/addTask")
             .send({ 
@@ -513,5 +551,4 @@ describe("/findOptimalRoute (No Mocks)", () => {
             .set("Content-Type", "application/json");
     });
 
-    
 });

@@ -226,13 +226,10 @@ class MainActivity : AppCompatActivity() {
             ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT
         )
         bottomNavigationView.layoutParams = bottomNavLayoutParams
-
         setUpConstraintLayout(constraintLayout, frameLayout, bottomNavigationView)
-
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.list_view_button -> {
-
                     supportFragmentManager.beginTransaction()
                         .replace(frameLayout.id, TaskListFragment()).commit()
                     true
@@ -243,12 +240,10 @@ class MainActivity : AppCompatActivity() {
                         .replace(frameLayout.id, MapsFragment()).commit()
                     true
                 }
-
                 else -> false
             }
         }
         supportFragmentManager.beginTransaction().replace(frameLayout.id, MapsFragment()).commit()
-
         val addTaskButton = Button(this).apply {
             text = "+"
             textSize = 24f
@@ -282,7 +277,7 @@ class MainActivity : AppCompatActivity() {
         val progressBar = findViewById<ProgressBar>(R.id.progressBar)
         constraintLayout.removeView(progressBar)
     }
-
+    
     private fun setUpConstraintLayout(
         constraintLayout: ConstraintLayout,
         frameLayout: FrameLayout,
@@ -509,20 +504,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun decodeIdToken(idToken: String): Map<String, Any> {
-        return try {
-            val parts = idToken.split(".")
-            if (parts.size == 3) {
-                val payload = parts[1]
-                val decodedBytes = Base64.decode(payload, Base64.URL_SAFE)
-                val decodedString = String(decodedBytes, Charsets.UTF_8)
-                val jsonObject = JSONObject(decodedString)
-                jsonObject.toMap()
-            } else {
-                emptyMap()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error decoding ID token: ${e.message}")
-            emptyMap()
+        val parts = idToken.split(".")
+        if (parts.size == 3) {
+            val payload = parts[1]
+            val decodedBytes = Base64.decode(payload, Base64.URL_SAFE)
+            val decodedString = String(decodedBytes, Charsets.UTF_8)
+            val jsonObject = JSONObject(decodedString)
+            return jsonObject.toMap()
+        } else {
+            return emptyMap()
         }
     }
 
