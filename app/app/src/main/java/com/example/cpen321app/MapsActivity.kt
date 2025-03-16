@@ -8,66 +8,54 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
+import com.example.cpen321app.TaskAdapter.Companion._geofenceStateMap
+import com.example.cpen321app.TaskViewModel.Companion._taskList
+import com.example.cpen321app.TaskViewModel.Companion.server_ip
 import com.example.cpen321app.databinding.FragmentMapsBinding
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.PolygonOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import com.google.maps.android.PolyUtil
-import okhttp3.Call
-import okhttp3.Callback
+import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 import kotlin.math.atan2
-import android.os.Handler
-import android.os.Looper
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.MutableLiveData
-import com.example.cpen321app.TaskAdapter.Companion._geofenceStateMap
 
-import com.example.cpen321app.TaskViewModel.Companion.server_ip
-import com.example.cpen321app.TaskViewModel.Companion._taskList
-import com.google.android.gms.maps.model.Polygon
-import java.util.concurrent.Executors
-
-class MapsFragment : Fragment(), OnMapReadyCallback {
+open class MapsFragment : Fragment(), OnMapReadyCallback {
     private lateinit var locationManager: LocationManager
-    private var TAG = "MapsFragment"
-    private lateinit var mMap: GoogleMap
+    private val TAG = "MapsFragment"
+    protected lateinit var mMap: GoogleMap
     private var _binding: FragmentMapsBinding? = null
     private val binding get() = _binding!!
     private val handler = Handler(Looper.getMainLooper()) // Runs on main thread
     private lateinit var geofenceupdateRunnable: Runnable
     private lateinit var geofencealertRunnable: Runnable
-    private val polygonMap = mutableMapOf<String, Polygon>()
+    internal val polygonMap = mutableMapOf<String, Polygon>()
 
     companion object {
         var User_Lat: Double = 0.0
         var User_Lng: Double = 0.0
     }
 
-//    private val geofence_Map = MutableLiveData<MutableMap<String, Geofence_Container>>()
-    private val geofence_Map = MutableLiveData<MutableMap<String, MutableList<LatLng>>>()
+    // Holds geofence coordinate lists keyed by task ID.
+    protected val geofence_Map = MutableLiveData<MutableMap<String, MutableList<LatLng>>>()
 
+    // Lazy initialization of fusedLocationClient.
     private val fusedLocationClient by lazy {
         LocationServices.getFusedLocationProviderClient(requireContext())
     }
-
 
     override fun onCreateView(
         inflater: android.view.LayoutInflater, container: android.view.ViewGroup?,
@@ -77,26 +65,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         geofenceupdateRunnable = object : Runnable {
             override fun run() {
-//                val firstTask = _taskList.value?.firstOrNull()
-//                if (firstTask != null) {
-//                    val firstTaskLocation = LatLng(firstTask.location_lat, firstTask.location_lng)
-//
-//                    sendFetchGeofencesRequest(firstTaskLocation, firstTaskLocation, firstTask.id, firstTask.name) {
-//                        handler.post {
-//                            mMap.addMarker(MarkerOptions().position(firstTaskLocation).title(firstTask.name))
-//                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(firstTaskLocation, 14f))
-//                        }
-//                        handler.postDelayed(this, 300000)
-//                    }
-//                } else {
-//                    handler.postDelayed(this, 300000)
-//                }
-
                 val activeGeofences = _geofenceStateMap.filterValues { it }
                 val pendingRequests = activeGeofences.size
                 var completedRequests = 0
-//                Log.d(TAG, "[activeGeofences_length] " + activeGeofences_length)
 
+                // Remove polygons that are no longer active.
                 polygonMap.keys.toList().forEach { key ->
                     if (key !in activeGeofences.keys) {
                         polygonMap[key]?.remove()
@@ -107,13 +80,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     for (taskid in activeGeofences.keys) {
                         val task = _taskList.value?.find { it.id == taskid }
                         val taskLocation = task?.let { LatLng(it.location_lat, task.location_lng) }
-
                         if (taskLocation != null) {
                             sendFetchGeofencesRequest(taskLocation, taskLocation, task.id, task.name) {
                                 Log.d(TAG, "Task ${task.id} completed.")
-
                                 completedRequests++
-
                                 if (completedRequests == pendingRequests) {
                                     Log.d(TAG, "All geofence requests completed. Scheduling next run.")
                                     handler.postDelayed(this, 300000)
@@ -134,11 +104,13 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     geofenceMap.forEach { (task_id, geofenceContainer) ->
                         val user_current_loc = LatLng(User_Lat, User_Lng)
                         val in_fence = isPointInsideGeofence(user_current_loc, geofenceContainer)
-
                         if (in_fence) {
                             handler.post {
                                 val messagingService = FirebaseMessagingService()
-                                messagingService.sendNotification(requireContext(), "Task [${task_id}] is close")
+                                messagingService.sendNotification(
+                                    requireContext(),
+                                    "Task [${task_id}] is close"
+                                )
                             }
                         }
                     }
@@ -146,12 +118,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 handler.postDelayed(this, 10000)
             }
         }
-
-
         return binding.root
     }
 
-    override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment =
             childFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
@@ -164,7 +134,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         mMap.uiSettings.isZoomGesturesEnabled = true
         locationManager = requireContext().getSystemService(LocationManager::class.java)
 
-        // Enable MyLocation layer if permissions are granted.
         if (hasLocationPermission()) {
             startLocationUpdates()
             try {
@@ -172,23 +141,20 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             } catch (e: SecurityException) {
                 e.printStackTrace()
             }
-            // Optionally, move the camera to the user's last known location.
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
                     val userLatLng = LatLng(location.latitude, location.longitude)
-                    Log.d(TAG,"userLatLng: $userLatLng")
+                    Log.d(TAG, "userLatLng: $userLatLng")
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f))
                 }
             }
         } else {
-            // If permissions not granted, fall back to a default location.
             showDefaultLocation()
         }
 
-        // Retrieve the TaskViewModel from the Application (GeoTask) and add markers for each task.
+        // Add markers for each task.
         val taskViewModel = (requireActivity().application as GeoTask).taskViewModel
         taskViewModel.taskList.value?.forEach { task ->
-            // Only add a marker if the task has a valid location.
             if (task.location_lat != 0.0 && task.location_lng != 0.0) {
                 val taskLatLng = LatLng(task.location_lat, task.location_lng)
                 mMap.addMarker(
@@ -198,7 +164,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 )
             }
         }
-
     }
 
     override fun onResume() {
@@ -215,21 +180,16 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         handler.removeCallbacks(geofencealertRunnable)
     }
 
-
-
     private fun startLocationUpdates() {
         val locationProvider = when {
             ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED -> LocationManager.GPS_PROVIDER
-
             ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED -> LocationManager.NETWORK_PROVIDER
-
             else -> null
         }
-
         if (locationProvider != null) {
             locationManager.requestLocationUpdates(
                 locationProvider,
@@ -240,7 +200,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                         User_Lat = location.latitude
                         User_Lng = location.longitude
                     }
-
                     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
                     override fun onProviderEnabled(provider: String) {}
                     override fun onProviderDisabled(provider: String) {}
@@ -251,7 +210,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             Log.e("MainActivity", "No location permission granted.")
         }
     }
-
 
     private fun hasLocationPermission(): Boolean {
         return ActivityCompat.checkSelfPermission(
@@ -265,16 +223,13 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         val defaultLocation = LatLng(-34.0, 151.0)
         mMap.clear()
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 10f))
-
         update_taskListMarkers()
-
         val firstTask = _taskList.value?.firstOrNull()
         firstTask?.let {
             val firstTasklocation = LatLng(firstTask.location_lat, firstTask.location_lng)
             mMap.addMarker(MarkerOptions().position(firstTasklocation).title(firstTask.name))
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(firstTasklocation, 14f))
         }
-
     }
 
     override fun onDestroyView() {
@@ -282,11 +237,16 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         _binding = null
     }
 
-    private fun sendFetchGeofencesRequest(origin: LatLng, destination: LatLng, taskid: String, taskname: String, onComplete: () -> Unit) {
+    private fun sendFetchGeofencesRequest(
+        origin: LatLng,
+        destination: LatLng,
+        taskid: String,
+        taskname: String,
+        onComplete: () -> Unit
+    ) {
         val client = OkHttpClient()
         val url = "http://${server_ip}/fetchGeofences" // Replace with your server URL
-        Log.d(TAG,"sendFetchGeofencesRequest")
-        // Build JSON body
+        Log.d(TAG, "sendFetchGeofencesRequest")
         val jsonBody = JSONObject().apply {
             put("origin", JSONObject().apply {
                 put("latitude", origin.latitude)
@@ -299,12 +259,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         }
         val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
         val requestBody = RequestBody.create(mediaType, jsonBody.toString())
-
         val request = Request.Builder()
             .url(url)
             .post(requestBody)
             .build()
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 val retryDelay = 2000L
@@ -313,20 +271,14 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     sendFetchGeofencesRequest(origin, destination, taskid, taskname, onComplete)
                 }, retryDelay)
             }
-
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
                     Log.e(TAG, "Unexpected response: ${response.message}")
                     return
                 }
                 response.body?.string()?.let { jsonResponse ->
-//                    Log.d(TAG, "Received response: $jsonResponse")
-                    // Parse jsonResponse here and extract routes and polygon coordinates.
-                    // For example:
                     val resultJson = JSONObject(jsonResponse)
-                    // Log.d(TAG, "Received response: $resultJson")
                     val polygonJson = resultJson.getJSONArray("polygon")
-
                     val polygonPoints = mutableListOf<LatLng>()
                     for (i in 0 until polygonJson.length()) {
                         val pointObj = polygonJson.getJSONObject(i)
@@ -335,9 +287,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                         polygonPoints.add(LatLng(lat, lng))
                     }
                     Log.d(TAG, "polygonPoints response: ${polygonPoints.size}")
-
-
-//                    addGeofence(taskid, taskname, polygonPoints)
                     if (isAdded && isVisible) {
                         requireActivity().runOnUiThread {
                             if (polygonMap.containsKey(taskid)) {
@@ -349,16 +298,13 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                                     polygonMap[taskid] = polygon
                                 }
                             } else {
-                                var polygon = drawPolygon(polygonPoints)
+                                val polygon = drawPolygon(polygonPoints)
                                 if (polygon != null) {
                                     polygonMap[taskid] = polygon
                                 }
                             }
-
                         }
                     }
-
-
                     onComplete()
                 }
             }
@@ -367,12 +313,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
     fun addGeofence(taskId: String, taskname: String, pointsList: MutableList<LatLng>) {
         val updatedMap = geofence_Map.value ?: mutableMapOf()
-
-//        if (updatedMap.containsKey(taskId)) {
-//            Log.d(TAG, "Updating existing geofence for Task ID: $taskId")
-//            updatedMap[taskId]?.currentPolygon?.remove()
-//        }
-
         updatedMap[taskId] = pointsList
         geofence_Map.postValue(updatedMap)
     }
@@ -382,13 +322,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     private fun drawRoute(encodedPolyline: String, fiveMinPoint: LatLng) {
         val routeColor = getRandomColor()
         val polylineOptions = PolylineOptions()
-            .addAll(PolyUtil.decode(encodedPolyline)) // Decode the polyline string
-            .width(8f) // Set line width
+            .addAll(PolyUtil.decode(encodedPolyline))
+            .width(8f)
             .color(routeColor)
             .geodesic(true)
-
         mMap.addPolyline(polylineOptions)
-
         val markerHue = getMarkerHue(routeColor)
         mMap.addMarker(
             MarkerOptions()
@@ -398,13 +336,13 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         )
     }
 
-    private fun update_taskListMarkers(){
-        for (item in _taskList.value!!) {
-            drawMarker(LatLng(item.location_lat, item.location_lng), item.name)
+    private fun update_taskListMarkers() {
+        _taskList.value?.forEach { task ->
+            drawMarker(LatLng(task.location_lat, task.location_lng), task.name)
         }
     }
 
-    private fun drawMarker(point: LatLng, markerName: String){
+    private fun drawMarker(point: LatLng, markerName: String) {
         mMap.addMarker(
             MarkerOptions()
                 .position(point)
@@ -424,17 +362,13 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             Color.GREEN, Color.BLUE, Color.YELLOW, Color.CYAN,
             Color.MAGENTA, Color.BLACK, Color.DKGRAY
         )
-
         if (usedColors.size >= colorList.size) {
             usedColors.clear()
         }
-
         val availableColors = colorList.filter { it !in usedColors }
-
         if (availableColors.isEmpty()) {
             return Color.BLACK
         }
-
         val newColor = availableColors.random()
         usedColors.add(newColor)
         return newColor
@@ -446,30 +380,24 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         return LatLng(latSum / points.size, lngSum / points.size)
     }
 
-    private fun drawPolygon(points: List<LatLng>): Polygon? {
+    // Updated drawPolygon function: Do not add the duplicate first point.
+    open fun drawPolygon(points: List<LatLng>): Polygon? {
         Log.d(TAG, "drawPolygon: ${points.size}")
         if (points.size < 3) return null
-
         val center = computeCentroid(points)
-
         val sortedPoints = points.sortedWith(
             compareBy { atan2(it.latitude - center.latitude, it.longitude - center.longitude) }
         )
-
-        val closedPolygon = sortedPoints + sortedPoints.first()
-
+        // Instead of adding a duplicate first point, we assume the polygon is automatically closed.
         val polygonOptions = PolygonOptions()
-            .addAll(closedPolygon)
+            .addAll(sortedPoints)
             .strokeColor(Color.RED)
             .fillColor(0x33FF0000)
             .strokeWidth(5f)
-
-        var currentPolygon = mMap.addPolygon(polygonOptions)
-        return currentPolygon
+        return mMap.addPolygon(polygonOptions)
     }
 
-    private fun isPointInsideGeofence(point: LatLng, geofencePolygon: List<LatLng>): Boolean {
+    protected open fun isPointInsideGeofence(point: LatLng, geofencePolygon: List<LatLng>): Boolean {
         return PolyUtil.containsLocation(point, geofencePolygon, true)
     }
-
 }
