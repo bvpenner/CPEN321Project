@@ -1,6 +1,7 @@
 package com.example.cpen321app
 
 import android.view.View
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
@@ -662,14 +663,19 @@ abstract class BaseUITest {
                 if (view !is RecyclerView) return false
 
                 for (i in 0 until view.adapter?.itemCount!!) {
-                    val viewHolder = view.findViewHolderForAdapterPosition(i)
-                    if (viewHolder != null) {
-                        val itemView = viewHolder.itemView
-                        // Try to find TextView with this text within the item view
-                        for (child in TreeIterables.breadthFirstViewTraversal(itemView)) {
-                            if (child is android.widget.TextView && child.text == text) {
-                                return true
-                            }
+                    if (matchesSafelyHelper(view, i)) return true
+                }
+                return false
+            }
+
+            private fun matchesSafelyHelper(view: RecyclerView, i: Int): Boolean {
+                val viewHolder = view.findViewHolderForAdapterPosition(i)
+                if (viewHolder != null) {
+                    val itemView = viewHolder.itemView
+                    // Try to find TextView with this text within the item view
+                    for (child in TreeIterables.breadthFirstViewTraversal(itemView)) {
+                        if (child is TextView && child.text == text) {
+                            return true
                         }
                     }
                 }
