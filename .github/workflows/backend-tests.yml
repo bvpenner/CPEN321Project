@@ -22,11 +22,6 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Install Dependencies
-        run: |
-          cd backend  # Change to the correct backend folder if necessary
-          npm ci  # Installs dependencies from package-lock.json for consistency
-
       - name: Run Jest Tests
         run: |
           cd backend  # Change directory if necessary
