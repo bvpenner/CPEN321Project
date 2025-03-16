@@ -46,35 +46,31 @@ class RouteWorker(appContext: Context, workerParams: WorkerParameters) : Worker(
             return Result.failure()
         }
 
-        return try {
-            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(applicationContext)
-            val location: Location = Tasks.await(fusedLocationClient.lastLocation)
-            if (location != null) {
-                // Fetch tasks from the backend.
-                fetchUserTasks { tasks ->
-                    if (tasks.isNotEmpty()) {
-                        // Order tasks using a simple nearest-neighbor algorithm.
-                        val orderedTasks = orderTasksByNearestNeighbor(location.latitude, location.longitude, tasks)
-                        // Build a Google Maps URL for the route.
-                        val mapsUrl = buildGoogleMapsUrl(location.latitude, location.longitude, orderedTasks)
-                        if (mapsUrl.isNotEmpty()) {
-                            // Show a notification with an "Accept" action that launches Google Maps.
-                            showRouteNotification(applicationContext, mapsUrl)
-                        } else {
-                            Log.e(TAG, "Generated Google Maps URL is empty.")
-                        }
+
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(applicationContext)
+        val location: Location = Tasks.await(fusedLocationClient.lastLocation)
+        if (location != null) {
+            // Fetch tasks from the backend.
+            fetchUserTasks { tasks ->
+                if (tasks.isNotEmpty()) {
+                    // Order tasks using a simple nearest-neighbor algorithm.
+                    val orderedTasks = orderTasksByNearestNeighbor(location.latitude, location.longitude, tasks)
+                    // Build a Google Maps URL for the route.
+                    val mapsUrl = buildGoogleMapsUrl(location.latitude, location.longitude, orderedTasks)
+                    if (mapsUrl.isNotEmpty()) {
+                        // Show a notification with an "Accept" action that launches Google Maps.
+                        showRouteNotification(applicationContext, mapsUrl)
                     } else {
-                        Log.e(TAG, "No tasks received from backend.")
+                        Log.e(TAG, "Generated Google Maps URL is empty.")
                     }
+                } else {
+                    Log.e(TAG, "No tasks received from backend.")
                 }
-                Result.success()
-            } else {
-                Log.d(TAG, "No location available; retrying later.")
-                Result.retry()
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Exception in RouteWorker: ${e.message}")
-            Result.failure()
+            return Result.success()
+        } else {
+            Log.d(TAG, "No location available; retrying later.")
+            return Result.retry()
         }
     }
 
