@@ -462,74 +462,70 @@ abstract class BaseUITest {
 
         while (attempts < maxAttempts) {
             attempts++
-            try {
-                // Try to click the checkbox directly with UiAutomator
-                val taskElement = device.findObject(UiSelector().textContains(taskName))
-                if (!taskElement.exists()) {
-                    println("Task element not found: $taskName")
-                    // Use By selector instead of UiSelector for wait
-                    device.wait(Until.hasObject(By.text(taskName)), 2000)
-                    continue
+            // Try to click the checkbox directly with UiAutomator
+            val taskElement = device.findObject(UiSelector().textContains(taskName))
+            if (!taskElement.exists()) {
+                println("Task element not found: $taskName")
+                // Use By selector instead of UiSelector for wait
+                device.wait(Until.hasObject(By.text(taskName)), 2000)
+                continue
+            }
+
+            // Find the checkbox in the same container
+            val checkbox = device.findObject(
+                UiSelector().className("android.widget.CheckBox")
+                    .fromParent(UiSelector().textContains(taskName))
+            )
+
+            if (checkbox.exists()) {
+                // If already checked, return success
+                if (checkbox.isChecked) {
+                    println("Checkbox for task '$taskName' is already checked")
+                    return true
                 }
 
-                // Find the checkbox in the same container
-                val checkbox = device.findObject(
-                    UiSelector().className("android.widget.CheckBox")
+                // Click and verify
+                checkbox.click()
+
+                // Wait a moment for UI to update
+                device.waitForIdle()
+                Thread.sleep(500)
+
+                // Verify it's now checked
+                if (checkbox.isChecked) {
+                    println("Successfully selected task '$taskName' (checkbox is now checked)")
+                    return true
+                } else {
+                    println("Warning: Clicked checkbox but it's not checked. Attempt $attempts")
+                }
+            } else {
+                // Try to find the checkbox by resource ID
+                val checkboxById = device.findObject(
+                    UiSelector().resourceId("com.example.cpen321app:id/checkBox_select")
                         .fromParent(UiSelector().textContains(taskName))
                 )
 
-                if (checkbox.exists()) {
-                    // If already checked, return success
-                    if (checkbox.isChecked) {
-                        println("Checkbox for task '$taskName' is already checked")
-                        return true
-                    }
-
-                    // Click and verify
-                    checkbox.click()
-
-                    // Wait a moment for UI to update
+                if (checkboxById.exists()) {
+                    checkboxById.click()
                     device.waitForIdle()
                     Thread.sleep(500)
 
-                    // Verify it's now checked
-                    if (checkbox.isChecked) {
-                        println("Successfully selected task '$taskName' (checkbox is now checked)")
+                    if (checkboxById.isChecked) {
+                        println("Successfully selected task by ID: '$taskName'")
                         return true
-                    } else {
-                        println("Warning: Clicked checkbox but it's not checked. Attempt $attempts")
                     }
                 } else {
-                    // Try to find the checkbox by resource ID
-                    val checkboxById = device.findObject(
-                        UiSelector().resourceId("com.example.cpen321app:id/checkBox_select")
-                            .fromParent(UiSelector().textContains(taskName))
-                    )
+                    // Direct coordinate click based on layout knowledge
+                    println("Checkbox not found, trying direct coordinate click")
+                    val bounds = taskElement.visibleBounds
+                    device.click(bounds.left - 40, bounds.centerY())
+                    device.waitForIdle()
+                    Thread.sleep(500)
 
-                    if (checkboxById.exists()) {
-                        checkboxById.click()
-                        device.waitForIdle()
-                        Thread.sleep(500)
-
-                        if (checkboxById.isChecked) {
-                            println("Successfully selected task by ID: '$taskName'")
-                            return true
-                        }
-                    } else {
-                        // Direct coordinate click based on layout knowledge
-                        println("Checkbox not found, trying direct coordinate click")
-                        val bounds = taskElement.visibleBounds
-                        device.click(bounds.left - 40, bounds.centerY())
-                        device.waitForIdle()
-                        Thread.sleep(500)
-
-                        // Just assume it worked since we can't verify directly
-                        println("Direct clicked for task '$taskName'")
-                        return true
-                    }
+                    // Just assume it worked since we can't verify directly
+                    println("Direct clicked for task '$taskName'")
+                    return true
                 }
-            } catch (e: Exception) {
-                println("Error in attempt $attempts: ${e.message}")
             }
         }
 
