@@ -171,13 +171,13 @@ class EndToEndTesting {
                 fail("Failed to find a search result")
             }
         } else {
-            throw RuntimeException("Enter Location not found")
+            fail("Enter Location not found")
         }
         val element = device.findObject(
             UiSelector().resourceId("com.example.cpen321app:id/scrollView_addTask")
         )
         if (!element.waitForExists(5000)) {
-            throw RuntimeException("Add Task Window not found")
+            fail("Add Task Window not found")
         }
         IdlingRegistry.getInstance().register(TaskViewModel.IdlingResourceManager.countingIdlingResource)
         device.wait(Until.hasObject(By.text("Create Task")), 5000)
