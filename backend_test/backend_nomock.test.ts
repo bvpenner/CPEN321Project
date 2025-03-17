@@ -25,6 +25,12 @@ describe("/ (No Mocks)", () => {
 
 describe("/getAllTasks (No Mocks)", () => {
     test("should return user data from real API", async () => {
+        /*
+        input: valid user ID
+        expected status code: 200
+        expected behavior: none
+        expected output: get an array of all tasks from database
+        */
         const response = await request(app)
             .get("/getAllTasks")
             .query({ u_id: validUID });
@@ -37,6 +43,12 @@ describe("/getAllTasks (No Mocks)", () => {
 
 describe("/getAllTasks (No Mocks)", () => {
     test("should return 500 from missing u_id", async () => {
+        /*
+        input: invalid user ID
+        expected status code: 500
+        expected behavior: none
+        expected output: an error from database
+        */
         const response = await request(app)
             .get("/getAllTasks")
             .query({ u_id: "" });
@@ -47,7 +59,14 @@ describe("/getAllTasks (No Mocks)", () => {
 });
 
 describe("/login (No Mocks)", () => {
+    
     test("should return 200 for valid u_id", async () => {
+        /*
+        input: valid user ID, username, user email
+        expected status code: 200
+        expected behavior: add new user (if new)
+        expected output: return new user id and whether is a new user 
+        */
         const response = await request(app)
             .post("/login")
             .send({ u_id: validUID , name: valid_username, email: valid_useremail })
@@ -63,6 +82,12 @@ describe("/login (No Mocks)", () => {
 
 describe("/login (No Mocks)", () => {
     test("should return 500 for missing name", async () => {
+        /*
+        input: valid user ID, user email, invalid username
+        expected status code: 500
+        expected behavior: none
+        expected output: an error from database 
+        */
         const response = await request(app)
             .post("/login")
             .send({ u_id: validUID, name: "", email: valid_useremail })
@@ -75,6 +100,12 @@ describe("/login (No Mocks)", () => {
 
 describe("/login (No Mocks)", () => {
     test("should return 500 for missing email", async () => {
+        /*
+        input: valid user ID, username, invalid user email
+        expected status code: 500
+        expected behavior: none
+        expected output: an error from database 
+        */
         const response = await request(app)
             .post("/login")
             .send({ u_id: validUID, name: valid_username, email: "" })
@@ -87,6 +118,12 @@ describe("/login (No Mocks)", () => {
 
 describe("/login (No Mocks)", () => {
     test("should return 500 for missing u_id", async () => {
+        /*
+        input: invalid user ID, valid username, user email
+        expected status code: 500
+        expected behavior: none
+        expected output: an error from database 
+        */
         const response = await request(app)
             .post("/login")
             .send({ u_id: "" , name: valid_username, email: valid_useremail })
@@ -99,6 +136,12 @@ describe("/login (No Mocks)", () => {
 
 describe("/addTask (No Mocks)", () => {
     test("should return 200 for success create new task", async () => {
+        /*
+        input: task attributes listed below
+        expected status code: 200
+        expected behavior: add a task to database
+        expected output: return a new task id
+        */
         const response = await request(app)
             .post("/addTask")
             .send({ 
@@ -125,6 +168,12 @@ describe("/addTask (No Mocks)", () => {
 
 describe("/addTask (No Mocks)", () => {
     test("should return 200 for success update task", async () => {
+        /*
+        input: task attributes listed below
+        expected status code: 200
+        expected behavior: update a task
+        expected output: return a new task id
+        */
         const response = await request(app)
             .post("/addTask")
             .send({ 
@@ -149,6 +198,12 @@ describe("/addTask (No Mocks)", () => {
 
 describe("/deleteTask (No Mocks)", () => {
     test("should return 200 for success deleteTask", async () => {
+        /*
+        input: valid user id and task id
+        expected status code: 200
+        expected behavior: delete a task
+        expected output: return a new task id      (double check this, don't seem to align)
+        */
         const response = await request(app)
             .post("/deleteTask")
             .send({ 
@@ -164,6 +219,12 @@ describe("/deleteTask (No Mocks)", () => {
 
 describe("/deleteTask (No Mocks)", () => {
     test("should return 500 for fail deleteTask (missing ID)", async () => {
+        /*
+        input: valid user id, but invalid task id
+        expected status code: 500
+        expected behavior: none
+        expected output: an error from database
+        */
         const response = await request(app)
             .post("/deleteTask")
             .send({ 
@@ -180,6 +241,12 @@ describe("/deleteTask (No Mocks)", () => {
 
 describe("/fetchGeofences (No Mocks)", () => {
     test("should return 200 for success response", async () => {
+        /*
+        input: valid origin and destination coordinate
+        expected status code: 200
+        expected behavior: none
+        expected output: a polygon
+        */
         const response = await request(app)
             .post("/fetchGeofences")
             .send({ 
@@ -203,6 +270,12 @@ describe("/fetchGeofences (No Mocks)", () => {
 
 describe("/fetchGeofences (No Mocks)", () => {
     test("should return 400 for incomplete request", async () => {
+        /*
+        input: invalid origin and destination coordinate
+        expected status code: 400
+        expected behavior: none
+        expected output: an error
+        */
         const response = await request(app)
             .post("/fetchGeofences")
             .send({ })
