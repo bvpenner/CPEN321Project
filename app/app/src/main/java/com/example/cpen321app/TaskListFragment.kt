@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.PopupMenu
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -76,15 +75,13 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
                     LatLng(it.latitude, it.longitude)
                 }
                 Log.d(TAG, "Origin: $origin")
-                if (origin == null) {
+                if (origin != null) {
+                    sendGetOptimalRouteServer(selectedTasks)
+                } else {
                     Toast.makeText(requireContext(), "Current location not available.", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
                 }
-                // generateRouteForSelectedTasks(origin, selectedTasks)
-                sendGetOptimalRouteServer(selectedTasks)
             }
         }
-
     }
 
     // Generates the Google Maps route URL and launches Google Maps.
@@ -106,27 +103,6 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
     }
 
     override fun onItemLongClick(task: Task): Boolean {
-//        // Use a PopupMenu for update/delete actions.
-//        val popupMenu = PopupMenu(requireContext(), requireView())
-//        popupMenu.menuInflater.inflate(R.menu.popup_menu, popupMenu.menu)
-//        popupMenu.setOnMenuItemClickListener { menuItem ->
-//            when (menuItem.itemId) {
-//                R.id.update_button -> {
-//                    Toast.makeText(requireContext(), "Update action for: ${task.name}", Toast.LENGTH_SHORT).show()
-//                    true
-//                }
-//                R.id.delete_button -> {
-//                    taskViewModel.deleteTask(task)
-//                    Toast.makeText(requireContext(), "Task deleted: ${task.name}", Toast.LENGTH_SHORT).show()
-//                    true
-//                }
-//                else -> false
-//            }
-//        }
-//        popupMenu.show()
-//        taskViewModel.logAllTasks()
-//        return true
-
         // Inflate the popup menu layout
         val popupView = LayoutInflater.from(requireContext()).inflate(R.layout.popup_menu, null)
 
@@ -205,21 +181,20 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
                         taskIdList.add(orderedtaskIds.getString(i))
                     }
 
-
                     val orderedTaskNames = taskIdList.mapNotNull { id ->
                         selectedTasks.find { it.id == id }?.name
                     }
 
-                    var message = ""
-                    if (orderedTaskNames.isNotEmpty()) {
-                        message = "Optimal Task Order Found:\n" + orderedTaskNames.joinToString(" → ") +" Estimated timecost: " + estimated_time + " mins"
+                    val message = if (orderedTaskNames.isNotEmpty()) {
+                        "Optimal Task Order Found:\n" +
+                                orderedTaskNames.joinToString(" → ") +
+                                " Estimated timecost: $estimated_time mins"
                     } else {
-                        message = "No valid tasks found in the order."
+                        "No valid tasks found in the order."
                     }
 
                     val messagingService = FirebaseMessagingService()
                     messagingService.sendNotification(requireContext(), message)
-
                 }
             }
         })
