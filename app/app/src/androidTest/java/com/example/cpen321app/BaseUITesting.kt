@@ -390,22 +390,14 @@ abstract class BaseUITest {
     }
 
     protected fun verifyTaskExists(taskName: String) {
-        try {
-            onView(withId(R.id.recyclerView)).perform(
-                RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
-                    hasDescendant(withText(taskName))
-                )
-            ).check(matches(isDisplayed()))
-        } catch (e: Exception) {
-            // Try with a different approach if the first one fails
-            try {
-                onView(withId(R.id.recyclerView)).check(matches(hasItemWithText(taskName)))
-            } catch (e2: Exception) {
-                // Try with UiAutomator as fallback
-                val taskElement = device.findObject(UiSelector().textContains(taskName))
-                assertTrue("Task '$taskName' should exist in the list", taskElement.exists())
-            }
-        }
+        // Scroll until the RecyclerView item containing the expected task text is visible.
+        onView(withId(R.id.recyclerView))
+            .perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
+                hasDescendant(withText(taskName))
+            ))
+        // Check that a view with the task text is displayed.
+        onView(withText(taskName))
+            .check(matches(isDisplayed()))
     }
 
     protected fun deleteTask(taskName: String) {
