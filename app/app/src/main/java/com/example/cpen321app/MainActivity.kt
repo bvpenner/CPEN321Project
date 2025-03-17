@@ -277,7 +277,7 @@ class MainActivity : AppCompatActivity() {
         val progressBar = findViewById<ProgressBar>(R.id.progressBar)
         constraintLayout.removeView(progressBar)
     }
-    
+
     private fun setUpConstraintLayout(
         constraintLayout: ConstraintLayout,
         frameLayout: FrameLayout,
