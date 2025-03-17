@@ -82,6 +82,13 @@ describe("/getAllTasks (Mocked)", () => {
     });
 
     test("should return mock task list", async () => {
+        /*
+        mocked behavior: mocked task items in database
+        input: valid user id
+        expected status code: 200
+        expected behavior: no change in database
+        expected output: a list of task ids for a user
+        */
         mockedDbService.getUserTasks.mockResolvedValue(["task1", "task2"]);
 
         const mock_tasklist_value = [
@@ -127,6 +134,13 @@ describe("/login (Mocked)", () => {
     });
 
     test("should return a mocked user", async () => {
+        /*
+        mocked behavior: mocked database
+        input: valid user id, username, user email
+        expected status code: 200
+        expected behavior: none
+        expected output: return a existing user ID
+        */
         mockedDbService.addUser.mockResolvedValue([validUID, "0"]);
 
         const response = await request(app)
@@ -140,6 +154,13 @@ describe("/login (Mocked)", () => {
     });
 
     test("should create a new mocked user", async () => {
+        /*
+        mocked behavior: mocked database
+        input: valid user id, username, user email
+        expected status code: 200
+        expected behavior: add new user in database
+        expected output: return a new user ID
+        */
         mockedDbService.addUser.mockResolvedValue([validUID, "1"]);
 
         const response = await request(app)
@@ -160,6 +181,13 @@ describe("/addTask (Mocked)", () => {
     });
 
     test("should return 200 for success create new task", async () => {
+        /*
+        mocked behavior: mocked database
+        input: task attributes listed below
+        expected status code: 200
+        expected behavior: add a new task in database
+        expected output: return a new task ID
+        */
         mockedDbService.addTask.mockResolvedValue(tempTaskId);
 
         const response = await request(app)
@@ -183,6 +211,13 @@ describe("/addTask (Mocked)", () => {
     });
 
     test("should return 200 for success update task", async () => {
+        /*
+        mocked behavior: mocked database
+        input: task attributes listed below
+        expected status code: 200
+        expected behavior: update a task
+        expected output: return a new task ID
+        */
         mockedDbService.modifyTask.mockResolvedValue(tempTaskId);
 
         const response = await request(app)
@@ -212,6 +247,13 @@ describe("/deleteTask (Mocked)", () => {
     });
 
     test("should return 200 for success deleteTask", async () => {
+        /*
+        mocked behavior: mocked database
+        input: valid user ID and task ID
+        expected status code: 200
+        expected behavior: delete a task
+        expected output: none
+        */
         mockedDbService.deleteTaskById.mockResolvedValue();
 
         const response = await request(app)
@@ -223,6 +265,13 @@ describe("/deleteTask (Mocked)", () => {
     });
 
     test("should return 500 for fail deleteTask (missing ID)", async () => {
+        /*
+        mocked behavior: mocked database
+        input: valid user ID but invalid task ID
+        expected status code: 500
+        expected behavior: none
+        expected output: an error from database
+        */
         const response = await request(app)
             .post("/deleteTask")
             .send({ owner_id: validUID, _id: "" })
@@ -346,6 +395,7 @@ describe("/fetchOptimalRoute", () => {
 
     test("case 1: user gives all required info, but Google map distance matrix API failed", async () => {
         /*
+        mocked behavior: Google MAP distance matrix API throw an error
         input: valid user location in lat, lng
                valid user time
                task list of length 1
@@ -404,6 +454,7 @@ describe("/fetchOptimalRoute", () => {
 
     test("case 2: user gives all required info, but getTaskById fails", async () => {
         /*
+        mocked behavior: Database throw an error
         input: valid user location in lat, lng
                valid user time
                task list of length 1

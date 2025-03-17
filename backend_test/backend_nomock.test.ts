@@ -202,7 +202,7 @@ describe("/deleteTask (No Mocks)", () => {
         input: valid user id and task id
         expected status code: 200
         expected behavior: delete a task
-        expected output: return a new task id      (double check this, don't seem to align)
+        expected output: none
         */
         const response = await request(app)
             .post("/deleteTask")
@@ -213,7 +213,6 @@ describe("/deleteTask (No Mocks)", () => {
             .set("Content-Type", "application/json");
 
         expect(response.status).toBe(200);
-        expect(response.body).toHaveProperty("new_task_id");
     });
 });
 
