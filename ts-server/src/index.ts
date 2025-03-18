@@ -134,10 +134,12 @@ function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][], userC
 		}
 		findOptimalRouteHelper(tasksArr, taskDistanceGraph, unfinishedTaskSet, [i], timeCounter + timeCost, timeCost, resultTracking);
 	}
-
+	/*
+	// impossible case
 	if (resultTracking.length === 0) {
 		return [[], -1];
 	}
+	*/
 
 	// find the sequence with the minimal time cost
 	let selectedIndex = 0;

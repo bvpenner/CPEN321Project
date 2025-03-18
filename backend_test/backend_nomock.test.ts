@@ -626,3 +626,106 @@ describe("/findOptimalRoute (No Mocks)", () => {
     });
 
 });
+
+test("case 7: user gives all required info, multiple tasks, multiple viable route", async () => {
+    /*
+    input: valid user location in lat, lng
+           valid user time
+           task list of length 3
+    expected status code: 200
+    expected behavior: database is unchanged at the end
+    expected output: a valid sequence contain 3 tasks & a time cost
+    */
+
+    const task_1_res = await request(app)
+        .post("/addTask")
+        .send({ 
+            owner_id: validUID, 
+            _id: "", 
+            name: "test_task_1",
+            start_time: "10:00", 
+            end_time: "12:00", 
+            duration: 10, 
+            location_lat: 49.231437, 
+            location_lng: -123.155529, 
+            priority: 1, 
+            description: "cake shop"
+        })
+        .set("Content-Type", "application/json");
+    
+    const task_2_res = await request(app)
+        .post("/addTask")
+        .send({ 
+            owner_id: validUID, 
+            _id: "", 
+            name: "test_task_2",
+            start_time: "10:00", 
+            end_time: "11:00", 
+            duration: 30, 
+            location_lat: 49.254830, 
+            location_lng: -123.236329, 
+            priority: 1, 
+            description: "save on food"
+        })
+        .set("Content-Type", "application/json");
+
+    const task_3_res = await request(app)
+        .post("/addTask")
+        .send({ 
+            owner_id: validUID, 
+            _id: "", 
+            name: "test_task_3",
+            start_time: "13:00", 
+            end_time: "18:00", 
+            duration: 40, 
+            location_lat: 49.1748, 
+            location_lng: -123.1311, 
+            priority: 1, 
+            description: "T&T supermarket"
+        })
+        .set("Content-Type", "application/json");
+    
+    const response = await request(app)
+        .post("/fetchOptimalRoute")
+        .send({ 
+            allTasksID: [task_1_res.body.new_task_id, task_2_res.body.new_task_id, task_3_res.body.new_task_id],
+            userLocation: {
+                latitude: 49.265819,
+                longitude: -123.249290
+            }, 
+            userCurrTime: "9:00"
+        })
+        .set("Content-Type", "application/json");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("taskIds");
+    expect(response.body).toHaveProperty("time_cost");
+    expect(response.body.taskIds.length).toBe(3);
+    expect(response.body.taskIds).toEqual([task_2_res.body.new_task_id, task_1_res.body.new_task_id, task_3_res.body.new_task_id]);
+
+
+    //clean up
+    const cleanUpResponse_1 = await request(app)
+        .post("/deleteTask")
+        .send({ 
+            owner_id: validUID, 
+            _id: task_1_res.body.new_task_id, 
+        })
+        .set("Content-Type", "application/json");
+
+    const cleanUpResponse_2 = await request(app)
+        .post("/deleteTask")
+        .send({ 
+            owner_id: validUID, 
+            _id: task_2_res.body.new_task_id, 
+        })
+        .set("Content-Type", "application/json");
+
+    const cleanUpResponse_3 = await request(app)
+        .post("/deleteTask")
+        .send({ 
+            owner_id: validUID, 
+            _id: task_3_res.body.new_task_id, 
+        })
+        .set("Content-Type", "application/json");
+});
