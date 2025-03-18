@@ -405,6 +405,7 @@ describe("/findOptimalRoute (No Mocks)", () => {
         expect(response.body).toHaveProperty("taskIds");
         expect(response.body).toHaveProperty("time_cost");
         expect(response.body.taskIds.length).toBe(1);
+        expect(response.body.taskIds).toEqual([task_1_res.body.new_task_id]);
 
         // res.json({"taskIds": taskIds, "time_cost": result[1]});	
         // more expect
@@ -493,6 +494,7 @@ describe("/findOptimalRoute (No Mocks)", () => {
         expect(response.body).toHaveProperty("taskIds");
         expect(response.body).toHaveProperty("time_cost");
         expect(response.body.taskIds.length).toBe(3);
+        expect(response.body.taskIds).toEqual([task_1_res.body.new_task_id, task_2_res.body.new_task_id, task_3_res.body.new_task_id]);
 
 
         //clean up
