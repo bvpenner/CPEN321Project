@@ -72,7 +72,7 @@ class GeofenceTest : BaseUITest() {
         // Make sure we're logged in
         login()
     }
-    
+
     private fun waitForMapToLoad() {
         device.wait(Until.hasObject(By.res("com.example.cpen321app:id/map")), TEST_TIMEOUT)
         SystemClock.sleep(5000) // Additional wait time for geofences to be drawn.
