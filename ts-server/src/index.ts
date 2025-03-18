@@ -401,10 +401,13 @@ app.post('/fetchOptimalRoute', async (req: Request<{}, any, RouteTimeRequestBody
 		const result = findOptimalRoute(allTasks, graph_matrix, userCurrTime);
 		// console.log(result)
 		const taskIds: string[] = result[0].map(task_i => {
+			/*
+			//impossible case
 			if (task_i < 0 || task_i > allTasks.length) {
 				console.error(`Invalid index: ${task_i}, allTasks length: ${allTasks.length}`);
 				return null; 
 			}
+			*/
 			return allTasks[task_i-1]._id;
 		}).filter(id => id !== null);
 		console.log(`[Optimal Route] found: ${taskIds}`);
