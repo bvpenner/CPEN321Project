@@ -20,9 +20,7 @@ async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Pro
     const url = buildURL(allTask, userLocation)
 
     const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`Route Time Request Failed: ${response.statusText}`);
-    }
+    
     const jsonResponse = await response.json();
     const timeDistanceMatrix = parseAllTaskRouteTime(jsonResponse);
     // console.log("CompactJson:", jsonResponse);
