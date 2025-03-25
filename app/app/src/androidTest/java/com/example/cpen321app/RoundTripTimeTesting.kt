@@ -1,5 +1,6 @@
 package com.example.cpen321app
 
+import android.util.Log
 import android.view.View
 import android.widget.CheckBox
 import android.widget.LinearLayout
@@ -11,10 +12,13 @@ import androidx.test.espresso.PerformException
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.contrib.RecyclerViewActions.scrollTo
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
+import androidx.test.espresso.matcher.ViewMatchers.hasSibling
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
+import androidx.test.espresso.matcher.ViewMatchers.isChecked
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
@@ -38,6 +42,10 @@ import org.junit.runner.RunWith
 @LargeTest
 class RoundTripTimeTesting : BaseUITest() {
 
+    companion object {
+        val TAG = "RoundTripTimeTesting"
+    }
+
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
@@ -48,45 +56,57 @@ class RoundTripTimeTesting : BaseUITest() {
         handleLocationSettingsPrompt()
         navigateToTaskList()
         val taskName = getRandomTestTaskName()
-        val taskName2 = getRandomTestTaskName()
+        val taskNameTwo = getRandomTestTaskName()
 
         addTask(taskName, "test description", "1", "60")
-        addTask(taskName2, "test description", "1", "60")
+        addTask(taskNameTwo, "test description", "1", "60")
+
+        navigateToTaskList()
+        navigateToTaskList()
+
         verifyTaskExists(taskName)
+        verifyTaskExists(taskNameTwo)
         createdTestTasks.add(taskName) // Track for cleanup
-//        createdTestTasks.add(taskName2)
+        createdTestTasks.add(taskNameTwo) // Track for cleanup
+//        createdTestTasks.add(taskNameTwo)
 
         onView(isRoot()).perform(waitFor(5000)) // Wait 500ms for RecyclerView to load
 
         // ChatGPT generated
-        onView(withId(R.id.recyclerView))
-            .perform(scrollTo<ViewHolder>(hasDescendant(withText(taskName))))
-        onView(isRoot()).perform(waitFor(5000)) // Wait 500ms for RecyclerView to load
+//        do {
+//
+//        } while(!isTextInRecyclerView(taskName))
+
+        onView(withId(R.id.recyclerView)).perform(scrollTo<ViewHolder>(hasDescendant(withText(taskName))))
+        onView(isRoot()).perform(waitFor(5000))
+        clickCheckBoxWithText(taskName)
+        onView(isRoot()).perform(waitFor(5000))
+
+        Log.d(TAG, "Passes checking first box")
+
+        onView(withId(R.id.recyclerView)).perform(scrollTo<ViewHolder>(hasDescendant(withText(taskNameTwo))))
+        onView(isRoot()).perform(waitFor(5000))
+        clickCheckBoxWithText(taskNameTwo)
+        onView(isRoot()).perform(waitFor(5000))
+
+        Log.d(TAG, "Passes checking second box")
+
+        onView(isRoot()).perform(waitFor(10000)) // Wait 500ms for RecyclerView to load
 
         // ChatGPT generated
-        onView(withId(R.id.recyclerView))
-            .perform(
-                RecyclerViewActions.actionOnItem<ViewHolder>(
-                    hasDescendant(withText(taskName)),
-                    clickCheckBoxInsideLinearLayout(R.id.taskLayout, R.id.checkBox_select)
-                )
-            )
+//        onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.actionOnItem<ViewHolder>(hasDescendant(withText(taskName)), clickCheckBoxInsideLinearLayout(R.id.taskLayout, R.id.checkBox_select)))
 
         onView(isRoot()).perform(waitFor(5000)) // Wait 500ms for RecyclerView to load
 
-        // ChatGPT generated
-        onView(withId(R.id.recyclerView))
-            .perform(scrollTo<ViewHolder>(hasDescendant(withText(taskName2))))
-        onView(isRoot()).perform(waitFor(5000)) // Wait 500ms for RecyclerView to load
+//        // ChatGPT generated
+//        onView(withId(R.id.recyclerView))
+//            .perform(scrollTo<ViewHolder>(hasDescendant(withText(taskNameTwo))))
+//        onView(isRoot()).perform(waitFor(5000)) // Wait 500ms for RecyclerView to load
 
-        // ChatGPT generated
-        onView(withId(R.id.recyclerView))
-            .perform(
-                RecyclerViewActions.actionOnItem<ViewHolder>(
-                    hasDescendant(withText(taskName2)),
-                    clickCheckBoxInsideLinearLayout(R.id.taskLayout, R.id.checkBox_select)
-                )
-            )
+
+
+//        // ChatGPT generated
+//        onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.actionOnItem<ViewHolder>(hasDescendant(withText(taskNameTwo)), clickCheckBoxInsideLinearLayout(R.id.taskLayout, R.id.checkBox_select)))
 
         onView(isRoot()).perform(waitFor(2000))
 
@@ -95,10 +115,10 @@ class RoundTripTimeTesting : BaseUITest() {
         onView(isRoot()).perform(waitFor(5000))
 
         deleteTask(taskName)
-        deleteTask(taskName2)
+        deleteTask(taskNameTwo)
         verifyTaskDeleted(taskName)
         createdTestTasks.remove(taskName) // No longer needs cleanup
-        createdTestTasks.remove(taskName2)
+        createdTestTasks.remove(taskNameTwo)
     }
 
     private fun handleLocationSettingsPrompt() {
@@ -139,6 +159,25 @@ class RoundTripTimeTesting : BaseUITest() {
                 }
             }
         }
+    }
+
+    // ChatGPT generated
+    private fun isTextInRecyclerView(text: String): Boolean {
+        return try {
+            onView(withId(R.id.recyclerView))
+                .check(matches(hasDescendant(withText(text))))
+            true
+        } catch (e: RuntimeException) {
+            false
+        }
+    }
+
+    // ChatGPT generated
+    private fun clickCheckBoxWithText(targetText: String) {
+        onView(allOf(
+            withId(R.id.checkBox_select),  // Find a CheckBox
+            hasSibling(hasDescendant(withText(targetText))) // Ensure it's next to the text
+        )).perform(click())
     }
 
 
