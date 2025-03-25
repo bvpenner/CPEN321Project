@@ -99,7 +99,7 @@ Task Geofencing:
 
 - **Use Case: Manage Tasks**
 
-  - **Success Scenarios:**
+  - **Success Scenarios**
 
     - **Add Task and Delete Task**
 
@@ -113,8 +113,45 @@ Task Geofencing:
           | 3. User clicks “Create Task” button. | Click button labelled “Create Task”. |
           | 4. User can see an updated task list with new task added in task view. | Check that an activity matching the entered task name exists. |
 
-          - **Test Logs:**
-            ![Manage Task Success Log](./images/manageTaskSuccessLog.png)
+      - **Delete Task**
+
+        - **Expected Behaviors:**
+          | **Scenario Steps** | **Test Case Steps** |
+          | ------------------ | ------------------- |
+          | 1. User selects an existing task from the Task View by long pressing on the task. | Long press on the previous created task in “Add Task”. |
+          | 2. A window pops up prompting user to delete the task. | Check that pop up window with delete is shown. |
+          | 3. User clicks “Create Task” button. | Click button labelled “Create Task”. |
+          | 4. User can see an updated task list with new task added in task view. | Check that an activity matching the entered task name exists. |
+
+      - **Test Logs:**
+        ![Manage Task Success Log](./images/manageTaskSuccessLog.png)
+
+  - **Failure Scenarios**
+
+    - **Add Task: Invalid Latitude or Longitude**
+
+      - **Expected Behaviors:**
+        | **Scenario Steps** | **Test Case Steps** |
+        | ------------------ | ------------------- |
+        | 1. User clicks the add task button. | Open “Add Task” Activity. |
+        | 2a. User inputs invalid longitude and latitude. | Insert correct task name, description, start time, end time, duration, and priority. Insert incorrect longitude or latitude. |
+        | 2a1. Prompt user to input valid longitude or latitude. | Check that a snackbar with error message: “Valid Latitude/Longitude Required: Between -90 and 90 degrees/-180 and 180 degrees” |
+      
+        - **Test Logs:**
+          ![Manage Task Lat Failure](./images/manageTaskInvalidLat.png)
+          ![Manage Task Long Failure](./images/manageTaskInvalidLng.png)
+
+    - **User Fails to input some fields**
+
+      - **Expected Behaviors:**
+        | **Scenario Steps** | **Test Case Steps** |
+        | ------------------ | ------------------- |
+        | 1. User clicks the add task button. | Open “Add Task” Activity. |
+        | 2a. User fails to input some fields. | Insert every field correctly except for name, start, end, duration, or priority, which are left blank. |
+        | 2a1. Prompt user to input valid input. | Check that a snackbar with appropriate error message exists. |
+      
+        - **Test Logs:**
+          ![Manage Task Invalid Input](./images/manageTaskInvalidInput.png)
     
 
 - **Use Case: ...**
@@ -138,25 +175,33 @@ Task Geofencing:
 
 ### 5.1. Commit Hash Where Codacy Ran
 
-`[Insert Commit SHA here]`
+`60b4b658df7db2e666ad8899daf78c9a3e6b9d26`
 
 ### 5.2. Unfixed Issues per Codacy Category
 
-_(Placeholder for screenshots of Codacyâ€™s Category Breakdown table in Overview)_
+![Codacy Issues per category](./images/codacyIssueBreakdownCategory.png)
 
 ### 5.3. Unfixed Issues per Codacy Code Pattern
 
-_(Placeholder for screenshots of Codacyâ€™s Issues page)_
+![Codacy Issues per code pattern](./images/codacyIssuePerCodePattern.png)
 
 ### 5.4. Justifications for Unfixed Issues
 
-- **Code Pattern: [Usage of Deprecated Modules](#)**
+- **Code Pattern: [Too many functions inside a/an file/class/object/interface always indicate a violation of the single responsibility principle. Maybe the file/class/object/interface wants to manage too many things at once.](https://app.codacy.com/gh/bvpenner/CPEN321Project/issues/current?patternIds=TooManyFunctions&categories=ErrorProne)**
 
-  1. **Issue**
+  1. **Class 'MainActivity' with '12' functions detected. Defined threshold inside classes is set to '11'**
 
-     - **Location in Git:** [`src/services/chatService.js#L31`](#)
-     - **Justification:** ...
+     - **Location in Git:** [`/app/app/src/main/java/com/example/cpen321app/MainActivity.kt#L70`](/app/app/src/main/java/com/example/cpen321app/MainActivity.kt#L70)
+     - **Justification:** Refactoring this code into multiple classes doesn’t make much sense given that the main activity is the launching point for a lot of app functionality and thus would expected to have a lot of methods, especially given that it’s only a couple of methods over the threshold, and refactoring the code to allocate responsibility better is not within the time budget.
 
-  2. ...
+  2. **Class 'MapsFragment' with '19' functions detected. Defined threshold inside classes is set to '11'**
 
-- ...
+     - **Location in Git:** [`/app/app/src/main/java/com/example/cpen321app/MapsActivity.kt#L36`](/app/app/src/main/java/com/example/cpen321app/MapsActivity.kt#L36)
+     - **Justification:** Refactoring this code to better suit the responsibility principle would be nice, however a lot of these methods rely on internal class data. Refactoring the code to allocate responsibility better is not within the time budget.
+
+- **Code Pattern: [Others](https://app.codacy.com/gh/bvpenner/CPEN321Project/issues/current?patternIds=LongMethod&categories=ErrorProne)**
+
+  1. **The function setUpUIComponents is too long (111). The maximum length is 60.**
+
+     - **Location in Git:** [`/app/app/src/main/java/com/example/cpen321app/MainActivity.kt#L213`](/app/app/src/main/java/com/example/cpen321app/MainActivity.kt#L213)
+     - **Justification:** This issue seems to be bugged. Code in the function was greatly reduced, but Codacy seems to have never updated it.
