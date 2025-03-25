@@ -113,8 +113,8 @@ Task Geofencing:
           | 3. User clicks “Create Task” button. | Click button labelled “Create Task”. |
           | 4. User can see an updated task list with new task added in task view. | Check that an activity matching the entered task name exists. |
 
-  - **Test Logs:**
-    ![Manage Task Success Log](./images/manageTaskSuccessLog.png)
+          - **Test Logs:**
+            ![Manage Task Success Log](./images/manageTaskSuccessLog.png)
     
 
 - **Use Case: ...**
