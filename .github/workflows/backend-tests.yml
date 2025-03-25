@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - main  # Run tests on PRs to main
-
+  workflow_dispatch: 
 jobs:
   test-backend:
     runs-on: ubuntu-latest
