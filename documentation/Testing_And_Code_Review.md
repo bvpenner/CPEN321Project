@@ -82,28 +82,40 @@ _(Placeholder for Jest coverage screenshot without mocks)_
 
 ### 4.1. Location in Git of Front-end Test Suite:
 
-`frontend/src/androidTest/java/com/studygroupfinder/`
+Base Testing Structure:
+`app/app/src/androidTest/java/com/example/cpen321app/BaseUITesting.kt`
+
+Manage Tasks:
+`app/app/src/androidTest/java/com/example/cpen321app/ManageTaskTesting.kt`
+
+Find Optimal Route:
+`app/app/src/androidTest/java/com/example/cpen321app/RouteTesting.kt`
+
+Task Geofencing:
+`app/app/src/androidTest/java/com/example/cpen321app/GeofencingTest.kt`
+
 
 ### 4.2. Tests
 
-- **Use Case: Login**
+- **Use Case: Manage Tasks**
 
-  - **Expected Behaviors:**
-    | **Scenario Steps** | **Test Case Steps** |
-    | ------------------ | ------------------- |
-    | 1. The user opens â€œAdd Todo Itemsâ€ screen. | Open â€œAdd Todo Itemsâ€ screen. |
-    | 2. The app shows an input text field and an â€œAddâ€ button. The add button is disabled. | Check that the text field is present on screen.<br>Check that the button labelled â€œAddâ€ is present on screen.<br>Check that the â€œAddâ€ button is disabled. |
-    | 3a. The user inputs an ill-formatted string. | Input â€œ_^_^^OQ#$â€ in the text field. |
-    | 3a1. The app displays an error message prompting the user for the expected format. | Check that a dialog is opened with the text: â€œPlease use only alphanumeric charactersâ€. |
-    | 3. The user inputs a new item for the list and the add button becomes enabled. | Input â€œbuy milkâ€ in the text field.<br>Check that the button labelled â€œaddâ€ is enabled. |
-    | 4. The user presses the â€œAddâ€ button. | Click the button labelled â€œaddâ€. |
-    | 5. The screen refreshes and the new item is at the bottom of the todo list. | Check that a text box with the text â€œbuy milkâ€ is present on screen.<br>Input â€œbuy chocolateâ€ in the text field.<br>Click the button labelled â€œaddâ€.<br>Check that two text boxes are present on the screen with â€œbuy milkâ€ on top and â€œbuy chocolateâ€ at the bottom. |
-    | 5a. The list exceeds the maximum todo-list size. | Repeat steps 3 to 5 ten times.<br>Check that a dialog is opened with the text: â€œYou have too many items, try completing one firstâ€. |
+  - **Success Scenarios:**
 
-  - **Test Logs:**
-    ```
-    [Placeholder for Espresso test execution logs]
-    ```
+    - **Add Task and Delete Task**
+
+      - **Add Task**
+
+        - **Expected Behaviors:**
+          | **Scenario Steps** | **Test Case Steps** |
+          | ------------------ | ------------------- |
+          | 1. User clicks the add task button. | Open “Add Task” Activity. |
+          | 2. User inputs details of the task including name, description, start time, end time, duration, latitude, longitude, and priority. | Insert task name, description, start time, end time, duration, latitude, longitude, and priority in respective fields. |
+          | 3. User clicks “Create Task” button. | Click button labelled “Create Task”. |
+          | 4. User can see an updated task list with new task added in task view. | Check that an activity matching the entered task name exists. |
+
+          - **Test Logs:**
+            ![Manage Task Success Log](./images/manageTaskSuccessLog.png)
+    
 
 - **Use Case: ...**
 
