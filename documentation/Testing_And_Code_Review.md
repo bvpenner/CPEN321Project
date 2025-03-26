@@ -16,10 +16,12 @@
 
 | **Interface**                 | **Describe Group Location, No Mocks**                | **Describe Group Location, With Mocks**            | **Mocked Components**              |
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
-| **POST /user/login**          | [`tests/unmocked/authenticationLogin.test.js#L1`](#) | [`tests/mocked/authenticationLogin.test.js#L1`](#) | Google Authentication API, User DB |
-| **POST /study-groups/create** | ...                                                  | ...                                                | Study Group DB                     |
-| ...                           | ...                                                  | ...                                                | ...                                |
-| ...                           | ...                                                  | ...                                                | ...                                |
+| **POST /fetchGeofences**          | [`backend_test/backend_nomock.test.ts#L241`](#) | [`backend_test/backend_mock.test.ts#L285`](#) | Google Road API|
+| **POST /fetchOptimalRoute**       | [`backend_test/backend_nomock.test.ts#L292`](#) | [`backend_test/backend_mock.test.ts#L389`](#) | Google Distance Matrix API, Database |
+| **POST /addTask** | [`backend_test/backend_nomock.test.ts#L137`](#)  | [`backend_test/backend_mock.test.ts#L177`](#)  | Database                               |
+| **POST /deleteTask** | [`backend_test/backend_nomock.test.ts#L199`](#)  | [`backend_test/backend_mock.test.ts#L244`](#)  | Datebase                        |
+| **POST /login** | [`backend_test/backend_nomock.test.ts#L101`](#)  | [`backend_test/backend_mock.test.ts#L130`](#)  | Datebase                        |
+| **POST /getAllTasks** | [`backend_test/backend_nomock.test.ts#L26`](#)  | [`backend_test/backend_mock.test.ts#L79`](#)  | Datebase                        |
 
 #### 2.1.2. Commit Hash Where Tests Run
 
@@ -27,14 +29,27 @@
 
 #### 2.1.3. Explanation on How to Run the Tests
 
-1. **Clone the Repository**:
-
-   - Open your terminal and run:
+- **Run on Github Action**:
+  1. Click on the **"Actions"** tab
+  2. Select **"Run Backend Jest Tests"** from the left panel.
+  3. Click **"Run Workflow"**
+  5. Wait for the results
+  
+- **Run in Terminal**:
+  1. Open your terminal and run
+    ```
+     git clone https://github.com/bvpenner/CPEN321Project.git
      ```
-     git clone https://github.com/example/your-project.git
-     ```
+  2. Go to test repository
+    ```
+    cd backend_test
+    ```
+  3. Run test using npx
+    ```
+    npx jest nonfunctional.test.ts --preset=ts-jest
+    npx jest backend_nomock.test.ts backend_mock.test.ts --coverage --runInBand
+    ```
 
-2. **...**
 
 ### 2.2. GitHub Actions Configuration Location
 
@@ -42,40 +57,34 @@
 
 ### 2.3. Jest Coverage Report Screenshots With Mocks
 
-_(Placeholder for Jest coverage screenshot with mocks enabled)_
+![](./images/M5/2.3img.png)
 
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
-_(Placeholder for Jest coverage screenshot without mocks)_
+![](./images/M5/2.4img.png)
 
 ---
 
 ## 3. Back-end Test Specification: Tests of Non-Functional Requirements
 
-### 3.1. Test Locations in Git
+### 3.1. Scalability Test
 
 | **Non-Functional Requirement**  | **Location in Git**                              |
 | ------------------------------- | ------------------------------------------------ |
-| **Performance (Response Time)** | [`tests/nonfunctional/response_time.test.js`](#) |
-| **Chat Data Security**          | [`tests/nonfunctional/chat_security.test.js`](#) |
+| **Scalability Test (Response Time)** | [`backend_test/nonfunctional.test.ts`](#) |
+| **Notification Accuracy**          | [`backend_test/nonfunctional.test.ts`](#) |
 
 ### 3.2. Test Verification and Logs
 
-- **Performance (Response Time)**
+- **Scalability Test (Response Time)**
 
-  - **Verification:** This test suite simulates multiple concurrent API calls using Jest along with a load-testing utility to mimic real-world user behavior. The focus is on key endpoints such as user login and study group search to ensure that each call completes within the target response time of 2 seconds under normal load. The test logs capture metrics such as average response time, maximum response time, and error rates. These logs are then analyzed to identify any performance bottlenecks, ensuring the system can handle expected traffic without degradation in user experience.
-  - **Log Output**
-    ```
-    [Placeholder for response time test logs]
-    ```
+  - **Verification:** The Scalability Test - API Response Time ensures that the system maintains optimal performance under expected loads. This test measures the response time of an example API, /getAllTasks, verifying that it completes within 200 milliseconds, aligning with industry standards. This test validates that the API remains efficient and responsive under typical usage conditions.
 
-- **Chat Data Security**
-  - **Verification:** ...
-  - **Log Output**
-    ```
-    [Placeholder for chat security test logs]
-    ```
+- **Notification Accuracy**
+  - **Verification:** The Notification Accuracy - HTTP Response Time test ensures that the notification API responds promptly to user requests. It measures the response time of the /getAllTasks endpoint, verifying that it completes within 2 seconds. This test helps confirm that the system can deliver timely notifications, supporting a smooth and responsive user experience.
 
+ - **Log Output**
+![](./images/M5/3.1img.png)
 ---
 
 ## 4. Front-end Test Specification
