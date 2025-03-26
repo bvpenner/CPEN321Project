@@ -172,10 +172,8 @@ Task Geofencing:
 | **GFT-03** | 1. The system performs a unit test of geofence visualization using point-in-polygon detection.<br>2. A point known to be inside the geofence is tested.<br>3. A point known to be outside the geofence is tested.                                                                 | 1. Verify that a point inside the polygon returns true.<br>2. Verify that a point outside the polygon returns false.                                                                                                                                                                  |
 | **GFT-04** | 1. User logs in and navigates to the Task List.<br>2. User creates two tasks with valid coordinates.<br>3. User enables geofencing for the first task and verifies it on the map.<br>4. User returns to the Task List and enables geofencing for the second task.<br>5. User confirms both geofences are visible.  | 1. Create two tasks with valid coordinates.<br>2. Verify both tasks appear in the list.<br>3. Enable geofencing for the first task and check on the map.<br>4. Return to the Task List and enable geofencing for the second task.<br>5. Verify that both geofences are visible on the map.           |
 
-    - **Test Logs:**
-      ```
-      [Placeholder for Espresso test execution logs]
-      ```
+  - **Test Logs:**
+  ![](./images/GeoFenceTests.png)
 ## RoundTripTime Test Cases (RTT)
 
 | Test Case  | Scenario Steps                                                                                                                                                                                                                                                          | Test Case Steps                                                                                                                                                                                                                 |
