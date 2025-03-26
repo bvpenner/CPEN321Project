@@ -167,9 +167,19 @@ Task Geofencing:
 
   - **Expected Behaviors:**
 
-    | **Scenario Steps** | **Test Case Steps** |
-    | ------------------ | ------------------- |
-    | ...                | ...                 |
+    | **Test Case** | **Scenario Steps**                                                                                                           | **Test Case Steps**                                                                                                                                                  |
+    |---------------|------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+    | **GFT-01**    | 1. User logs in and navigates to the Task List. <br>2. User opens the "Add Task" activity. <br>3. User enters valid task details. <br>4. User creates the task and enables geofencing, then views the map. | a. Click "Add Task". <br>b. Enter valid details (Name, Description, Start/End Time, Duration, Latitude, Longitude, Priority). <br>c. Click "Create Task". <br>d. Toggle geofencing and verify the geofence is visible on the map. |
+    | **GFT-02**    | 1. User logs in and navigates to the Task List. <br>2. User opens the "Add Task" activity. <br>3. User enters task details with invalid coordinates. <br>4. User attempts to create the task. | a. Click "Add Task". <br>b. Enter valid details except for coordinates (e.g., latitude: 100.0, longitude: 200.0). <br>c. Click "Create Task". <br>d. Verify an error message is displayed indicating valid latitude/longitude are required. |
+
+  - **Test Logs:**
+    ```
+    [Placeholder for Espresso test execution logs]
+    ```
+    | **Test Case** | **Scenario Steps**                                                                                                                          | **Test Case Steps**                                                                                                                                                      |
+    |---------------|---------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+    | **RWT-01**    | 1. Initialize a RouteWorker instance. <br>2. Prepare a list of tasks with valid coordinates. <br>3. Order tasks using the nearest neighbor algorithm based on the starting point. | a. Create a RouteWorker instance. <br>b. Define multiple tasks with valid coordinates. <br>c. Invoke `orderTasksByNearestNeighbor` and verify tasks are ordered by proximity (nearest first). |
+    | **RWT-02**    | 1. Initialize a RouteWorker instance and prepare a valid Google Maps URL. <br>2. Trigger the route notification display.                     | a. Create a RouteWorker instance and ensure a valid URL is available. <br>b. Call the method to display the route notification. <br>c. Verify that the notification is active. |
 
   - **Test Logs:**
     ```
