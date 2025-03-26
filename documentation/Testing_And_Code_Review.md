@@ -25,7 +25,7 @@
 
 #### 2.1.2. Commit Hash Where Tests Run
 
-`[Insert Commit SHA here]`
+`c39b5db38337a315b12c525483ae9ffcb8bce6d2`
 
 #### 2.1.3. Explanation on How to Run the Tests
 
