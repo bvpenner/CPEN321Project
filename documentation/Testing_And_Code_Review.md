@@ -167,28 +167,41 @@ Task Geofencing:
 
   - **Expected Behaviors:**
 
-    | **Test Case** | **Scenario Steps**                                                                                                           | **Test Case Steps**                                                                                                                                                  |
-    |---------------|------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-    | **GFT-01**    | 1. User logs in and navigates to the Task List. <br>2. User opens the "Add Task" activity. <br>3. User enters valid task details. <br>4. User creates the task and enables geofencing, then views the map. | a. Click "Add Task". <br>b. Enter valid details (Name, Description, Start/End Time, Duration, Latitude, Longitude, Priority). <br>c. Click "Create Task". <br>d. Toggle geofencing and verify the geofence is visible on the map. |
-    | **GFT-02**    | 1. User logs in and navigates to the Task List. <br>2. User opens the "Add Task" activity. <br>3. User enters task details with invalid coordinates. <br>4. User attempts to create the task. | a. Click "Add Task". <br>b. Enter valid details except for coordinates (e.g., latitude: 100.0, longitude: 200.0). <br>c. Click "Create Task". <br>d. Verify an error message is displayed indicating valid latitude/longitude are required. |
-
-  - **Test Logs:**
-    ```
-    [Placeholder for Espresso test execution logs]
-    ```
-    | **Test Case** | **Scenario Steps**                                                                                                                          | **Test Case Steps**                                                                                                                                                      |
-    |---------------|---------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-    | **RWT-01**    | 1. Initialize a RouteWorker instance. <br>2. Prepare a list of tasks with valid coordinates. <br>3. Order tasks using the nearest neighbor algorithm based on the starting point. | a. Create a RouteWorker instance. <br>b. Define multiple tasks with valid coordinates. <br>c. Invoke `orderTasksByNearestNeighbor` and verify tasks are ordered by proximity (nearest first). |
-    | **RWT-02**    | 1. Initialize a RouteWorker instance and prepare a valid Google Maps URL. <br>2. Trigger the route notification display.                     | a. Create a RouteWorker instance and ensure a valid URL is available. <br>b. Call the method to display the route notification. <br>c. Verify that the notification is active. |
-
-  - **Test Logs:**
-    ```
-    [Placeholder for Espresso test execution logs]
-    ```
-
-- **...**
-
----
+  ## Geofencing Test Cases (GFT)
+  
+  | Test Case  | Scenario Steps                                                                                                                                                                                                                      | Test Case Steps                                                                                                                                                                                                                       |
+  |------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+  | **GFT-01** | 1. User logs in and navigates to the Task List.<br>2. User opens the "Add Task" activity.<br>3. User enters valid task details.<br>4. User creates the task and enables geofencing, then views the map.                          | 1. Click "Add Task".<br>2. Enter valid details (Name, Description, Start/End Time, Duration, Latitude, Longitude, Priority).<br>3. Click "Create Task".<br>4. Toggle geofencing and verify the geofence is visible on the map.  |
+  | **GFT-02** | 1. User logs in and navigates to the Task List.<br>2. User opens the "Add Task" activity.<br>3. User enters task details with invalid coordinates.<br>4. User attempts to create the task.                                  | 1. Click "Add Task".<br>2. Enter valid details except for coordinates (e.g., latitude: 100.0, longitude: 50.0).<br>3. Click "Create Task".<br>4. Verify an error message is displayed indicating valid latitude/longitude are required.  |
+  | **GFT-03** | 1. User logs in and navigates to the Task List.<br>2. User opens the "Add Task" activity.<br>3. User enters task details with invalid coordinates.<br>4. User attempts to create the task.                                  | 1. Click "Add Task".<br>2. Enter valid details except for coordinates (e.g., latitude: 40.0, longitude: 300.0).<br>3. Click "Create Task".<br>4. Verify an error message is displayed indicating valid latitude/longitude are required. |
+  | **GFT-04** | 1. User logs in and navigates to the Task List.<br>2. User creates two tasks with valid coordinates.<br>3. User enables geofencing on both tasks.<br>4. User selects both tasks for route optimization and plans a route.<br>5. User views the map to verify geofence visualization and route notification. | 1. Create tasks with valid coordinates.<br>2. Enable geofencing for both tasks.<br>3. Select tasks and click "Plan Route".<br>4. Verify a notification indicating a new route is displayed.<br>5. Navigate to map view and verify geofences for both tasks. |
+  | **GFT-05** | 1. System verifies geofence visualization using PolyUtil’s point-in-polygon detection.                                                                                                                                              | 1. Verify that a point inside the polygon returns true.<br>2. Verify that a point outside the polygon returns false.                                                                                                  |
+  | **GFT-06** | 1. User logs in and navigates to the Task List.<br>2. User creates two tasks with valid coordinates.<br>3. User toggles the geofence switch for each task individually.                                                     | 1. Add two tasks with valid coordinates.<br>2. Enable geofencing for the first task and verify on map.<br>3. Return to the Task List and enable geofencing for the second task.<br>4. Verify both geofences are visible on the map.  |
+  
+  
+    - **Test Logs:**
+      ```
+      [Placeholder for Espresso test execution logs]
+      ```
+  ## Route Optimization and Notification Test Cases (RTT)
+  
+    | Test Case  | Scenario Steps                                                                                                                                                                  | Test Case Steps                                                                                                                                                                  |
+    |------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+    | **RTT-01** | 1. User logs in and navigates to the Task List.<br>2. User creates two tasks.<br>3. User selects both tasks.<br>4. User plans a route.                                     | 1. Log in.<br>2. Create two tasks with valid details.<br>3. Select tasks from the list.<br>4. Click "Plan Route" and confirm successful route planning.        |
+    | **RTT-02** | 1. User logs in and navigates to the Task List.<br>2. User attempts to plan a route without selecting any tasks.                                                            | 1. Log in.<br>2. Navigate to the Task List.<br>3. Click "Plan Route" without selecting tasks.<br>4. Verify the system responds appropriately (e.g., no route created or an error message is displayed).  |
+    | **RTT-03** | 1. User logs in and navigates to the Task List.<br>2. User creates multiple tasks at various distances.<br>3. User selects the tasks.<br>4. User plans a route.<br>5. System orders the tasks based on proximity. | 1. Create multiple tasks at known distances.<br>2. Select tasks and click "Plan Route".<br>3. Verify tasks are ordered correctly using the nearest neighbor routing algorithm.  |
+    | **RTT-04** | 1. User plans a route.<br>2. User receives a route notification.                                                                                                             | 1. Click "Plan Route".<br>2. Verify that a route notification is displayed and active.                                                                           |
+    | **RTT-05** | 1. System generates a Google Maps URL for the planned route.                                                                                                                  | 1. Plan a route.<br>2. Verify the generated URL contains correct coordinates for origin, destination, and waypoints.                                                   |
+    | **RTT-06** | 1. System calculates distances between two points.                                                                                                                           | 1. Verify that the calculated distance is correct between two known points (e.g., UBC and Downtown Vancouver).<br>2. Verify that the distance is zero when the points are identical. |
+    
+    ---
+  
+    - **Test Logs:**
+      ```
+      [Placeholder for Espresso test execution logs]
+      ```
+  
+  ---
 
 ## 5. Automated Code Review Results
 
