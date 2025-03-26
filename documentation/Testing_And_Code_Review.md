@@ -190,6 +190,28 @@ Task Geofencing:
       ```
   
   ---
+---
+## RouteWorker Test Cases
+
+| Test Case   | Scenario Steps                                                                                                                                                           | Test Case Steps                                                                                                                                                                                                                                                                                      |
+|-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **RTW-01**  | 1. The system executes the routing algorithm with an empty task list.                                                                                                   | 1. Create a test worker.<br>2. Call the routing method (orderTasksByNearestNeighbor) with an empty task list.<br>3. Verify that the returned list of ordered tasks is empty.                                                                                                                        |
+| **RTW-02**  | 1. The system executes the routing algorithm with a single task.                                                                                                        | 1. Create a test worker.<br>2. Create a single task with valid details.<br>3. Call orderTasksByNearestNeighbor with a list containing this task.<br>4. Verify that one task is returned and that it matches the input task.                                                                |
+| **RTW-03**  | 1. The system executes the routing algorithm with multiple tasks from a fixed starting point.                                                                           | 1. Create a test worker.<br>2. Create three tasks (Task A, Task B, Task C) with known coordinates.<br>3. Call orderTasksByNearestNeighbor with a fixed starting coordinate.<br>4. Verify that tasks are ordered as: Task A first, then Task B, and Task C last.                           |
+| **RTW-04**  | 1. The system executes the routing algorithm from a different starting position.                                                                                       | 1. Create a test worker.<br>2. Create tasks (Task A, Task B, Task C) with known coordinates.<br>3. Set a different starting position (e.g., 49.30, -123.14).<br>4. Call orderTasksByNearestNeighbor with the new starting coordinates.<br>5. Verify the ordering is: Task C, Task B, then Task A. |
+| **RTW-05**  | 1. The system executes the routing algorithm with tasks provided in a shuffled order, and orders them by distance.                                                       | 1. Create a test worker.<br>2. Create three tasks in a shuffled order (e.g., Task C, Task A, Task B).<br>3. Call orderTasksByNearestNeighbor with default starting coordinates.<br>4. Verify that the tasks are ordered by distance (e.g., Task A, then Task B, then Task C).             |
+| **RTW-06**  | 1. The system displays a route notification when a route is planned.                                                                                                   | 1. Create a test worker.<br>2. Define a sample maps URL.<br>3. Call showRouteNotification using the maps URL.<br>4. Verify that the notification manager reports at least one active notification.                                                                                             |
+| **RTW-07**  | 1. The system builds a Google Maps URL for a planned route.                                                                                                             | 1. Create a test worker.<br>2. Create two tasks with valid coordinates.<br>3. Invoke the URL-building method (buildGoogleMapsUrl) via reflection.<br>4. Verify that the generated URL includes origin coordinates, destination coordinates, and at least one waypoint.                     |
+| **RTW-08**  | 1. The system computes distances between two sets of coordinates.                                                                                                       | 1. Create a test worker.<br>2. Retrieve the computeDistance method via reflection.<br>3. Compute the distance between two distinct points (e.g., UBC and Downtown Vancouver) and verify it is greater than 0.<br>4. Compute the distance for identical points and verify it equals 0 (within tolerance). |
+---
+---
+  
+    - **Test Logs:**
+      ```
+      [Placeholder for Espresso test execution logs]
+      ```
+  
+  ---
 
 ## 5. Automated Code Review Results
 
