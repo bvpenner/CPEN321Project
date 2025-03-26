@@ -13,10 +13,19 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="testRTT()">
+      <SelectionState runConfigName="ManageTaskTesting">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ManageTaskTesting">
+      <SelectionState runConfigName="testGeofenceVisualization()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="testRouteOptimizationWithGeofencing()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="testPolyUtilContainsLocation()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="testGeofenceSwitchToggle()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
