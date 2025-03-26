@@ -174,20 +174,6 @@ Task Geofencing:
 
   - **Test Logs:**
   ![](./images/GeoFenceTests.png)
-## RoundTripTime Test Cases (RTT)
-
-| Test Case  | Scenario Steps                                                                                                                                                                                                                                                          | Test Case Steps                                                                                                                                                                                                                 |
-|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **RTT-01** | 1. User logs in and handles location settings.<br>2. User navigates to the Task List.<br>3. User creates two tasks with valid details.<br>4. User verifies both tasks appear in the list.<br>5. User scrolls to and selects each task via its checkbox.<br>6. User clicks the "Plan Route" button.<br>7. User deletes the tasks after routing. | 1. Log in and handle location permissions.<br>2. Create two tasks with valid details.<br>3. Verify both tasks are present in the list.<br>4. Scroll to each task and click its corresponding checkbox.<br>5. Click "Plan Route".<br>6. Delete the tasks and confirm deletion. |
-    
----
-  
-    - **Test Logs:**
-      ```
-      [Placeholder for Espresso test execution logs]
-      ```
-  
-  ---
 ---
 ## RouteWorker Test Cases
 
