@@ -1,4 +1,4 @@
-# Example M5: Testing and Code Review
+# M5: Testing and Code Review
 
 ## 1. Change History
 
