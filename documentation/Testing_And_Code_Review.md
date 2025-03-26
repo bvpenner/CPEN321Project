@@ -67,7 +67,7 @@
 
 ## 3. Back-end Test Specification: Tests of Non-Functional Requirements
 
-### 3.1. Scalability Test
+### 3.1. Non-Functional Tests
 
 | **Non-Functional Requirement**  | **Location in Git**                              |
 | ------------------------------- | ------------------------------------------------ |
