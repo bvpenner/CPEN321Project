@@ -206,10 +206,8 @@ Task Geofencing:
 ---
 ---
   
-    - **Test Logs:**
-      ```
-      [Placeholder for Espresso test execution logs]
-      ```
+   - **Test Logs:**
+    ![](./images/RWT_TestImage.png)
   
   ---
 
