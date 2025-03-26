@@ -471,7 +471,7 @@ describe("/findOptimalRoute (No Mocks)", () => {
                 owner_id: validUID, 
                 _id: "", 
                 name: "test_task_3",
-                start_time: "13:00", 
+                start_time: "10:00",    //OG 13:00
                 end_time: "18:00", 
                 duration: 40, 
                 location_lat: 49.1748, 
@@ -678,7 +678,7 @@ test("case 7: user gives all required info, multiple tasks, multiple viable rout
             owner_id: validUID, 
             _id: "", 
             name: "test_task_3",
-            start_time: "13:00", 
+            start_time: "10:00",        //OG 13:00
             end_time: "18:00", 
             duration: 40, 
             location_lat: 49.1748, 
