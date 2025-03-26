@@ -163,10 +163,6 @@ Task Geofencing:
           ![Manage Task Invalid Input](./images/manageTaskInvalidInput.png)
     
 
-- **Use Case: ...**
-
-  - **Expected Behaviors:**
-
   ## Geofencing Test Cases (GFT)
   
   | Test Case  | Scenario Steps                                                                                                                                                                                                                      | Test Case Steps                                                                                                                                                                                                                       |
