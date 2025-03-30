@@ -203,8 +203,7 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
                     }
 
                     val messagingService = FirebaseMessagingService()
-//                    messagingService.sendNotification(requireContext(), message)
-                    messagingService.sendPersistentNotification(requireContext(), "Route Found", message)
+                    messagingService.sendNotification(requireContext(), message)
 
 
                     requireActivity().runOnUiThread {

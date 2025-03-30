@@ -108,10 +108,13 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
                         if (in_fence) {
                             handler.post {
                                 val messagingService = FirebaseMessagingService()
-                                messagingService.sendNotification(
-                                    requireContext(),
-                                    "Task [${task_id}] is close"
-                                )
+                                val task = _taskList.value?.find { it.id == task_id }
+                                if (task != null) {
+                                    messagingService.sendPersistentNotification(requireContext(),
+                                        "GeoFence Alert",
+                                        "Task [${task.name}] is close"
+                                    )
+                                }
                             }
                         }
                     }
