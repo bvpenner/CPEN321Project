@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
+import com.example.cpen321app.BuildConfig.MAPS_API_KEY
 import com.example.cpen321app.TaskAdapter.Companion._geofenceStateMap
 import com.example.cpen321app.TaskViewModel.Companion._taskList
 import com.example.cpen321app.TaskViewModel.Companion.server_ip
@@ -122,10 +123,22 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//        super.onViewCreated(view, savedInstanceState)
+//        val mapFragment =
+//            childFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
+//        mapFragment?.getMapAsync(this)
         super.onViewCreated(view, savedInstanceState)
-        val mapFragment =
-            childFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
-        mapFragment?.getMapAsync(this)
+
+        val existingMapFragment = childFragmentManager.findFragmentByTag("map_tag")
+                as? SupportMapFragment
+
+        val mapFragment = existingMapFragment ?: SupportMapFragment.newInstance().also {
+            childFragmentManager.beginTransaction()
+                .replace(R.id.map, it, "map_tag")
+                .commit()
+        }
+
+        mapFragment.getMapAsync(this)
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -145,6 +158,15 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
                 if (location != null) {
                     val userLatLng = LatLng(location.latitude, location.longitude)
                     Log.d(TAG, "userLatLng: $userLatLng")
+
+//                    val routePoints = listOf(
+//                        LatLng(49.2827, -123.1207), // Vancouver
+//                        LatLng(48.6062, -122.3321),
+//                        LatLng(47.6062, -122.3321)  // Seattle
+//                    )
+//
+//                    fetchAndDrawRouteFromPoints(routePoints)
+
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f))
                 }
             }
@@ -400,4 +422,78 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
     protected open fun isPointInsideGeofence(point: LatLng, geofencePolygon: List<LatLng>): Boolean {
         return PolyUtil.containsLocation(point, geofencePolygon, true)
     }
+
+    fun drawRouteOnMap(points: List<LatLng>, color: Int = Color.BLUE, width: Float = 8f) {
+        if (!::mMap.isInitialized || points.size < 2) {
+            Log.w("drawRouteOnMap", "Map not ready or insufficient points.")
+            return
+        }
+
+        val polylineOptions = PolylineOptions()
+            .addAll(points)
+            .color(color)
+            .width(width)
+            .geodesic(true)
+
+        mMap.addPolyline(polylineOptions)
+
+        // Optionally move camera to start of route
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(points.first(), 14f))
+    }
+
+    fun fetchAndDrawRouteFromPoints(points: List<LatLng>) {
+        if (points.size < 2) {
+            Log.w("fetchAndDrawRoute", "At least 2 points are required.")
+            return
+        }
+
+        val origin = points.first()
+        val destination = points.last()
+        val waypoints = points.subList(1, points.size - 1)
+
+        val originStr = "${origin.latitude},${origin.longitude}"
+        val destStr = "${destination.latitude},${destination.longitude}"
+        val waypointsStr = waypoints.joinToString("|") { "${it.latitude},${it.longitude}" }
+
+        val urlBuilder = StringBuilder("https://maps.googleapis.com/maps/api/directions/json?")
+            .append("origin=$originStr")
+            .append("&destination=$destStr")
+            .append("&key=$MAPS_API_KEY")
+
+        if (waypoints.isNotEmpty()) {
+            urlBuilder.append("&waypoints=$waypointsStr")
+        }
+
+        val url = urlBuilder.toString()
+
+        val client = OkHttpClient()
+        val request = Request.Builder().url(url).build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("DirectionsAPI", "Failed to fetch route", e)
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.body?.string()?.let { body ->
+                    val json = JSONObject(body)
+                    val routes = json.getJSONArray("routes")
+                    if (routes.length() > 0) {
+                        val overviewPolyline = routes.getJSONObject(0)
+                            .getJSONObject("overview_polyline")
+                            .getString("points")
+
+                        val decodedPoints = PolyUtil.decode(overviewPolyline)
+
+                        requireActivity().runOnUiThread {
+                            drawRouteOnMap(decodedPoints)
+                        }
+                    } else {
+                        Log.e("DirectionsAPI", "No route found.")
+                    }
+                }
+            }
+        })
+    }
+
 }

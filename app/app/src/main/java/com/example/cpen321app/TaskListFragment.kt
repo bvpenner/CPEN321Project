@@ -20,6 +20,7 @@ import com.example.cpen321app.TaskViewModel.Companion._taskList
 import com.example.cpen321app.TaskViewModel.Companion.server_ip
 import com.example.cpen321app.databinding.FragmentTaskListBinding
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -176,9 +177,17 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
                     val orderedtaskIds = JSONObject(jsonResponse).getJSONArray("taskIds")
                     val estimated_time = JSONObject(jsonResponse).get("time_cost")
                     val taskIdList = mutableListOf<String>()
+                    val coordList = mutableListOf<LatLng>()
+                    coordList.add(LatLng(User_Lat, User_Lng))
 
                     for (i in 0 until orderedtaskIds.length()) {
-                        taskIdList.add(orderedtaskIds.getString(i))
+                        val taskId = orderedtaskIds.getString(i)
+                        taskIdList.add(taskId)
+
+                        val task = _taskList.value?.find { it.id == taskId }
+                        task?.let {
+                            coordList.add(LatLng(it.location_lat, it.location_lng))
+                        }
                     }
 
                     val orderedTaskNames = taskIdList.mapNotNull { id ->
@@ -195,6 +204,26 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
 
                     val messagingService = FirebaseMessagingService()
                     messagingService.sendNotification(requireContext(), message)
+
+
+                    requireActivity().runOnUiThread {
+                        val mapsFragment = MapsFragment()
+                        mapsFragment.arguments = Bundle().apply {
+                            putParcelableArrayList("coordList", ArrayList(coordList))
+                        }
+
+                        (requireActivity() as MainActivity).supportFragmentManager.beginTransaction()
+                            .replace((requireActivity() as MainActivity).fragmentContainerId, mapsFragment)
+                            .addToBackStack(null)
+                            .commit()
+
+                        val activity = requireActivity() as MainActivity
+                        val navView = activity.findViewById<BottomNavigationView>(activity.bottomNavId)
+                        navView.selectedItemId = R.id.map_view_button
+
+                        mapsFragment.fetchAndDrawRouteFromPoints(coordList)
+                    }
+
                 }
             }
         })

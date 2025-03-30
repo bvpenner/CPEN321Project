@@ -73,6 +73,8 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MainActivity"
         private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 101
     }
+    var fragmentContainerId: Int = 0
+    var bottomNavId: Int = 1
 
     private val activityScope = CoroutineScope(Dispatchers.Main)
     private var savedCredential: GoogleIdTokenCredential? = null
@@ -211,11 +213,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpUIComponents() {
-        val frameLayout = FrameLayout(this).apply { id = View.generateViewId() }
+        fragmentContainerId = View.generateViewId()
+        val frameLayout = FrameLayout(this).apply { id = fragmentContainerId }
+
         val bottomNavigationView = BottomNavigationView(this).apply {
             id = View.generateViewId()
             inflateMenu(R.menu.bottom_nav_menu)
         }
+        bottomNavigationView.id = View.generateViewId().also { bottomNavId = it }
+
         val constraintLayout = findViewById<ConstraintLayout>(R.id.main)
         val frameLayoutParams = ConstraintLayout.LayoutParams(
             ConstraintLayout.LayoutParams.MATCH_PARENT,
