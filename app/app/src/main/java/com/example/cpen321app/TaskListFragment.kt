@@ -111,14 +111,14 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
         val popupWindow = PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true)
 
         // Set click listeners for the buttons
-        val updateButton: Button = popupView.findViewById(R.id.update_button)
+//        val updateButton: Button = popupView.findViewById(R.id.update_button)
         val deleteButton: Button = popupView.findViewById(R.id.delete_button)
 
-        updateButton.setOnClickListener {
-            // Handle the update action
-            Toast.makeText(requireContext(), "Update action", Toast.LENGTH_SHORT).show()
-            popupWindow.dismiss()
-        }
+//        updateButton.setOnClickListener {
+//            // Handle the update action
+//            Toast.makeText(requireContext(), "Update action", Toast.LENGTH_SHORT).show()
+//            popupWindow.dismiss()
+//        }
 
         deleteButton.setOnClickListener {
             // Handle the delete action
