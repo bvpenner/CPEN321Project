@@ -175,6 +175,53 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
+
+    private fun sendUpdateTaskRequest(selectedTask: Task) {
+        val client = OkHttpClient()
+        val url = "http://${server_ip}/addTask"
+
+        // Build JSON body
+        val jsonBody = JSONObject().apply {
+            put("owner_id", SessionManager.u_id)
+            put("name", selectedTask.name)
+            put("_id", selectedTask.id)
+            put("start_time", selectedTask.start)
+            put("end_time", selectedTask.end)
+            put("duration", selectedTask.duration)
+            put("location_lat", selectedTask.location_lat)
+            put("location_lng", selectedTask.location_lng)
+            put("priority", selectedTask.priority)
+            put("description", selectedTask.description)
+        }
+
+        Log.d(TAG, jsonBody.toString())
+        val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
+        val requestBody = RequestBody.create(mediaType, jsonBody.toString())
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e(TAG, "Failed to send task: ${e.message}")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (!response.isSuccessful) {
+                    Log.e(TAG, "Unexpected response: ${response.message}")
+                    return
+                }
+                response.body?.string()?.let { jsonResponse ->
+                    Log.d(TAG, "Received response: $jsonResponse")
+                    val resultJson = JSONObject(jsonResponse)
+                    val newTaskId = resultJson.getString("new_task_id")
+                    Log.d(TAG, "Received new_task_id: $newTaskId")
+                }
+            }
+        })
+    }
+
     private fun sendDeleteTaskRequest(task: Task) {
         val client = OkHttpClient()
         val url = "http://${server_ip}/deleteTask"
