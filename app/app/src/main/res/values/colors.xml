@@ -7,4 +7,10 @@
     <color name="colorAccent">#FF808080</color>
     <color name="holo_blue_light">#FF2b9ad0</color>
     <color name="holo_red_light">#FFFF4444</color>
+    <color name="colorCardBackground">#FAFAFA</color>
+    <color name="colorHighPriority">#FF6B6B</color>
+    <color name="colorMediumPriority">#FFA726</color>
+    <color name="colorLowPriority">#66BB6A</color>
+    <color name="colorSurface">#F5F5F5</color>
+
 </resources>

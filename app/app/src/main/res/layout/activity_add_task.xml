@@ -1,243 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scrollView_addTask"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="@android:color/white">
 
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
-
-    <!-- Header -->
-    <TextView
-        android:id="@+id/textView_add_task_menu"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Task"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:orientation="vertical"
+        android:padding="24dp">
 
-    <!-- Name Input -->
-    <TextView
-        android:id="@+id/textView_taskName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Name:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/textView_add_task_menu"
-        android:layout_marginTop="24dp"
-        app:layout_constraintStart_toStartOf="parent" />
+        <!-- 🧾 Task Info Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Task Info"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
 
-    <EditText
-        android:id="@+id/editTextName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="text"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_taskName"
-        app:layout_constraintStart_toEndOf="@id/textView_taskName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
+        <EditText
+            android:id="@+id/editTextName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Task Name"
+            android:inputType="text"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
 
-    <!-- Description Input -->
-    <TextView
-        android:id="@+id/textView_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Description:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/editTextName"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
+        <EditText
+            android:id="@+id/editText_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Description"
+            android:inputType="text"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
 
-    <EditText
-        android:id="@+id/editText_description"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="text"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_description"
-        app:layout_constraintStart_toEndOf="@id/textView_description"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
+        <EditText
+            android:id="@+id/editText_taskPrio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Priority (1 = High, 3 = Low)"
+            android:inputType="number"
+            android:textSize="16sp"
+            android:layout_marginBottom="24dp" />
 
-    <!-- Start Time Input -->
-    <TextView
-        android:id="@+id/textView_taskStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/editText_description"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
+        <!-- ⏰ Schedule Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Schedule"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
 
-    <EditText
-        android:id="@+id/editText_taskStart"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="time"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_taskStart"
-        app:layout_constraintStart_toEndOf="@id/textView_taskStart"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
+        <EditText
+            android:id="@+id/editText_taskStart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Start Time"
+            android:inputType="time"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
 
-    <!-- End Time Input -->
-    <TextView
-        android:id="@+id/textView_taskEnd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="End:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/editText_taskStart"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
+        <EditText
+            android:id="@+id/editText_taskEnd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="End Time"
+            android:inputType="time"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
 
-    <EditText
-        android:id="@+id/editText_taskEnd"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="time"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_taskEnd"
-        app:layout_constraintStart_toEndOf="@id/textView_taskEnd"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
+        <EditText
+            android:id="@+id/editText_duration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Duration (minutes)"
+            android:inputType="number"
+            android:textSize="16sp"
+            android:layout_marginBottom="24dp" />
 
-    <!-- Duration Input -->
-    <TextView
-        android:id="@+id/textView_duration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Duration (min):"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/editText_taskEnd"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
+        <!-- 📍 Location Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Location"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
 
-    <EditText
-        android:id="@+id/editText_duration"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_duration"
-        app:layout_constraintStart_toEndOf="@id/textView_duration"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_pick_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Search for a Place"
+            app:iconPadding="8dp"
+            app:iconGravity="textStart"
+            app:cornerRadius="8dp"
+            android:layout_marginBottom="16dp" />
 
-    <!-- Location Section Header -->
-    <TextView
-        android:id="@+id/textView_Location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Location"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/editText_duration"
-        android:layout_marginTop="24dp"
-        app:layout_constraintStart_toStartOf="parent" />
+        <EditText
+            android:id="@+id/editText_taskLat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Latitude"
+            android:inputType="numberDecimal|numberSigned"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
 
-    <!-- Pick Location Button -->
-    <Button
-        android:id="@+id/button_pick_location"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Search for a Place"
-        app:layout_constraintTop_toBottomOf="@id/textView_Location"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <EditText
+            android:id="@+id/editText_taskLng"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Longitude"
+            android:inputType="numberDecimal|numberSigned"
+            android:textSize="16sp"
+            android:layout_marginBottom="24dp" />
 
-    <!-- Latitude Input -->
-    <TextView
-        android:id="@+id/textView_taskLat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Latitude:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/button_pick_location"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
+        <!-- 🗺️ Optional Map Preview -->
+        <FrameLayout
+            android:id="@+id/location_map_preview"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:visibility="gone"
+            android:background="#DDDDDD"
+            android:layout_marginBottom="24dp" />
 
-    <EditText
-        android:id="@+id/editText_taskLat"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="numberSigned|numberDecimal"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_taskLat"
-        app:layout_constraintStart_toEndOf="@id/textView_taskLat"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
+        <!-- ✅ Submit Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_taskCreate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Create Task"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:cornerRadius="12dp"
+            android:layout_marginBottom="32dp" />
 
-    <!-- Longitude Input -->
-    <TextView
-        android:id="@+id/textView_taskLng"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Longitude:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/editText_taskLat"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
-        android:id="@+id/editText_taskLng"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="numberSigned|numberDecimal"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_taskLng"
-        app:layout_constraintStart_toEndOf="@id/textView_taskLng"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
-
-    <!-- Priority Input -->
-    <TextView
-        android:id="@+id/textView_taskPrio"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Priority:"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/editText_taskLng"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
-        android:id="@+id/editText_taskPrio"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="@id/textView_taskPrio"
-        app:layout_constraintStart_toEndOf="@id/textView_taskPrio"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
-
-    <!-- Create Task Button -->
-    <Button
-        android:id="@+id/button_taskCreate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create Task"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/editText_taskPrio"
-        android:layout_marginTop="24dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </ScrollView>
