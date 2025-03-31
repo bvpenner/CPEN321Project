@@ -1,9 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/update_button"
-        android:title="Update" />
+        android:title="✏️ Update"
+        android:icon="@drawable/ic_edit"
+        android:iconTint="@color/colorPrimary"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/delete_button"
-        android:title="Delete" />
+        android:title="🗑️ Delete"
+        android:icon="@drawable/ic_delete"
+        android:iconTint="@color/colorError"
+        app:showAsAction="ifRoom" />
 </menu>

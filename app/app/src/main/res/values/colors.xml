@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Core Material Colors -->
+    <color name="colorPrimary">#2B9AD0</color> <!-- Vibrant Blue -->
+    <color name="colorPrimaryDark">#1976D2</color> <!-- Darker Blue -->
+    <color name="colorAccent">#00BCD4</color> <!-- Cyan-like Accent -->
+    <color name="colorOnPrimary">#FFFFFF</color> <!-- Text/Icon on Primary -->
+    <color name="colorSurface">#F5F5F5</color> <!-- Background Card Surface -->
+    <color name="colorBackground">#FAFAFA</color> <!-- App background -->
+    <color name="colorError">#D32F2F</color> <!-- Red for errors/danger -->
+    <color name="colorOnError">#FFFFFF</color> <!-- Text on error bg -->
+
+    <!-- Task Background States -->
+    <color name="normalBackground">#FFFFFF</color>
+    <color name="pressedBackground">#E0F7FA</color>
+
+    <!-- Priority Colors -->
+    <color name="colorHighPriority">#E53935</color> <!-- Red -->
+    <color name="colorMediumPriority">#FFA726</color> <!-- Orange -->
+    <color name="colorLowPriority">#66BB6A</color> <!-- Green -->
+
+    <!-- Utility -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="colorPrimary">#FF2b9ad0</color>
-    <color name="colorPrimaryDark">#FF000000</color>
-    <color name="colorAccent">#FF808080</color>
-    <color name="holo_blue_light">#FF2b9ad0</color>
-    <color name="holo_red_light">#FFFF4444</color>
-    <color name="normalBackground">#FFFFFF</color>
-    <color name="pressedBackground">#E0F2F1</color>
-    <color name="colorCardBackground">#FAFAFA</color>
-    <color name="colorHighPriority">#FF6B6B</color>
-    <color name="colorMediumPriority">#FFA726</color>
-    <color name="colorLowPriority">#66BB6A</color>
-    <color name="colorSurface">#F5F5F5</color>
-
+    <color name="disabledGray">#BDBDBD</color> <!-- For disabled states -->
+    <color name="dividerGray">#E0E0E0</color> <!-- Subtle dividers -->
 </resources>

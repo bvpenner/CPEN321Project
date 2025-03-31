@@ -54,9 +54,9 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
         taskViewModel.refreshTasklist()
 
         // Set up RecyclerView.
-        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
+        binding.taskRecyclerView.layoutManager = LinearLayoutManager(activity)
         taskAdapter = TaskAdapter(taskViewModel.taskList.value ?: mutableListOf(), this, requireContext())
-        binding.recyclerView.adapter = taskAdapter
+        binding.taskRecyclerView.adapter = taskAdapter
 
         // Observe changes in the task list.
         taskViewModel.taskList.observe(viewLifecycleOwner) {
