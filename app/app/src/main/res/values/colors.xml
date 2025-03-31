@@ -7,6 +7,8 @@
     <color name="colorAccent">#FF808080</color>
     <color name="holo_blue_light">#FF2b9ad0</color>
     <color name="holo_red_light">#FFFF4444</color>
+    <color name="normalBackground">#FFFFFF</color>
+    <color name="pressedBackground">#E0F2F1</color>
     <color name="colorCardBackground">#FAFAFA</color>
     <color name="colorHighPriority">#FF6B6B</color>
     <color name="colorMediumPriority">#FFA726</color>
