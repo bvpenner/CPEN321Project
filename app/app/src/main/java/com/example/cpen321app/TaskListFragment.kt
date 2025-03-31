@@ -111,14 +111,29 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
         val popupWindow = PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true)
 
         // Set click listeners for the buttons
-//        val updateButton: Button = popupView.findViewById(R.id.update_button)
+        val updateButton: Button = popupView.findViewById(R.id.update_button)
         val deleteButton: Button = popupView.findViewById(R.id.delete_button)
 
-//        updateButton.setOnClickListener {
-//            // Handle the update action
+        updateButton.setOnClickListener {
+            // Handle the update action
+
+            val updateTaskIntent = Intent(requireContext(), AddTask::class.java)
+            updateTaskIntent.putExtra("id", task.id)
+            updateTaskIntent.putExtra("name", task.name)
+            updateTaskIntent.putExtra("start", task.start)
+            updateTaskIntent.putExtra("end", task.end)
+            updateTaskIntent.putExtra("duration", task.duration)
+            updateTaskIntent.putExtra("location_lat", task.location_lat)
+            updateTaskIntent.putExtra("location_lng", task.location_lng)
+            updateTaskIntent.putExtra("priority", task.priority)
+            updateTaskIntent.putExtra("description", task.description)
+            updateTaskIntent.putExtra("geofence", task.isGeofenceEnabled)
+
+            startActivity(updateTaskIntent)
+
 //            Toast.makeText(requireContext(), "Update action", Toast.LENGTH_SHORT).show()
 //            popupWindow.dismiss()
-//        }
+        }
 
         deleteButton.setOnClickListener {
             // Handle the delete action
