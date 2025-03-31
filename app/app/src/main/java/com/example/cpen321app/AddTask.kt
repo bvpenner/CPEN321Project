@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
 import java.time.LocalTime
@@ -22,6 +23,7 @@ class AddTask : AppCompatActivity() {
     private lateinit var taskViewModel: TaskViewModel
     private lateinit var locationPickerLauncher: ActivityResultLauncher<android.content.Intent>
     private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    private var updateTaskMode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +32,12 @@ class AddTask : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        var id = intent.getStringExtra("id")
+
+        if(id != null) {
+            initializeForUpdateTask()
         }
 
         taskViewModel = (application as GeoTask).taskViewModel
@@ -57,7 +65,8 @@ class AddTask : AppCompatActivity() {
 
         // Create task on button press.
         findViewById<Button>(R.id.button_taskCreate).setOnClickListener {
-            val id = "Placeholder"
+            var idToSend = "Placeholder"
+            if(updateTaskMode) idToSend = id!!
             val name = findViewById<EditText>(R.id.editTextName).text.toString().trim()
             val start = editTextStart.text.toString().trim()
             val end = editTextEnd.text.toString().trim()
@@ -85,7 +94,7 @@ class AddTask : AppCompatActivity() {
                 Snackbar.make(findViewById(R.id.scrollView_addTask), "Priority must be 1-3.", Snackbar.LENGTH_SHORT).show()
             } else {
                 val newTask = Task(
-                    id = id,
+                    id = idToSend,
                     name = name,
                     start = start,
                     end = end,
@@ -96,12 +105,57 @@ class AddTask : AppCompatActivity() {
                     description = description,
                     isGeofenceEnabled = false
                 )
-                taskViewModel.addTask(newTask)
+                if(updateTaskMode) {
+                    taskViewModel.updateTask(newTask)
+                } else {
+                    taskViewModel.addTask(newTask)
+                }
                 taskViewModel.logAllTasks()
                 taskViewModel.refreshTasklist()
                 finish()
             }
         }
+    }
+
+    private fun initializeForUpdateTask() {
+
+        updateTaskMode = true
+
+        val id = intent.getStringExtra("id") ?: throw RuntimeException("ID should exist")
+
+        val name = intent.getStringExtra("name") ?: throw RuntimeException("Name should exist")
+        val start = intent.getStringExtra("start") ?: throw RuntimeException("Start should exist")
+        val end = intent.getStringExtra("end") ?: throw RuntimeException("Start should exist")
+        val duration = intent.getIntExtra("duration", -1)
+        val location_lat = intent.getDoubleExtra("location_lat", 1000.0)
+        val location_lng = intent.getDoubleExtra("location_lng", 1000.0)
+        val priority = intent.getIntExtra("priority", -1)
+        val description = intent.getStringExtra("description") ?: throw RuntimeException("description should exist")
+        var isGeofenceEnabled = intent.getBooleanExtra("geofence", false)
+
+        if(location_lat > 500 || location_lng > 500 || priority == -1 || duration == -1) throw RuntimeException("Variable not found")
+
+        val nameField = findViewById<EditText>(R.id.editTextName)
+        val startField = findViewById<EditText>(R.id.editText_taskStart)
+        val endField = findViewById<EditText>(R.id.editText_taskEnd)
+        val durationField = findViewById<EditText>(R.id.editText_duration)
+        val locationLatField = findViewById<EditText>(R.id.editText_taskLat)
+        val locationLngField = findViewById<EditText>(R.id.editText_taskLng)
+        val priorityField = findViewById<EditText>(R.id.editText_taskPrio)
+        val descriptionField = findViewById<EditText>(R.id.editText_description)
+
+        nameField.setText(name)
+        startField.setText(start)
+        endField.setText(end)
+        durationField.setText(duration.toString())
+        locationLatField.setText(location_lat.toString())
+        locationLngField.setText(location_lng.toString())
+        priorityField.setText(priority.toString())
+        descriptionField.setText(description)
+
+        // Change create task button text
+        val createTaskButton = findViewById<MaterialButton>(R.id.button_taskCreate)
+        createTaskButton.setText("Update Task")
     }
 
     private fun locationPickerLauncher() {

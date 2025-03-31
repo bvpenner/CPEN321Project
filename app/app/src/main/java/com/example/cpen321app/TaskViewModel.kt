@@ -64,6 +64,13 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         IdlingResourceManager.countingIdlingResource.decrement()
     }
 
+    fun updateTask(task: Task) {
+        IdlingResourceManager.countingIdlingResource.increment()
+        sendUpdateTaskRequest(task)
+        refreshTasklist()
+        IdlingResourceManager.countingIdlingResource.decrement()
+    }
+
     fun addExampleTask() {
         val exampleTask = Task(
             id = "1",
