@@ -136,7 +136,8 @@ class AddTask : AppCompatActivity() {
         val description = intent.getStringExtra("description") ?: throw NoSuchElementException("description should exist")
         var isGeofenceEnabled = intent.getBooleanExtra("geofence", false)
 
-        if(location_lat > 500 || location_lng > 500 || priority == -1 || duration == -1) throw NoSuchElementException("Variable not found")
+        if(location_lat > 500 || location_lng > 500) throw NoSuchElementException("Variable not found")
+        if(priority == -1 || duration == -1) throw NoSuchElementException("Variable not found")
 
         val nameField = findViewById<EditText>(R.id.editTextName)
         val startField = findViewById<EditText>(R.id.editText_taskStart)
