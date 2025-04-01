@@ -70,11 +70,7 @@ class AddTask : AppCompatActivity() {
         createTaskOnClickListenerSetup(id, editTextStart, editTextEnd)
     }
 
-    private fun createTaskOnClickListenerSetup(
-        id: String?,
-        editTextStart: EditText,
-        editTextEnd: EditText
-    ) {
+    private fun createTaskOnClickListenerSetup(id: String?, editTextStart: EditText, editTextEnd: EditText) {
         findViewById<Button>(R.id.button_taskCreate).setOnClickListener {
             var idToSend = "Placeholder"
             if (updateTaskMode) idToSend = id!!
