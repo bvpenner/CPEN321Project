@@ -67,34 +67,81 @@ class AddTask : AppCompatActivity() {
         editTextEnd.setOnClickListener { showTimePickerDialog(editTextEnd) }
 
         // Create task on button press.
+        createTaskOnClickListenerSetup(id, editTextStart, editTextEnd)
+    }
+
+    private fun createTaskOnClickListenerSetup(
+        id: String?,
+        editTextStart: EditText,
+        editTextEnd: EditText
+    ) {
         findViewById<Button>(R.id.button_taskCreate).setOnClickListener {
             var idToSend = "Placeholder"
-            if(updateTaskMode) idToSend = id!!
+            if (updateTaskMode) idToSend = id!!
             val name = findViewById<EditText>(R.id.editTextName).text.toString().trim()
             val start = editTextStart.text.toString().trim()
             val end = editTextEnd.text.toString().trim()
-            val duration = findViewById<EditText>(R.id.editText_duration).text.toString().trim().toIntOrNull() ?: 0
-            val latitude = findViewById<EditText>(R.id.editText_taskLat).text.toString().trim().toDoubleOrNull() ?: 0.0
-            val longitude = findViewById<EditText>(R.id.editText_taskLng).text.toString().trim().toDoubleOrNull() ?: 0.0
-            val priority = findViewById<EditText>(R.id.editText_taskPrio).text.toString().trim().toIntOrNull() ?: 1
-            val description = findViewById<EditText>(R.id.editText_description).text.toString().trim()
+            val duration =
+                findViewById<EditText>(R.id.editText_duration).text.toString().trim().toIntOrNull()
+                    ?: 0
+            val latitude = findViewById<EditText>(R.id.editText_taskLat).text.toString().trim()
+                .toDoubleOrNull() ?: 0.0
+            val longitude = findViewById<EditText>(R.id.editText_taskLng).text.toString().trim()
+                .toDoubleOrNull() ?: 0.0
+            val priority =
+                findViewById<EditText>(R.id.editText_taskPrio).text.toString().trim().toIntOrNull()
+                    ?: 1
+            val description =
+                findViewById<EditText>(R.id.editText_description).text.toString().trim()
 
             if (latitude !in -90.0..90.0) {
-                Snackbar.make(findViewById(R.id.scrollView_addTask), "Valid Latitude Required: Between -90 and 90 degrees", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(
+                    findViewById(R.id.scrollView_addTask),
+                    "Valid Latitude Required: Between -90 and 90 degrees",
+                    Snackbar.LENGTH_SHORT
+                ).show()
             } else if (longitude !in -180.0..180.0) {
-                Snackbar.make(findViewById(R.id.scrollView_addTask), "Valid Longitude Required: Between -180 and 180 degrees", Snackbar.LENGTH_SHORT).show()
-            } else if(name.trim() == "") {
-                Snackbar.make(findViewById(R.id.scrollView_addTask), "Valid name required", Snackbar.LENGTH_SHORT).show()
-            } else if(start.trim() == "" || !start.matches(Regex("^(?:[01]\\d|2[0-3]):[0-5]\\d\$"))) {
-                Snackbar.make(findViewById(R.id.scrollView_addTask), "Valid start required", Snackbar.LENGTH_SHORT).show()
-            } else if(end.trim() == "" || !end.matches(Regex("^(?:[01]\\d|2[0-3]):[0-5]\\d\$"))) {
-                Snackbar.make(findViewById(R.id.scrollView_addTask), "Valid end required", Snackbar.LENGTH_SHORT).show()
-            } else if(!isTimeAfterOrEqual(start, end)) {
-                Snackbar.make(findViewById(R.id.scrollView_addTask), "End must be after or equal to the start", Snackbar.LENGTH_SHORT).show()
-            } else if(duration <= 0) {
-                Snackbar.make(findViewById(R.id.scrollView_addTask), "Duration must be greater than 0.", Snackbar.LENGTH_SHORT).show()
-            } else if(priority > 3 || priority < 1) {
-                Snackbar.make(findViewById(R.id.scrollView_addTask), "Priority must be 1-3.", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(
+                    findViewById(R.id.scrollView_addTask),
+                    "Valid Longitude Required: Between -180 and 180 degrees",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            } else if (name.trim() == "") {
+                Snackbar.make(
+                    findViewById(R.id.scrollView_addTask),
+                    "Valid name required",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            } else if (start.trim() == "" || !start.matches(Regex("^(?:[01]\\d|2[0-3]):[0-5]\\d\$"))) {
+                Snackbar.make(
+                    findViewById(R.id.scrollView_addTask),
+                    "Valid start required",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            } else if (end.trim() == "" || !end.matches(Regex("^(?:[01]\\d|2[0-3]):[0-5]\\d\$"))) {
+                Snackbar.make(
+                    findViewById(R.id.scrollView_addTask),
+                    "Valid end required",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            } else if (!isTimeAfterOrEqual(start, end)) {
+                Snackbar.make(
+                    findViewById(R.id.scrollView_addTask),
+                    "End must be after or equal to the start",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            } else if (duration <= 0) {
+                Snackbar.make(
+                    findViewById(R.id.scrollView_addTask),
+                    "Duration must be greater than 0.",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            } else if (priority > 3 || priority < 1) {
+                Snackbar.make(
+                    findViewById(R.id.scrollView_addTask),
+                    "Priority must be 1-3.",
+                    Snackbar.LENGTH_SHORT
+                ).show()
             } else {
                 val newTask = Task(
                     id = idToSend,
@@ -108,7 +155,7 @@ class AddTask : AppCompatActivity() {
                     description = description,
                     isGeofenceEnabled = false
                 )
-                if(updateTaskMode) {
+                if (updateTaskMode) {
                     taskViewModel.updateTask(newTask)
                 } else {
                     taskViewModel.addTask(newTask)
