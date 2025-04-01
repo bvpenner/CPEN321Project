@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.NoSuchElementException
 
 class AddTask : AppCompatActivity() {
 
@@ -123,19 +124,19 @@ class AddTask : AppCompatActivity() {
 
         updateTaskMode = true
 
-        val id = intent.getStringExtra("id") ?: throw RuntimeException("ID should exist")
+        val id = intent.getStringExtra("id") ?: throw NoSuchElementException("ID should exist")
 
-        val name = intent.getStringExtra("name") ?: throw RuntimeException("Name should exist")
-        val start = intent.getStringExtra("start") ?: throw RuntimeException("Start should exist")
-        val end = intent.getStringExtra("end") ?: throw RuntimeException("Start should exist")
+        val name = intent.getStringExtra("name") ?: throw NoSuchElementException("Name should exist")
+        val start = intent.getStringExtra("start") ?: throw NoSuchElementException("Start should exist")
+        val end = intent.getStringExtra("end") ?: throw NoSuchElementException("Start should exist")
         val duration = intent.getIntExtra("duration", -1)
         val location_lat = intent.getDoubleExtra("location_lat", 1000.0)
         val location_lng = intent.getDoubleExtra("location_lng", 1000.0)
         val priority = intent.getIntExtra("priority", -1)
-        val description = intent.getStringExtra("description") ?: throw RuntimeException("description should exist")
+        val description = intent.getStringExtra("description") ?: throw NoSuchElementException("description should exist")
         var isGeofenceEnabled = intent.getBooleanExtra("geofence", false)
 
-        if(location_lat > 500 || location_lng > 500 || priority == -1 || duration == -1) throw RuntimeException("Variable not found")
+        if(location_lat > 500 || location_lng > 500 || priority == -1 || duration == -1) throw NoSuchElementException("Variable not found")
 
         val nameField = findViewById<EditText>(R.id.editTextName)
         val startField = findViewById<EditText>(R.id.editText_taskStart)
