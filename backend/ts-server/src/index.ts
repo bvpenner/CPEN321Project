@@ -18,10 +18,12 @@ const db = connectDB();
 console.log("Connected to MongoDB");
 console.log("GMap_API_key:" + GMap_API_key)
 
-const options = {
-	key: fs.readFileSync(path.join(__dirname, 'key.pem')),
-	cert: fs.readFileSync(path.join(__dirname, 'cert.pem'))
-};
+if (process.env.NODE_ENV !== "test") {
+	const options = {
+		key: fs.readFileSync(path.join(__dirname, 'key.pem')),
+		cert: fs.readFileSync(path.join(__dirname, 'cert.pem'))
+	};
+}
 
 // npx nodemon --exec ts-node src/index.ts
 app.use(express.json());
