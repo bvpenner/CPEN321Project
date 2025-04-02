@@ -4,6 +4,7 @@ import { fetchGeofences } from '../geofenceService';
 
 export const fetchGeofencesControl = async (req: Request<{}, any, RouteRequestBody>, res: Response): Promise<void> => {
     try {
+        console.log("[fetchGeofences]")
         const { origin, destination } = req.body;
         if (!origin || !destination) {
             res.status(400).json({ error: 'Missing origin or destination coordinates.' });

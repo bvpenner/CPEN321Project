@@ -3,6 +3,6 @@ import { fetchGeofencesControl } from '../controllers/geofencesController';
 
 const router = express.Router();
 
-router.get('/fetchGeofences', fetchGeofencesControl);
+router.post('/fetchGeofences', fetchGeofencesControl);
 
 export default router;

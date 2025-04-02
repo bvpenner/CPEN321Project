@@ -84,19 +84,19 @@ export interface RouteTimeRequestBody {
 	userCurrTime: string;
 }
 
+app.use('/', geofencesRoute);
 app.use('/', taskRoutes);
 app.use('/', loginRoute);
-app.use('/', geofencesRoute);
 app.use('/', optimalRouteRoute);
 
-if (process.env.NODE_ENV !== "test") {
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-    });
-}
+// if (process.env.NODE_ENV !== "test") {
+//     app.listen(PORT, () => {
+//         console.log(`Server is running on port ${PORT}`);
+//     });
+// }
 
-https.createServer(options, app).listen(3001, () => {
-	console.log('HTTPS server running on port 3001');
+https.createServer(options, app).listen(3000, () => {
+	console.log('HTTPS server running on port 3000');
 });
 
 

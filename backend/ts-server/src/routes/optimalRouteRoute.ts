@@ -3,6 +3,6 @@ import { fetchOptimalRoute } from '../controllers/optimalRouteController';
 
 const router = express.Router();
 
-router.get('/fetchOptimalRoute', fetchOptimalRoute);
+router.post('/fetchOptimalRoute', fetchOptimalRoute);
 
 export default router;
