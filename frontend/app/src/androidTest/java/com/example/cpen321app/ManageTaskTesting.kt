@@ -199,6 +199,72 @@ class ManageTaskTesting : BaseUITest() {
     }
 
     @Test
+    fun testUpdateTask() {
+
+        login()
+        handleLocationSettingsPrompt()
+        navigateToTaskList()
+        beginAddTask()
+
+        val taskName = getRandomTestTaskName()
+
+        var validParams = TaskInputParams(taskName, "test description", "1", "37.5937917", "-122.3651654", "60")
+        fillTaskForm(validParams)
+        createTask()
+        verifyTaskExists(taskName)
+        createdTestTasks.add(taskName)
+
+
+        openTaskForUpdating(taskName)
+
+        var invalidParams = TaskInputParams("", "test description", "1", "37.5937917", "-122.3651654", "60")
+        attemptToEnterInvalidInput(invalidParams, "Valid name required")
+
+        val newTaskName = getRandomTestTaskName()
+
+        invalidParams = TaskInputParams(newTaskName, "test description", "5", "37.5937917", "-122.3651654", "60")
+        attemptToEnterInvalidInput(invalidParams, "Priority must be 1-3.")
+
+        invalidParams = TaskInputParams(newTaskName, "test description", "1", "-100.0", "-122.3651654", "60")
+        attemptToEnterInvalidInput(invalidParams, "Valid Latitude Required: Between -90 and 90 degrees")
+
+        invalidParams = TaskInputParams(newTaskName, "test description", "1", "37.5937917", "-1110.0", "60")
+        attemptToEnterInvalidInput(invalidParams, "Valid Longitude Required: Between -180 and 180 degrees")
+
+        invalidParams = TaskInputParams(newTaskName, "test description", "1", "37.5937917", "-122.3651654", "-10")
+        attemptToEnterInvalidInput(invalidParams, "Duration must be greater than 0.")
+
+        validParams = TaskInputParams(newTaskName, "test description", "1", "37.5937917", "-122.3651654", "60")
+        fillTaskForm(validParams)
+        createTask()
+
+        waitFor(2000)
+
+        verifyTaskExists(newTaskName)
+        createdTestTasks.add(newTaskName)
+        createdTestTasks.remove(taskName)
+        verifyTaskDeleted(taskName)
+
+        deleteTask(newTaskName)
+        verifyTaskDeleted(newTaskName)
+        createdTestTasks.remove(newTaskName)
+    }
+
+    private fun openTaskForUpdating(taskName: String) {
+        scrollToTask(taskName)
+        longPressOnTask(taskName)
+
+        onView(withId(R.id.update_button)).perform(click())
+    }
+
+    private fun attemptToEnterInvalidInput(inputParams: TaskInputParams, errorMessage: String) {
+        fillTaskForm(inputParams)
+        createTask()
+        onView(withText(errorMessage))
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
     fun testRouteOptimization() {
         login()
         handleLocationSettingsPrompt()
