@@ -400,6 +400,20 @@ abstract class BaseUITest {
             .check(matches(isDisplayed()))
     }
 
+    protected fun scrollToTask(taskName: String) {
+        onView(withId(R.id.recyclerView))
+            .perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
+                hasDescendant(withText(taskName))
+            ))
+    }
+
+    protected fun longPressOnTask(taskName: String) {
+        onView(withId(R.id.recyclerView))
+            .perform(RecyclerViewActions.actionOnItem<RecyclerView.ViewHolder>(
+                hasDescendant(withText(taskName)), longClick()
+            ))
+    }
+
     protected fun deleteTask(taskName: String) {
         try {
             // Espresso approach

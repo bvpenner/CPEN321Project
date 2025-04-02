@@ -13,10 +13,7 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="GeofenceTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="RouteWorkerTest">
+      <SelectionState runConfigName="testUpdateTask()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
