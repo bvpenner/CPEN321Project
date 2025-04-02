@@ -73,8 +73,6 @@ async function parseRoute(jsonData: any, destination: LatLng): Promise<any> {
 	}
 
 	const geofence = await generateGeofence(destinationLatLng);
-	// console.log("geofence.length:" + geofence.length)
-	// return { routes: compactRoutes, polygon: geofence };
 	return { polygon: geofence };
 }
 

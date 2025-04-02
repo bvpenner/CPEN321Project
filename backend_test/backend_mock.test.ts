@@ -8,8 +8,6 @@ import { fetchAllTaskRouteTime } from "../backend/ts-server/src/fetchRouteServic
 import { getTasksById } from "../database/mongodb-ts/userService";
 import fetch from "node-fetch";
 import { Client } from "@googlemaps/google-maps-services-js";
-import fetchMock from 'fetch-mock-jest';
-import type { FetchMockSandbox } from 'fetch-mock';
 
 /////////////////////////////////////////////////
 // With Mock
@@ -40,14 +38,6 @@ jest.mock("../backend/ts-server/src/geofenceService", () => {
         fetchGeofences: jest.fn(),
     };
 });
-
-// jest.mock("node-fetch", () => {
-//     const actualModule = jest.requireActual("node-fetch");
-//     return {
-//         ...actualModule,
-//         fetch: jest.fn(),
-//     };
-// });
 
 jest.mock("../backend/ts-server/src/fetchRouteService", () => {
     const actualModule = jest.requireActual("../backend/ts-server/src/fetchRouteService");

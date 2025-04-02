@@ -30,11 +30,6 @@ async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Pro
     const jsonResponse = await response.json();
     console.log(jsonResponse);
     console.log(jsonResponse.status);
-    /*
-    if(jsonResponse.status != "OK"){
-        throw new Error(jsonResponse.error_message);
-    }
-    */
 
     const timeDistanceMatrix = parseAllTaskRouteTime(jsonResponse);
     // console.log("CompactJson:", jsonResponse);
@@ -49,7 +44,7 @@ function buildURL(allTask: Task[], userLocation: LatLng): any {
 
     //include user location!!
     const allDestinationsParam = `${userLocation.latitude},${userLocation.longitude}|` + destinationsParam;
-    // console.log(allDestinationsParam)
+    
     const originsParam = allTask
         .map(task => `${task.location_lat},${task.location_lng}`)
         .join('|');
@@ -84,8 +79,6 @@ function parseAllTaskRouteTime(jsonData: any): any {
     }
 
     // Print the 2D matrix
-    // console.log("durationsMatrix");
-    // console.log(durationsMatrix);
     return durationsMatrix
 }
 

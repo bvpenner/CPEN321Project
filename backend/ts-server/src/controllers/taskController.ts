@@ -43,7 +43,6 @@ export const getAllTasks =  async (req: Request, res: Response): Promise<void> =
             "task_list": task_list || []
         });
     } catch (error: any) {
-        // console.error(error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -62,7 +61,6 @@ export const deleteTask = async (req: Request<{}, any, {owner_id: string, _id: s
         });
 
     } catch (error: any) {
-        // console.error(error);
         res.status(500).json({ error: error.message });
     }
 };

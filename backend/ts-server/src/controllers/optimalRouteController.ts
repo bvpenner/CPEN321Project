@@ -23,24 +23,17 @@ export const fetchOptimalRoute = async (req: Request<{}, any, RouteTimeRequestBo
 			const task = new Task(new_task._id, timeToMinutes(new_task.start), timeToMinutes(new_task.end), new_task.duration, new_task.location_lat, new_task.location_lng, new_task.priority, new_task.description)
 			allTasks.push(task);
 		}
-		// console.log(allTasks);
+		
 		const graph_matrix = await fetchAllTaskRouteTime(allTasks, userLocation);
 		const result = findOptimalRoute(allTasks, graph_matrix, userCurrTime);
-		// console.log(result)
+	
 		const taskIds: string[] = result[0].map(task_i => {
-			/*
-			//impossible case
-			if (task_i < 0 || task_i > allTasks.length) {
-				console.error(`Invalid index: ${task_i}, allTasks length: ${allTasks.length}`);
-				return null; 
-			}
-			*/
+
 			return allTasks[task_i-1]._id;
 		}).filter(id => id !== null);
 		console.log(`[Optimal Route] found: ${taskIds}`);
 		res.json({"taskIds": taskIds, "time_cost": result[1]});	
 	} catch (error: any) {
-		// console.error(error);
 		res.status(500).json({ error: error.message });
 	}
 };
