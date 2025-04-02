@@ -6,7 +6,9 @@ const config: JestConfigWithTsJest = {
   rootDir: "../",
   collectCoverage: true,
   collectCoverageFrom: [
-    "ts-server/src/**/*.ts",
+    "backend/ts-server/src/**/*.ts",
+    "backend/ts-server/src/controllers/*.ts",
+    "backend/ts-server/src/routes/*.ts",
     "!ts-server/src/**/*.test.ts",
     "!**/node_modules/**",
     "!**/vendor/**", 
