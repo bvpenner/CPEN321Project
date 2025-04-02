@@ -1,10 +1,10 @@
 import request from "supertest";
-import { app, db } from "../ts-server/src/index";
+import { app, db } from "../backend/ts-server/src/index";
 import * as dbService from "../database/mongodb-ts/userService";
 import { isStringObject } from "util/types";
 import { ObjectId } from "mongodb";
-import { fetchGeofences } from "../ts-server/src/geofenceService";
-import { fetchAllTaskRouteTime } from "../ts-server/src/fetchRouteService";
+import { fetchGeofences } from "../backend/ts-server/src/geofenceService";
+import { fetchAllTaskRouteTime } from "../backend/ts-server/src/fetchRouteService";
 import { getTasksById } from "../database/mongodb-ts/userService";
 import fetch from "node-fetch";
 import { Client } from "@googlemaps/google-maps-services-js";
@@ -33,8 +33,8 @@ class MockResponse {
   }
 
   
-jest.mock("../ts-server/src/geofenceService", () => {
-    const actualModule = jest.requireActual("../ts-server/src/geofenceService");
+jest.mock("../backend/ts-server/src/geofenceService", () => {
+    const actualModule = jest.requireActual("../backend/ts-server/src/geofenceService");
     return {
         ...actualModule,
         fetchGeofences: jest.fn(),
@@ -49,8 +49,8 @@ jest.mock("../ts-server/src/geofenceService", () => {
 //     };
 // });
 
-jest.mock("../ts-server/src/fetchRouteService", () => {
-    const actualModule = jest.requireActual("../ts-server/src/fetchRouteService");
+jest.mock("../backend/ts-server/src/fetchRouteService", () => {
+    const actualModule = jest.requireActual("../backend/ts-server/src/fetchRouteService");
     return {
         ...actualModule,
         fetchAllTaskRouteTime: jest.fn(),

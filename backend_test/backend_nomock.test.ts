@@ -1,5 +1,5 @@
 import request from "supertest";
-import { app , db } from "../ts-server/src/index";
+import { app , db } from "../backend/ts-server/src/index";
 import { isStringObject } from "util/types";
 import { ObjectId } from "mongodb";
 

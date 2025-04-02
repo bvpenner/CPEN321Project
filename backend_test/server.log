@@ -333,3 +333,18 @@
 2025-03-07T22:56:19.038Z [Add Task] Received from test_id_mocked: 
 2025-03-07T22:56:19.042Z [Add Task] Received from test_id_mocked: mocked_task_id
 2025-03-07T22:56:19.046Z [Delete Task] Received from test_id_mocked: mocked_task_id
+2025-04-02T00:13:44.307Z Connected to MongoDB
+2025-04-02T00:13:44.341Z [GetAll Task] Received from test_id_mocked}
+2025-04-02T00:13:44.365Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-04-02T00:13:44.375Z [Logged in] User: Mocked User mockeduser@gmail.com test_id_mocked
+2025-04-02T00:13:44.380Z [Add Task] Received from test_id_mocked: 
+2025-04-02T00:13:44.384Z [Add Task] Received from test_id_mocked: mocked_task_id
+2025-04-02T00:13:44.388Z [Delete Task] Received from test_id_mocked: mocked_task_id
+2025-04-02T00:13:44.395Z fetchGeofences result: [object Object]
+2025-04-02T00:13:44.410Z Actual Response Body: {"error":"Google API not responding"}
+2025-04-02T00:13:44.413Z [Add Task] Received from test_id_mocked: 
+2025-04-02T00:13:44.417Z [fetchOptimalRoute] Received: [object Object] | 9:00
+2025-04-02T00:13:44.420Z [Delete Task] Received from test_id_mocked: mocked_task_id
+2025-04-02T00:13:44.423Z [Add Task] Received from test_id_mocked: 
+2025-04-02T00:13:44.426Z [fetchOptimalRoute] Received: [object Object] | 9:00
+2025-04-02T00:13:44.429Z [Delete Task] Received from test_id_mocked: mocked_task_id
