@@ -45,7 +45,16 @@ export const fetchOptimalRoute = async (req: Request<{}, any, RouteTimeRequestBo
 	}
 };
 
-
+/**
+ * Find a viable sequence of tasks that yields the lowest total time cost.
+ *
+ * @param tasksArr - Array of Task objects (NOT including "current location")
+ * @param taskDistanceGraph - Pairwise time distances matrix. The 0th row/col is for "current location"
+ * @param userCurrTime - in 24h fromat
+ * @returns [sequenceOfTasks, totalTimeCost], or [[], -1] if none.
+ *
+ * If multiple sequences have the same time cost, it arbitrarily picks one.
+ */
 function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][], userCurrTime: string): [number[], number] {
 	// tasksArr has length N, we label them 1..N in the distance graph
 	const tasksSet: Set<number> = new Set(
@@ -82,12 +91,9 @@ function findOptimalRoute(tasksArr: Task[], taskDistanceGraph: number[][], userC
 		}
 		findOptimalRouteHelper(tasksArr, taskDistanceGraph, unfinishedTaskSet, [i], timeCounter + timeCost, timeCost, resultTracking);
 	}
-	/*
-	// impossible case
 	if (resultTracking.length === 0) {
 		return [[], -1];
 	}
-	*/
 
 	// find the sequence with the minimal time cost
 	let selectedIndex = 0;
