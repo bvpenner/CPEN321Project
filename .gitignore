@@ -1,3 +1,5 @@
 .env
+*.pem
+*.crt
 coverage/
 backend/ts-server/server.log
