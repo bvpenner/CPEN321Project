@@ -1,17 +1,11 @@
 import express, { Request, Response } from 'express';
-// import fetch from 'node-fetch';
 import { connectDB } from '../../../database/mongodb-ts/database';
-// import * as dbService from "../../../database/mongodb-ts/userService";
-// import { Console } from 'console';
-// import { Client } from "@googlemaps/google-maps-services-js";
-// import { fetchGeofences } from './geofenceService';
-// import { fetchAllTaskRouteTime } from './fetchRouteService';
-
 import taskRoutes from './routes/taskRoutes';
 import loginRoute from './routes/loginRoute';
 import geofencesRoute from './routes/geofencesRoute';
 import optimalRouteRoute from './routes/optimalRouteRoute';
-
+import https from 'https';
+import fs from 'fs';
 
 import dotenv from 'dotenv';
 import path from 'path';
@@ -23,6 +17,11 @@ const GMap_API_key = process.env.GMap_API_key
 const db = connectDB();
 console.log("Connected to MongoDB");
 console.log("GMap_API_key:" + GMap_API_key)
+
+const options = {
+	key: fs.readFileSync(path.join(__dirname, 'key.pem')),
+	cert: fs.readFileSync(path.join(__dirname, 'cert.pem'))
+};
 
 // npx nodemon --exec ts-node src/index.ts
 app.use(express.json());
@@ -96,6 +95,9 @@ if (process.env.NODE_ENV !== "test") {
     });
 }
 
+https.createServer(options, app).listen(3001, () => {
+	console.log('HTTPS server running on port 3001');
+});
 
 
 export {app, db};
