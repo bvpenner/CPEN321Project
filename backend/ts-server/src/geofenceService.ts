@@ -86,7 +86,7 @@ async function parseRoute(jsonData: any, destination: LatLng): Promise<any> {
 
 async function generateGeofence(origin: SimpleLatLng): Promise<LatLng[]> {
     const numPoints = 36; 
-    const radiusKm = 300;
+    const radiusKm = 150;
     const circlePoints: LatLng[] = [];
 
     // Generate circle boundary points
