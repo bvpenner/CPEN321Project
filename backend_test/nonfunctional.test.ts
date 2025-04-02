@@ -1,5 +1,5 @@
 import request from "supertest";
-import { app } from "../ts-server/src/index";
+import { app } from "../backend/ts-server/src/index";
 
 // npx jest nonfunctional.test.ts --coverage --runInBand
 
