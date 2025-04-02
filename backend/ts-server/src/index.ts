@@ -17,9 +17,10 @@ const GMap_API_key = process.env.GMap_API_key
 const db = connectDB();
 console.log("Connected to MongoDB");
 console.log("GMap_API_key:" + GMap_API_key)
+var options;
 
 if (process.env.NODE_ENV !== "test") {
-	const options = {
+	options = {
 		key: fs.readFileSync(path.join(__dirname, 'key.pem')),
 		cert: fs.readFileSync(path.join(__dirname, 'cert.pem'))
 	};
@@ -97,9 +98,10 @@ app.use('/', optimalRouteRoute);
 //     });
 // }
 
-https.createServer(options, app).listen(3000, () => {
-	console.log('HTTPS server running on port 3000');
-});
-
+if (options != undefined) {
+	https.createServer(options, app).listen(3000, () => {
+		console.log('HTTPS server running on port 3000');
+	});
+}
 
 export {app, db};
