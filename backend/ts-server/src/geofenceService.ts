@@ -120,79 +120,9 @@ async function findRoadIntersections(points: LatLng[]): Promise<LatLng[]> {
 	const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 
     for (const point of points) {
-        // const query = `
-        //     [out:json][timeout:10];
-        //     (
-        //       node(around:1000,${point.latitude},${point.longitude});
-        //     )->.all_nodes;
-
-        //     (
-        // 	way(around:500,${point.latitude},${point.longitude}) ["highway"];
-        // 	way(around:500,${point.latitude},${point.longitude}) ["railway"];
-        // 	way(around:500,${point.latitude},${point.longitude}) ["path"];
-        // 	way(around:500,${point.latitude},${point.longitude}) ["cycleway"];
-        // 	)->.all_ways;
-
-        //     node.all_nodes(if:count(ways) > 1);
-        //     out;
-        // `.replace(/\s+/g, " "); 
-
-        // const url = `${OVERPASS_URL}?data=${query}`;
-        // // console.log("Requesting Overpass API:", url);
-
-        // const response = await fetch(url);
-        // const text = await response.text();
-        // // console.log(text)
-        // if (text.startsWith("<")) {
-        //     throw new Error("Overpass API returned HTML instead of JSON (likely rate-limited).");
-        // }
-        
-        // const data = JSON.parse(text);
-        
-        // if (!data.elements) {
-        //     console.log("⚠️ No elements found in response:", data);
-        //     continue;
-        // }
-
-        // console.log(`data.elements.length: ${data.elements.length}`)
-
-        // if (data.elements.length > 0) {
-        //     let nearestIntersection = null;
-        //     let minDistance = Infinity;
-
-        //     for (const node of data.elements) {
-        //         if (!node.lat || !node.lon){
-        // 			console.log('Skip invalid nodes')
-        // 			continue;
-        // 		}  // Skip invalid nodes
-
-        //         const distance = Math.hypot(
-        //             point.latitude - node.lat,
-        //             point.longitude - node.lon
-        //         );
-
-        //         if (distance < minDistance) {
-        //             minDistance = distance;
-        //             nearestIntersection = { latitude: node.lat, longitude: node.lon };
-        //         }
-        //     }
-
-        //     if (nearestIntersection) {
-        // 		console.log("[Add intersection]" + nearestIntersection.latitude +" "+ nearestIntersection.longitude)
-        //         intersections.push(nearestIntersection);
-        //     } else {
-        // 		nearestIntersection = { latitude: point.latitude, longitude: point.longitude };
-        // 		intersections.push(nearestIntersection);
-        //         console.log("🚨 No valid intersection found for:", point);
-        //     }
-        // } else {
-        // 	var nearestIntersection = { latitude: point.latitude, longitude: point.longitude };
-        // 	intersections.push(nearestIntersection);
-        //     console.log("❌ No nearby intersections found for:", point);
-        // }
         var nearestIntersection = { latitude: point.latitude, longitude: point.longitude };
         intersections.push(nearestIntersection);
-        console.log("❌ No nearby intersections found for:", point);
+        console.log("Nearby intersections found for:", point);
     }
 	console.log(`fetch finishes: ${intersections.length}`)
 	console.log(intersections)
