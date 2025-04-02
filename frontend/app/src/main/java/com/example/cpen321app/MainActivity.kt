@@ -1,43 +1,30 @@
 package com.example.cpen321app
 
-import FirebaseMessagingService
-import android.app.Application
-import com.example.cpen321app.TaskListFragment
 import android.Manifest
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.app.ActivityCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.content.ContextCompat
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
-import androidx.lifecycle.lifecycleScope
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -46,7 +33,6 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,24 +40,100 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 import java.security.MessageDigest
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-import com.example.cpen321app.SessionManager
 import com.example.cpen321app.TaskViewModel.Companion._taskList
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import java.io.InputStream
+import java.security.KeyStore
+import java.security.cert.CertificateFactory
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.X509TrustManager
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
         private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 101
+
+        fun getOkHttpClientWithCustomCert(context: MainActivity): OkHttpClient {
+            val certificateInput: InputStream = context.resources.openRawResource(R.raw.cert)
+
+            val keyStore = KeyStore.getInstance(KeyStore.getDefaultType()).apply {
+                load(null, null)
+                setCertificateEntry("my_cert", java.security.cert.CertificateFactory.getInstance("X.509").generateCertificate(certificateInput))
+            }
+
+            val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).apply {
+                init(keyStore)
+            }
+
+            val sslContext = SSLContext.getInstance("TLS").apply {
+                init(null, trustManagerFactory.trustManagers, null)
+            }
+
+            certificateInput.close()
+
+            return OkHttpClient.Builder()
+                .sslSocketFactory(sslContext.socketFactory, trustManagerFactory.trustManagers[0] as javax.net.ssl.X509TrustManager)
+                .hostnameVerifier { _, _ -> true }
+                .build()
+        }
+
+//        fun getOkHttpClientWithCustomCert(context: MapsFragment): OkHttpClient {
+//            val certificateInput: InputStream = context.resources.openRawResource(R.raw.cert)
+//
+//            val keyStore = KeyStore.getInstance(KeyStore.getDefaultType()).apply {
+//                load(null, null)
+//                setCertificateEntry("my_cert", java.security.cert.CertificateFactory.getInstance("X.509").generateCertificate(certificateInput))
+//            }
+//
+//            val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).apply {
+//                init(keyStore)
+//            }
+//
+//            val sslContext = SSLContext.getInstance("TLS").apply {
+//                init(null, trustManagerFactory.trustManagers, null)
+//            }
+//
+//            certificateInput.close()
+//
+//            return OkHttpClient.Builder()
+//                .sslSocketFactory(sslContext.socketFactory, trustManagerFactory.trustManagers[0] as javax.net.ssl.X509TrustManager)
+//                .hostnameVerifier { _, _ -> true }
+//                .build()
+//        }
+
+        fun getOkHttpClientWithCustomCert(context: Context): OkHttpClient {
+            val certificateInput: InputStream = context.resources.openRawResource(R.raw.cert)
+
+            val keyStore = KeyStore.getInstance(KeyStore.getDefaultType()).apply {
+                load(null, null)
+                setCertificateEntry(
+                    "my_cert",
+                    CertificateFactory.getInstance("X.509").generateCertificate(certificateInput)
+                )
+            }
+
+            val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).apply {
+                init(keyStore)
+            }
+
+            val sslContext = SSLContext.getInstance("TLS").apply {
+                init(null, trustManagerFactory.trustManagers, null)
+            }
+
+            certificateInput.close()
+
+            return OkHttpClient.Builder()
+                .sslSocketFactory(sslContext.socketFactory, trustManagerFactory.trustManagers[0] as X509TrustManager)
+                .hostnameVerifier { _, _ -> true }
+                .build()
+        }
     }
     var fragmentContainerId: Int = 0
     var bottomNavId: Int = 1
@@ -83,6 +145,9 @@ class MainActivity : AppCompatActivity() {
     private var server_ip = "13.216.143.65:3000"
 
     private lateinit var securePreferences: SecurePreferences
+
+    //HTTPS setup
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -373,8 +438,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun sendLoginRequestToServer(u_id: String, name: String, email: String) {
-        val client = OkHttpClient()
-        val url = "http://${server_ip}/login"
+        // val client = OkHttpClient()
+        val client by lazy { getOkHttpClientWithCustomCert(this) }
+        val url = "https://${server_ip}/login"
 
         // Build JSON body
         val jsonBody = JSONObject().apply {
@@ -464,8 +530,9 @@ class MainActivity : AppCompatActivity() {
 //    }
 
     private fun sendGetAllTasksToServer(u_id: String) {
-        val client = OkHttpClient()
-        val url = "http://${server_ip}/getAllTasks?u_id=${u_id}"
+        // val client = OkHttpClient()
+        val client by lazy { getOkHttpClientWithCustomCert(this) }
+        val url = "https://${server_ip}/getAllTasks?u_id=${u_id}"
 
         val request = Request.Builder()
             .url(url)

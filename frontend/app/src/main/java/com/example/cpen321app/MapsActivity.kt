@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import com.example.cpen321app.BuildConfig.MAPS_API_KEY
+import com.example.cpen321app.MainActivity.Companion.getOkHttpClientWithCustomCert
 import com.example.cpen321app.TaskAdapter.Companion._geofenceStateMap
 import com.example.cpen321app.TaskViewModel.Companion._taskList
 import com.example.cpen321app.TaskViewModel.Companion.server_ip
@@ -269,8 +270,9 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
         taskname: String,
         onComplete: () -> Unit
     ) {
-        val client = OkHttpClient()
-        val url = "http://${server_ip}/fetchGeofences" // Replace with your server URL
+        // val client = OkHttpClient()
+        val client = getOkHttpClientWithCustomCert(requireContext())
+        val url = "https://${server_ip}/fetchGeofences" // Replace with your server URL
         Log.d(TAG, "sendFetchGeofencesRequest")
         val jsonBody = JSONObject().apply {
             put("origin", JSONObject().apply {
