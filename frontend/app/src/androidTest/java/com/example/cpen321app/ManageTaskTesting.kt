@@ -355,7 +355,6 @@ class ManageTaskTesting : BaseUITest() {
         } else {
             println("WARNING: No active notifications found")
         }
-
         println("Route optimization test completed")
     }
 
