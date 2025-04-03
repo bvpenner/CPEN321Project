@@ -221,7 +221,6 @@ class ManageTaskTesting : BaseUITest() {
         verifyTaskExists(taskName)
         createdTestTasks.add(taskName)
 
-
         openTaskForUpdating(taskName)
 
         var invalidParams = TaskInputParams("", "test description", "1", "37.5937917", "-122.3651654", "60")
