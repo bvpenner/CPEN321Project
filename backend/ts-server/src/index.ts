@@ -92,12 +92,6 @@ app.use('/', taskRoutes);
 app.use('/', loginRoute);
 app.use('/', optimalRouteRoute);
 
-// if (process.env.NODE_ENV !== "test") {
-//     app.listen(PORT, () => {
-//         console.log(`Server is running on port ${PORT}`);
-//     });
-// }
-
 if (options != undefined) {
 	https.createServer(options, app).listen(3000, () => {
 		console.log('HTTPS server running on port 3000');
