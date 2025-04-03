@@ -56,6 +56,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
             it.remove(task)
             _taskList.postValue(it)
         }
+        
         _taskList.notifyObservers()
 
         Log.d(TAG, "Current tasks: ${_taskList.value?.map { it.name }}")
@@ -63,10 +64,15 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         IdlingResourceManager.countingIdlingResource.decrement()
     }
 
-    fun updateTask(task: Task) {
+    fun updateTask(oldTask: Task, newTask: Task) {
         IdlingResourceManager.countingIdlingResource.increment()
-        sendUpdateTaskRequest(task)
-        refreshTasklist()
+        _taskList.value?.let {
+            it.remove(oldTask)
+            _taskList.postValue(it)
+        }
+        _taskList.value?.add(newTask)
+        sendUpdateTaskRequest(newTask)
+        _taskList.notifyObservers()
         IdlingResourceManager.countingIdlingResource.decrement()
     }
 

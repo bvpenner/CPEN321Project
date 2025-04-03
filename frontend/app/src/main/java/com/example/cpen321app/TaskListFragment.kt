@@ -129,6 +129,8 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
             updateTaskIntent.putExtra("description", task.description)
             updateTaskIntent.putExtra("geofence", task.isGeofenceEnabled)
 
+            popupWindow.dismiss()
+
             startActivity(updateTaskIntent)
 
 //            Toast.makeText(requireContext(), "Update action", Toast.LENGTH_SHORT).show()

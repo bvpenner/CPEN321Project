@@ -1,0 +1,45 @@
+com.example.cpen321app.test.app-viewpager2-1.1.0-beta02-0 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\047ced58e633213fdab8e367f4275ef3\transformed\viewpager2-1.1.0-beta02\res
+com.example.cpen321app.test.app-transition-1.5.0-1 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\0caae6b81c2979380248f915e5f12d18\transformed\transition-1.5.0\res
+com.example.cpen321app.test.app-uiautomator-2.3.0-2 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\11348b29dc260f00efe6a557fdc1a3f0\transformed\uiautomator-2.3.0\res
+com.example.cpen321app.test.app-startup-runtime-1.1.1-3 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\142b8f66c09014dc32a6071db3c9e6c3\transformed\startup-runtime-1.1.1\res
+com.example.cpen321app.test.app-core-ktx-1.15.0-4 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\14d3b5f0854266a9807c9eff2b336964\transformed\core-ktx-1.15.0\res
+com.example.cpen321app.test.app-drawerlayout-1.1.1-5 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\1735cbef495220020b02346c7d6e4e79\transformed\drawerlayout-1.1.1\res
+com.example.cpen321app.test.app-lifecycle-service-2.8.7-6 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\17e272a5ca5aebefef87946ebd27b2ff\transformed\lifecycle-service-2.8.7\res
+com.example.cpen321app.test.app-core-1.15.0-7 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\1fed240cfc11c60aff2148287a11a576\transformed\core-1.15.0\res
+com.example.cpen321app.test.app-appcompat-resources-1.7.0-8 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\30dac3fb412812081978a3477b692e35\transformed\appcompat-resources-1.7.0\res
+com.example.cpen321app.test.app-lifecycle-viewmodel-savedstate-2.8.7-9 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\3bd94e87fb3041d58a11b6f430b4d2fd\transformed\lifecycle-viewmodel-savedstate-2.8.7\res
+com.example.cpen321app.test.app-room-runtime-2.6.1-10 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\41a234c41e5f4bf838dc276ebf763154\transformed\room-runtime-2.6.1\res
+com.example.cpen321app.test.app-constraintlayout-2.2.0-11 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\4c63a87f0060e601750c0c1cffff2172\transformed\constraintlayout-2.2.0\res
+com.example.cpen321app.test.app-work-runtime-2.10.0-12 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\5100ff7f271a1c49f0fb3d30750f84c5\transformed\work-runtime-2.10.0\res
+com.example.cpen321app.test.app-sqlite-2.4.0-13 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\559810045313bda499abfb99eb515ad5\transformed\sqlite-2.4.0\res
+com.example.cpen321app.test.app-lifecycle-livedata-core-ktx-2.8.7-14 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\55ebbf1e53be651cf02bcb3f4d1f4294\transformed\lifecycle-livedata-core-ktx-2.8.7\res
+com.example.cpen321app.test.app-room-ktx-2.6.1-15 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\6e2a6aee20ab6e1329fecc6f547ec758\transformed\room-ktx-2.6.1\res
+com.example.cpen321app.test.app-fragment-1.7.0-16 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\6eb693d00b48a68d029bebdc4898a096\transformed\fragment-1.7.0\res
+com.example.cpen321app.test.app-emoji2-views-helper-1.3.0-17 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\73b09d9cfbb62948608bd192a4a32e2c\transformed\emoji2-views-helper-1.3.0\res
+com.example.cpen321app.test.app-coordinatorlayout-1.1.0-18 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\74c108c790fab66cc0ae391bb8609e41\transformed\coordinatorlayout-1.1.0\res
+com.example.cpen321app.test.app-activity-1.10.0-19 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\769cea60c10c6e1fc89460372e2cf3aa\transformed\activity-1.10.0\res
+com.example.cpen321app.test.app-recyclerview-1.3.2-20 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\77e2a7ac29000f4e0bd069b729287402\transformed\recyclerview-1.3.2\res
+com.example.cpen321app.test.app-appcompat-1.7.0-21 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\78d8f59cb706c6f0fd4445c6f4902e0a\transformed\appcompat-1.7.0\res
+com.example.cpen321app.test.app-annotation-experimental-1.4.1-22 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\794cb1f5733681c7e45469d0becc4f4d\transformed\annotation-experimental-1.4.1\res
+com.example.cpen321app.test.app-lifecycle-viewmodel-release-23 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\83d1f088ea838b90a779544d0e9201b2\transformed\lifecycle-viewmodel-release\res
+com.example.cpen321app.test.app-lifecycle-livedata-core-2.8.7-24 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\8b1cb2968c8aab0e26e1b9737397b93a\transformed\lifecycle-livedata-core-2.8.7\res
+com.example.cpen321app.test.app-lifecycle-process-2.8.7-25 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\8d04a5aa377b7d12c81c9995c68d59c2\transformed\lifecycle-process-2.8.7\res
+com.example.cpen321app.test.app-espresso-contrib-3.5.0-26 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\97f54ec2d2ba35326b732af359e7afcc\transformed\espresso-contrib-3.5.0\res
+com.example.cpen321app.test.app-material-1.12.0-27 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\9b056440d454e2aeb70cef3034d7172d\transformed\material-1.12.0\res
+com.example.cpen321app.test.app-lifecycle-runtime-release-28 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\9c31292dc77779bf5f8f80f8aa0fcc94\transformed\lifecycle-runtime-release\res
+com.example.cpen321app.test.app-profileinstaller-1.4.0-29 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\a0168168a6866d13a03628f07410fd24\transformed\profileinstaller-1.4.0\res
+com.example.cpen321app.test.app-core-runtime-2.2.0-30 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\a801c83bb99c7ac3954a6e36b51b6662\transformed\core-runtime-2.2.0\res
+com.example.cpen321app.test.app-sqlite-framework-2.4.0-31 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\b3dd3bbb27951f82f09e3db72a1d17a7\transformed\sqlite-framework-2.4.0\res
+com.example.cpen321app.test.app-emoji2-1.3.0-32 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\b7178c9c115e51631bc7267521512adc\transformed\emoji2-1.3.0\res
+com.example.cpen321app.test.app-customview-poolingcontainer-1.0.0-33 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\bb57e2cd39070573716c7d9d3d491d07\transformed\customview-poolingcontainer-1.0.0\res
+com.example.cpen321app.test.app-core-1.5.0-34 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\c6956d3d7974bd4a5c30aea8c34fd5e2\transformed\core-1.5.0\res
+com.example.cpen321app.test.app-tracing-1.2.0-35 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\c7d824bfc8afee3ccfcb47eb58b03af2\transformed\tracing-1.2.0\res
+com.example.cpen321app.test.app-tracing-ktx-1.2.0-36 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\d217fed08a0d01d55ffa71a4d5cddbf6\transformed\tracing-ktx-1.2.0\res
+com.example.cpen321app.test.app-savedstate-1.2.1-37 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\e62a1cd1d2ae320c14861978789f64d9\transformed\savedstate-1.2.1\res
+com.example.cpen321app.test.app-cardview-1.0.0-38 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\e6a99611fe6cdb701a0db49483a41364\transformed\cardview-1.0.0\res
+com.example.cpen321app.test.app-work-testing-2.10.0-39 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\ee686fdc8cbb3f1df452d57aee7f7ee5\transformed\work-testing-2.10.0\res
+com.example.cpen321app.test.app-lifecycle-livedata-2.8.7-40 C:\Users\Misty Shadows\.gradle\caches\8.10.2\transforms\ff5ae8336b65610654c23adb2b370c05\transformed\lifecycle-livedata-2.8.7\res
+com.example.cpen321app.test.app-androidTest-41 D:\CPEN321\CPEN321Project\frontend\app\app\build\generated\res\resValues\androidTest\debug
+com.example.cpen321app.test.app-mergeDebugAndroidTestResources-42 D:\CPEN321\CPEN321Project\frontend\app\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
+com.example.cpen321app.test.app-mergeDebugAndroidTestResources-43 D:\CPEN321\CPEN321Project\frontend\app\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
+com.example.cpen321app.test.app-debugAndroidTest-44 D:\CPEN321\CPEN321Project\frontend\app\app\build\intermediates\merged_res\debugAndroidTest\mergeDebugAndroidTestResources

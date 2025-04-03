@@ -1,0 +1,38 @@
+[
+    {
+        "merged": "com.example.cpen321app-mergeDebugResources-62:/layout/fragment_maps.xml",
+        "source": "com.example.cpen321app-main-65:/layout/fragment_maps.xml"
+    },
+    {
+        "merged": "com.example.cpen321app-mergeDebugResources-62:/layout/fragment_task_list.xml",
+        "source": "com.example.cpen321app-main-65:/layout/fragment_task_list.xml"
+    },
+    {
+        "merged": "com.example.cpen321app-mergeDebugResources-62:/layout/fragment_map_view.xml",
+        "source": "com.example.cpen321app-main-65:/layout/fragment_map_view.xml"
+    },
+    {
+        "merged": "com.example.cpen321app-mergeDebugResources-62:/layout/activity_main.xml",
+        "source": "com.example.cpen321app-main-65:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.example.cpen321app-mergeDebugResources-62:/layout/popup_menu.xml",
+        "source": "com.example.cpen321app-main-65:/layout/popup_menu.xml"
+    },
+    {
+        "merged": "com.example.cpen321app-mergeDebugResources-62:/layout/activity_location_search.xml",
+        "source": "com.example.cpen321app-main-65:/layout/activity_location_search.xml"
+    },
+    {
+        "merged": "com.example.cpen321app-mergeDebugResources-62:/layout/activity_add_task.xml",
+        "source": "com.example.cpen321app-main-65:/layout/activity_add_task.xml"
+    },
+    {
+        "merged": "com.example.cpen321app-mergeDebugResources-62:/layout/item_task.xml",
+        "source": "com.example.cpen321app-main-65:/layout/item_task.xml"
+    },
+    {
+        "merged": "com.example.cpen321app-mergeDebugResources-62:/layout/diaglog_buttons.xml",
+        "source": "com.example.cpen321app-main-65:/layout/diaglog_buttons.xml"
+    }
+]

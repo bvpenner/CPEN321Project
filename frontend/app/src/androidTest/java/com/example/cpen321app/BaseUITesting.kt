@@ -262,6 +262,53 @@ abstract class BaseUITest {
         onView(isRoot()).perform(closeSoftKeyboard())
     }
 
+    protected fun refillTaskForm(params: TaskInputParams) {
+        // Fill in the basic text fields (these should be visible without scrolling)
+        onView(withId(R.id.editTextName)).perform(replaceText(params.name), closeSoftKeyboard())
+        onView(withId(R.id.editText_description))
+            .perform(replaceText(params.description), closeSoftKeyboard())
+
+        // Handle time pickers
+        onView(withId(R.id.editText_taskStart)).perform(scrollTo(), click())
+        val okButton1 = device.findObject(UiSelector().text("OK"))
+        if (okButton1.exists()) {
+            okButton1.click()
+        } else {
+            fail("Time picker did not display OK button for start time")
+        }
+
+        onView(withId(R.id.editText_taskEnd)).perform(scrollTo(), click())
+        val okButton2 = device.findObject(UiSelector().text("OK"))
+        if (okButton2.exists()) {
+            okButton2.click()
+        } else {
+            fail("Time picker did not display OK button for end time")
+        }
+
+        // Set duration
+        if (params.duration.isNotEmpty()) {
+            onView(withId(R.id.editText_duration)).perform(scrollTo(), replaceText(params.duration), closeSoftKeyboard())
+        }
+
+        // Handle location if provided
+        if (params.latitude.isNotEmpty() && params.longitude.isNotEmpty()) {
+            onView(withId(R.id.editText_taskLat)).perform(scrollTo(), replaceText(params.latitude), closeSoftKeyboard())
+            onView(withId(R.id.editText_taskLng)).perform(scrollTo(), replaceText(params.longitude), closeSoftKeyboard())
+        } else {
+            onView(withId(R.id.button_pick_location)).perform(scrollTo(), click())
+            selectLocationFromMap()
+        }
+
+        // Set priority
+        onView(withId(R.id.editText_taskPrio)).perform(scrollTo(), replaceText(params.priority), closeSoftKeyboard())
+
+        // Ensure Create Task button is visible
+        onView(withId(R.id.button_taskCreate)).perform(scrollTo())
+
+        // Close keyboard to ensure all UI elements are visible
+        onView(isRoot()).perform(closeSoftKeyboard())
+    }
+
     protected fun selectLocationFromMap() {
         // Search for location
         val searchTexts = listOf("Search a place", "Search", "Search here", "Enter location")
@@ -367,7 +414,7 @@ abstract class BaseUITest {
         createTask()
 
         // Wait for task list to update
-        onView(isRoot()).perform(waitForView(R.id.recyclerView, 3000))
+        onView(isRoot()).perform(waitForView(R.id.taskRecyclerView, 3000))
     }
 
     protected fun addTaskWithCoordinates(task: LimitedTask) {
@@ -386,12 +433,12 @@ abstract class BaseUITest {
         createTask()
 
         // Wait for task list to update
-        onView(isRoot()).perform(waitForView(R.id.recyclerView, 3000))
+        onView(isRoot()).perform(waitForView(R.id.taskRecyclerView, 3000))
     }
 
     protected fun verifyTaskExists(taskName: String) {
         // Scroll until the RecyclerView item containing the expected task text is visible.
-        onView(withId(R.id.recyclerView))
+        onView(withId(R.id.taskRecyclerView))
             .perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
                 hasDescendant(withText(taskName))
             ))
@@ -401,14 +448,14 @@ abstract class BaseUITest {
     }
 
     protected fun scrollToTask(taskName: String) {
-        onView(withId(R.id.recyclerView))
+        onView(withId(R.id.taskRecyclerView))
             .perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
                 hasDescendant(withText(taskName))
             ))
     }
 
     protected fun longPressOnTask(taskName: String) {
-        onView(withId(R.id.recyclerView))
+        onView(withId(R.id.taskRecyclerView))
             .perform(RecyclerViewActions.actionOnItem<RecyclerView.ViewHolder>(
                 hasDescendant(withText(taskName)), longClick()
             ))
@@ -417,7 +464,7 @@ abstract class BaseUITest {
     protected fun deleteTask(taskName: String) {
         try {
             // Espresso approach
-            onView(withId(R.id.recyclerView)).perform(
+            onView(withId(R.id.taskRecyclerView)).perform(
                 RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
                     hasDescendant(withText(taskName))
                 )
@@ -445,7 +492,7 @@ abstract class BaseUITest {
 
     protected fun verifyTaskDeleted(taskName: String) {
         try {
-            onView(withId(R.id.recyclerView)).perform(
+            onView(withId(R.id.taskRecyclerView)).perform(
                 RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
                     hasDescendant(withText(taskName))
                 )

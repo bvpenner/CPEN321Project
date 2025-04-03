@@ -2,6 +2,7 @@ package com.example.cpen321app
 
 import android.app.NotificationManager
 import android.content.Context
+import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
@@ -10,6 +11,7 @@ import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -38,6 +40,10 @@ import org.junit.runner.Description as JUnitDescription
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class ManageTaskTesting : BaseUITest() {
+
+    companion object {
+        val TAG = "MANAGETASKTESTING"
+    }
 
     private val idlingResource = TaskViewModel.IdlingResourceManager.countingIdlingResource
 
@@ -211,6 +217,7 @@ class ManageTaskTesting : BaseUITest() {
         var validParams = TaskInputParams(taskName, "test description", "1", "37.5937917", "-122.3651654", "60")
         fillTaskForm(validParams)
         createTask()
+        onView(isRoot()).perform(waitFor(3000))
         verifyTaskExists(taskName)
         createdTestTasks.add(taskName)
 
@@ -235,10 +242,11 @@ class ManageTaskTesting : BaseUITest() {
         attemptToEnterInvalidInput(invalidParams, "Duration must be greater than 0.")
 
         validParams = TaskInputParams(newTaskName, "test description", "1", "37.5937917", "-122.3651654", "60")
-        fillTaskForm(validParams)
+        refillTaskForm(validParams)
         createTask()
 
-        waitFor(2000)
+        navigateToTaskList()
+        onView(isRoot()).perform(waitFor(2000))
 
         verifyTaskExists(newTaskName)
         createdTestTasks.add(newTaskName)
@@ -246,6 +254,8 @@ class ManageTaskTesting : BaseUITest() {
         verifyTaskDeleted(taskName)
 
         deleteTask(newTaskName)
+        navigateToTaskList()
+        onView(isRoot()).perform(waitFor(2000))
         verifyTaskDeleted(newTaskName)
         createdTestTasks.remove(newTaskName)
     }
@@ -258,10 +268,12 @@ class ManageTaskTesting : BaseUITest() {
     }
 
     private fun attemptToEnterInvalidInput(inputParams: TaskInputParams, errorMessage: String) {
-        fillTaskForm(inputParams)
+        refillTaskForm(inputParams)
         createTask()
+        onView(isRoot()).perform(waitFor(800))
         onView(withText(errorMessage))
             .check(matches(isDisplayed()))
+        Log.d(TAG, "Error Seen: $errorMessage")
     }
 
     @Test

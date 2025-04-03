@@ -39,8 +39,9 @@ class AddTask : AppCompatActivity() {
 
         val id = intent.getStringExtra("id")
 
+        var oldTask: Task? = null
         if(id != null) {
-            initializeForUpdateTask()
+            oldTask = initializeForUpdateTask()
         }
 
         taskViewModel = (application as GeoTask).taskViewModel
@@ -67,10 +68,10 @@ class AddTask : AppCompatActivity() {
         editTextEnd.setOnClickListener { showTimePickerDialog(editTextEnd) }
 
         // Create task on button press.
-        createTaskOnClickListenerSetup(id, editTextStart, editTextEnd)
+        createTaskOnClickListenerSetup(id, editTextStart, editTextEnd, oldTask)
     }
 
-    private fun createTaskOnClickListenerSetup(id: String?, editTextStart: EditText, editTextEnd: EditText) {
+    private fun createTaskOnClickListenerSetup(id: String?, editTextStart: EditText, editTextEnd: EditText, oldTask: Task?) {
         findViewById<Button>(R.id.button_taskCreate).setOnClickListener {
             var idToSend = "Placeholder"
             if (updateTaskMode) idToSend = id!!
@@ -113,7 +114,7 @@ class AddTask : AppCompatActivity() {
                     isGeofenceEnabled = false
                 )
                 if (updateTaskMode) {
-                    taskViewModel.updateTask(newTask)
+                    taskViewModel.updateTask(oldTask!!, newTask)
                 } else {
                     taskViewModel.addTask(newTask)
                 }
@@ -124,7 +125,7 @@ class AddTask : AppCompatActivity() {
         }
     }
 
-    private fun initializeForUpdateTask() {
+    private fun initializeForUpdateTask(): Task {
 
         updateTaskMode = true
 
@@ -142,6 +143,8 @@ class AddTask : AppCompatActivity() {
 
         if(location_lat > 500 || location_lng > 500) throw NoSuchElementException("Variable not found")
         if(priority == -1 || duration == -1) throw NoSuchElementException("Variable not found")
+
+        val oldTask = Task(id, name, start, end, duration, location_lat, location_lng, priority, description, isGeofenceEnabled)
 
         val nameField = findViewById<EditText>(R.id.editTextName)
         val startField = findViewById<EditText>(R.id.editText_taskStart)
@@ -164,6 +167,8 @@ class AddTask : AppCompatActivity() {
         // Change create task button text
         val createTaskButton = findViewById<MaterialButton>(R.id.button_taskCreate)
         createTaskButton.setText("Update Task")
+
+        return oldTask
     }
 
     private fun locationPickerLauncher() {

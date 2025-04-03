@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="colorAccent">#00BCD4</color>
+    <color name="colorBackground">#FAFAFA</color>
+    <color name="colorError">#D32F2F</color>
+    <color name="colorHighPriority">#E53935</color>
+    <color name="colorLowPriority">#66BB6A</color>
+    <color name="colorMediumPriority">#FFA726</color>
+    <color name="colorOnError">#FFFFFF</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorPrimary">#2B9AD0</color>
+    <color name="colorPrimaryDark">#1976D2</color>
+    <color name="colorSurface">#F5F5F5</color>
+    <color name="disabledGray">#BDBDBD</color>
+    <color name="dividerGray">#E0E0E0</color>
+    <color name="normalBackground">#FFFFFF</color>
+    <color name="pressedBackground">#E0F7FA</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">GeoTask</string>
+    <string name="fab_add_task_desc">Add Task</string>
+    <string name="gcm_defaultSenderId" translatable="false">931769759944</string>
+    <string name="google_api_key" translatable="false">AIzaSyDQkbLMNQC-9tVxjnaOmXjL1nLWJIDdNt0</string>
+    <string name="google_app_id" translatable="false">1:931769759944:android:f339d00e7e4b867dcdcdfd</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyDQkbLMNQC-9tVxjnaOmXjL1nLWJIDdNt0</string>
+    <string name="google_storage_bucket" translatable="false">cpen321project-824b7.firebasestorage.app</string>
+    <string name="map_fragment_label">Task Map View</string>
+    <string name="plan_route">Plan Route</string>
+    <string name="project_id" translatable="false">cpen321project-824b7</string>
+    <string name="task_list_content_description">List of tasks to complete</string>
+    <style name="Base.Theme.Cpen321app" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        
+        <item name="materialButtonStyle">@style/Widget.Material3.Button</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+    </style>
+    <style name="Theme.Cpen321app" parent="Base.Theme.Cpen321app"/>
+</resources>

@@ -77,14 +77,14 @@ class RoundTripTimeTesting : BaseUITest() {
 //
 //        } while(!isTextInRecyclerView(taskName))
 
-        onView(withId(R.id.recyclerView)).perform(scrollTo<ViewHolder>(hasDescendant(withText(taskName))))
+        onView(withId(R.id.taskRecyclerView)).perform(scrollTo<ViewHolder>(hasDescendant(withText(taskName))))
         onView(isRoot()).perform(waitFor(5000))
         clickCheckBoxWithText(taskName)
         onView(isRoot()).perform(waitFor(5000))
 
         Log.d(TAG, "Passes checking first box")
 
-        onView(withId(R.id.recyclerView)).perform(scrollTo<ViewHolder>(hasDescendant(withText(taskNameTwo))))
+        onView(withId(R.id.taskRecyclerView)).perform(scrollTo<ViewHolder>(hasDescendant(withText(taskNameTwo))))
         onView(isRoot()).perform(waitFor(5000))
         clickCheckBoxWithText(taskNameTwo)
         onView(isRoot()).perform(waitFor(5000))
@@ -164,7 +164,7 @@ class RoundTripTimeTesting : BaseUITest() {
     // ChatGPT generated
     private fun isTextInRecyclerView(text: String): Boolean {
         return try {
-            onView(withId(R.id.recyclerView))
+            onView(withId(R.id.taskRecyclerView))
                 .check(matches(hasDescendant(withText(text))))
             true
         } catch (e: RuntimeException) {
