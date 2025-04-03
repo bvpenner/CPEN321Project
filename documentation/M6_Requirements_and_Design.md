@@ -123,10 +123,8 @@ Managing daily tasks efficiently can be challenging, especially when dealing wit
 
 
 ### **3.4. Non-Functional Requirements**
-1. **Scalability:** The system must support at least 1,000 concurrent requests while maintaining a response time of under 200 milliseconds as industrial standard recommended by Google. It also creates a perception of immediacy, which is crucial for time-sensitive/task-management apps. This is critical to ensure smooth performance as the number of users grows, preventing slowdowns and crashes under high load.
-2. **Real-Time Location Processing:** The application must process location updates in the background with minimal battery consumption. This is essential to provide accurate and timely notifications to users while ensuring the app does not drain device resources excessively.
-3. **Notification Accuracy:** The system must deliver push notifications to users within 2 seconds of detecting task deadlines or proximity triggers. This ensures timely alerts, which are critical for user engagement and task management efficiency.
-4. **Location Accuracy:** The app must use location data with an accuracy of at least 10 meters to ensure proximity-based notifications and route planning are reliable and useful for the user.
+1. **Scalability**: The system must support at least 100 concurrent requests while maintaining a response time of under 200 milliseconds as the industrial standard recommended by Google. According to Google’s RAIL performance model, a response time under 100–200 ms creates a perception of immediate interaction. 
+2. **Real-Time Location Processing**: As stated in this article here, the response time of Mobile push: on average, 20 seconds after unlocking the phone. But as we are developing an app for task alert, a time-sensitive applications, it's crucial to ensure that push notifications are delivered within 2 seconds of detecting task deadlines or proximity triggers to maintain accuracy and user trust. 
 
 ## 4. Designs Specification
 
@@ -167,10 +165,8 @@ Find Least Travel Time Route:
 Task Geofencing:
 ![Task Geofencing](./images/task-geofencing-sequence.png)
 ### **4.7. Non-Functional Requirements Design**
-1. **Scalability**: The system will be deployed on a cloud-based infrastructure with efficient logic and auto-scaling mechanisms to handle up to 1,000 concurrent requests. Efficient database indexing and caching techniques will be implemented to maintain response times of under 200 milliseconds as the industrial standard recommended by Google.
-2. **Real-Time Location Processing**: The application will use optimized background location tracking with adaptive update intervals, leveraging Google Map API on Android.
-3. **Notification Accuracy**: A real-time event-driven architecture with WebSockets will be used to ensure push notifications are delivered within 2 seconds accounting for WebSocket RTT and firebase delay. Task deadlines and proximity triggers will be preprocessed to reduce computation overhead during runtime.
-4. **Location Accuracy**: The app will integrate GPS, Wi-Fi, and cellular network data to achieve at least 10-meter accuracy.
+1. **Scalability**: The system must support at least 100 concurrent requests while maintaining a response time of under 200 milliseconds as the industrial standard recommended by Google. According to Google’s RAIL performance model (https://web.dev/articles/rail), a response time under 100–200 ms creates a perception of immediate interaction. 
+2. **Real-Time Location Processing**: As stated in this article (https://tracker.my.com/blog/a-detailed-guide-to-mobile-push-notifications?lang=en&utm_source=chatgpt.com), the response time of Mobile push: on average, 20 seconds after unlocking the phone. But as we are developing an app for task alert, a time-sensitive applications, it's crucial to ensure that push notifications are delivered within 2 seconds of detecting task deadlines or proximity triggers to maintain accuracy and user trust. 
 
 ### **4.8. Main Project Complexity Design**
 #### **Task Scheduling with Time Window Constraints**
