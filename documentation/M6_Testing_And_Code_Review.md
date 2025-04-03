@@ -46,7 +46,7 @@
   
 - **Run in Terminal**:
   1. Open your terminal and run
-    ```
+     ```
      git clone https://github.com/bvpenner/CPEN321Project.git
      ```
   2. Go to test repository
@@ -58,7 +58,15 @@
     npx jest nonfunctional.test.ts --preset=ts-jest
     npx jest backend_nomock.test.ts backend_mock.test.ts --coverage --runInBand
     ```
-
+- **Steps to run Server**:
+  1. Go to server directory
+    ```
+				cd backend/ts-server 
+    ```
+  2. Use npx to run the server
+    ```
+      npx nodemon --exec ts-node src/index.ts
+    ```
 
 ### 2.2. GitHub Actions Configuration Location
 
