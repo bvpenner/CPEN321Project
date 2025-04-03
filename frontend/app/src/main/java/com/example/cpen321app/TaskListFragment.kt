@@ -13,6 +13,7 @@ import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.cpen321app.MainActivity.Companion.getOkHttpClientWithCustomCert
 import com.example.cpen321app.MapsFragment.Companion.User_Lat
 import com.example.cpen321app.MapsFragment.Companion.User_Lng
 import com.example.cpen321app.TaskAdapter.Companion._geofenceStateMap
@@ -156,8 +157,8 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
     }
 
     private fun sendGetOptimalRouteServer(selectedTasks: List<Task>) {
-        val client = OkHttpClient()
-        val url = "http://${server_ip}/fetchOptimalRoute"
+        val client = getOkHttpClientWithCustomCert(requireContext())
+        val url = "https://${server_ip}/fetchOptimalRoute"
         val taskIds: List<String> = selectedTasks.map { it.id }
         val formatter = DateTimeFormatter.ofPattern("HH:mm") // 24-hour format
         val currentTime = LocalTime.now().format(formatter)

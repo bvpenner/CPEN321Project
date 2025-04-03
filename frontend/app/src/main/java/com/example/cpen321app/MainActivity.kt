@@ -347,6 +347,16 @@ class MainActivity : AppCompatActivity() {
 
         val progressBar = findViewById<ProgressBar>(R.id.progressBar)
         constraintLayout.removeView(progressBar)
+
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                SessionManager.currentLocation = location
+                Log.d(TAG, "Initial location obtained: ${location.latitude}, ${location.longitude}")
+            } else {
+                Log.d(TAG, "Initial location is null; will try again later.")
+            }
+        }
     }
 
     private fun setUpConstraintLayout(

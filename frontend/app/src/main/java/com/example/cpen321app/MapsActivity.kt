@@ -142,6 +142,8 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
                 .commit()
         }
 
+
+
         mapFragment.getMapAsync(this)
     }
 
