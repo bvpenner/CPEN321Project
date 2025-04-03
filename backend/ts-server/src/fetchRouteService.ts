@@ -24,12 +24,7 @@ async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Pro
     const url = buildURL(allTask, userLocation)
 
     const response = await fetch(url);
-    console.log("examine distance matrix response status");
-    console.log(response.status);
-    
     const jsonResponse = await response.json();
-    console.log(jsonResponse);
-    console.log(jsonResponse.status);
 
     const timeDistanceMatrix = parseAllTaskRouteTime(jsonResponse);
     return timeDistanceMatrix;
@@ -66,8 +61,6 @@ function parseAllTaskRouteTime(jsonData: any): any {
 
         for (let j = 0; j < row.elements.length; j++) {
             const element = row.elements[j];
-            //examine status
-            console.log(element.status)
             durationRow.push(element.duration.value / 60); // Extracting duration value, original in second
         }
 
