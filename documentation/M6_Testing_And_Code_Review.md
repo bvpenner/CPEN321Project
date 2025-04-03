@@ -13,6 +13,7 @@
 | 2025/4/02 | Refactored repository structure: Move all backend code into folder /backend. Move all frontend android app into folder /frontend. Make the server api into router + controller structure. Add .env for key storage | |
 | 2025/4/02 | More bugs fix: Changed communication into https. Modified frontend to request into cert signed Https. | |
 | 2025/4/02 | Updated backend test logs | |
+| 2025/4/02 | Updated backend test coverage | |
 
 ---
 
@@ -65,11 +66,11 @@
 
 ### 2.3. Jest Coverage Report Screenshots With Mocks
 
-![](./images/M5/2.3img.png)
+![](./images/M6_backend_test_all.png)
 
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
-![](./images/M5/2.4img.png)
+![](./images/M6_backend_test_nomock.png)
 
 ---
 

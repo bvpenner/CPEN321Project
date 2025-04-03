@@ -14,7 +14,6 @@ export const fetchGeofencesControl = async (req: Request<{}, any, RouteRequestBo
         console.log("fetchGeofences result: " + result)
         res.json(result);
     } catch (error: any) {
-        // console.error(error);
         res.status(500).json({ error: error.message });
     }
 };

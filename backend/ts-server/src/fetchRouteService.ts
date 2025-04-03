@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-const googleMapsClient = new Client({});        //unsure about this
+const googleMapsClient = new Client({});        
 const GMap_API_key = process.env.GMap_API_key
 
 interface LatLng {
@@ -32,7 +32,6 @@ async function fetchAllTaskRouteTime(allTask: Task[], userLocation: LatLng): Pro
     console.log(jsonResponse.status);
 
     const timeDistanceMatrix = parseAllTaskRouteTime(jsonResponse);
-    // console.log("CompactJson:", jsonResponse);
     return timeDistanceMatrix;
 }
 
@@ -42,7 +41,6 @@ function buildURL(allTask: Task[], userLocation: LatLng): any {
         .map(task => `${task.location_lat},${task.location_lng}`)
         .join('|');
 
-    //include user location!!
     const allDestinationsParam = `${userLocation.latitude},${userLocation.longitude}|` + destinationsParam;
     
     const originsParam = allTask
@@ -51,7 +49,6 @@ function buildURL(allTask: Task[], userLocation: LatLng): any {
 
     const allOriginsParam = `${userLocation.latitude},${userLocation.longitude}|` + originsParam;
 
-    // Construct the final URL
     const url = `https://maps.googleapis.com/maps/api/distancematrix/json?` +
         `origins=${allOriginsParam}&destinations=${allDestinationsParam}` +
         `&key=${GMap_API_key}`;
@@ -59,14 +56,13 @@ function buildURL(allTask: Task[], userLocation: LatLng): any {
     return url;
 }
 
-// TODO: to be verified (logic)!!!
 function parseAllTaskRouteTime(jsonData: any): any {
-    const durationsMatrix: number[][] = []; // 2D matrix to store durations
+    const durationsMatrix: number[][] = []; 
 
     //each row is one origin to each destinations
     for (let i = 0; i < jsonData.rows.length; i++) {
         const row = jsonData.rows[i];
-        const durationRow: number[] = []; // Store durations for this row
+        const durationRow: number[] = []; 
 
         for (let j = 0; j < row.elements.length; j++) {
             const element = row.elements[j];
@@ -78,7 +74,6 @@ function parseAllTaskRouteTime(jsonData: any): any {
         durationsMatrix.push(durationRow);
     }
 
-    // Print the 2D matrix
     return durationsMatrix
 }
 

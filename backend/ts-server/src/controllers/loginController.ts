@@ -16,7 +16,6 @@ export const login = async (req: Request<{}, any, {u_id:string, name: string, em
             "is_new": new_user_id[1]
         });
     } catch (error: any) {
-        // console.error(error);
         res.status(500).json({ error: error.message });
     }
 };
