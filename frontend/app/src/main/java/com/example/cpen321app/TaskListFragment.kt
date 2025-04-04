@@ -233,14 +233,16 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
                             }
                         }
 
+                        val activity = requireActivity() as MainActivity
+                        val navView = activity.findViewById<BottomNavigationView>(activity.bottomNavId)
+                        navView.selectedItemId = R.id.map_view_button
+
                         (requireActivity() as MainActivity).supportFragmentManager.beginTransaction()
                             .replace((requireActivity() as MainActivity).fragmentContainerId, mapsFragment)
                             .addToBackStack(null)
                             .commit()
 
-                        val activity = requireActivity() as MainActivity
-                        val navView = activity.findViewById<BottomNavigationView>(activity.bottomNavId)
-                        navView.selectedItemId = R.id.map_view_button
+
                     }
 
                 }

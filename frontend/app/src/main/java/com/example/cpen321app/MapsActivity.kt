@@ -545,7 +545,7 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
                 if (retryCount > 0) {
                     Handler(Looper.getMainLooper()).postDelayed({
                         fetchAndDrawRouteFromPoints(points, retryCount - 1)
-                    }, 1000)
+                    }, 10000)
                 }
             }
 
