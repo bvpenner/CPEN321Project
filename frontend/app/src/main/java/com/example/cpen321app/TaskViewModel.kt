@@ -145,7 +145,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     private fun sendAddTaskRequest(newTask: Task) {
         // val client = OkHttpClient()
         val client = getOkHttpClientWithCustomCert(getApplication<Application>())
-        val url = "https://${server_ip}/addTask"
+        val url = "https://13.216.143.65:3000/addTask"
 
         // Build JSON body
         val jsonBody = JSONObject().apply {
