@@ -13,7 +13,7 @@
 | 2025/4/02 | Refactored repository structure: Move all backend code into folder /backend. Move all frontend android app into folder /frontend. Make the server api into router + controller structure. Add .env for key storage | |
 | 2025/4/02 | More bugs fix: Changed communication into https. Modified frontend to request into cert signed Https. | |
 | 2025/4/02 | Updated backend test logs | |
-| 2025/4/02 | Updated backend test coverage | |
+| 2025/4/04 | Updated Codacy results | |
 
 ---
 
@@ -46,7 +46,7 @@
   
 - **Run in Terminal**:
   1. Open your terminal and run
-     ```
+    ```
      git clone https://github.com/bvpenner/CPEN321Project.git
      ```
   2. Go to test repository
@@ -58,15 +58,7 @@
     npx jest nonfunctional.test.ts --preset=ts-jest
     npx jest backend_nomock.test.ts backend_mock.test.ts --coverage --runInBand
     ```
-- **Steps to run Server&Database**:
-  1. Go to server directory
-    ```
-		cd backend/ts-server 
-    ```
-  2. Use npx to run the server
-    ```
-    npx nodemon --exec ts-node src/index.ts
-    ```
+
 
 ### 2.2. GitHub Actions Configuration Location
 
@@ -74,11 +66,11 @@
 
 ### 2.3. Jest Coverage Report Screenshots With Mocks
 
-![](./images/M6_backend_test_all.png)
+![](./images/M5/2.3img.png)
 
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
-![](./images/M6_backend_test_nomock.png)
+![](./images/M5/2.4img.png)
 
 ---
 
