@@ -238,6 +238,9 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
                             .addToBackStack(null)
                             .commit()
 
+                        val activity = requireActivity() as MainActivity
+                        val navView = activity.findViewById<BottomNavigationView>(activity.bottomNavId)
+                        navView.selectedItemId = R.id.map_view_button
                     }
 
                 }
