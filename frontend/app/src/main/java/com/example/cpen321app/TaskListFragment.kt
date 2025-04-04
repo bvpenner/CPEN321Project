@@ -164,8 +164,9 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
     }
 
     private fun sendGetOptimalRouteServer(selectedTasks: List<Task>) {
-        val client = getOkHttpClientWithCustomCert(requireContext())
-        val url = "https://${server_ip}/fetchOptimalRoute"
+        //val client = getOkHttpClientWithCustomCert(requireContext())
+        val client = OkHttpClient()
+        val url = "http://13.216.143.65:3001/fetchOptimalRoute"
         val taskIds: List<String> = selectedTasks.map { it.id }
         val formatter = DateTimeFormatter.ofPattern("HH:mm") // 24-hour format
         val currentTime = LocalTime.now().format(formatter)
