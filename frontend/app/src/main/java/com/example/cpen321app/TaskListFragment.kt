@@ -199,8 +199,9 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
                 response.body?.string()?.let { jsonResponse ->
                     Log.d(TAG, "Received response: $jsonResponse")
 
-                    val orderedtaskIds = JSONObject(jsonResponse).getJSONArray("taskIds")
-                    val estimated_time = JSONObject(jsonResponse).get("time_cost")
+                    val responseJson = JSONObject(jsonResponse)
+                    val orderedtaskIds = responseJson.getJSONArray("taskIds")
+                    val estimated_time = responseJson.get("time_cost")
                     val taskIdList = mutableListOf<String>()
                     val coordList = mutableListOf<LatLng>()
                     coordList.add(LatLng(User_Lat, User_Lng))
