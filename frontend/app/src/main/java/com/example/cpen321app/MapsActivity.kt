@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -36,6 +37,7 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import org.json.JSONObject
 import java.io.IOException
+import java.net.URLEncoder
 import kotlin.math.atan2
 
 open class MapsFragment : Fragment(), OnMapReadyCallback {
@@ -507,7 +509,7 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(points.first(), 14f))
     }
 
-    fun fetchAndDrawRouteFromPoints(points: List<LatLng>) {
+    fun fetchAndDrawRouteFromPoints(points: List<LatLng>, retryCount: Int = 3) {
         if (points.size < 2) {
             Log.w("fetchAndDrawRoute", "At least 2 points are required.")
             return
@@ -527,40 +529,53 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
             .append("&key=$MAPS_API_KEY")
 
         if (waypoints.isNotEmpty()) {
-            urlBuilder.append("&waypoints=$waypointsStr")
+            val encodedWaypoints = URLEncoder.encode(waypointsStr, "UTF-8")
+            urlBuilder.append("&waypoints=$encodedWaypoints")
         }
 
         val url = urlBuilder.toString()
+        Log.d("DirectionsAPI", "Request URL: $url")
 
         val client = OkHttpClient()
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("DirectionsAPI", "Failed to fetch route", e)
+                Log.e("DirectionsAPI", "Failed to fetch route: ${e.message}")
+                if (retryCount > 0) {
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        fetchAndDrawRouteFromPoints(points, retryCount - 1)
+                    }, 1000)
+                }
             }
 
             override fun onResponse(call: Call, response: Response) {
-                response.body?.string()?.let { body ->
-                    val json = JSONObject(body)
-                    val routes = json.getJSONArray("routes")
-                    if (routes.length() > 0) {
-                        val overviewPolyline = routes.getJSONObject(0)
-                            .getJSONObject("overview_polyline")
-                            .getString("points")
+                val body = response.body?.string()
+                if (!response.isSuccessful || body.isNullOrEmpty()) {
+                    Log.e("DirectionsAPI", "Empty or bad response")
+                    return
+                }
 
-                        val decodedPoints = PolyUtil.decode(overviewPolyline)
+                val json = JSONObject(body)
+                val routes = json.getJSONArray("routes")
+                if (routes.length() > 0) {
+                    val overviewPolyline = routes.getJSONObject(0)
+                        .getJSONObject("overview_polyline")
+                        .getString("points")
 
-                        requireActivity().runOnUiThread {
-                            Log.d("DirectionsAPI", decodedPoints.toString())
-                            drawRouteOnMap(decodedPoints)
-                        }
-                    } else {
-                        Log.e("DirectionsAPI", "No route found.")
+                    val decodedPoints = PolyUtil.decode(overviewPolyline)
+
+                    requireActivity().runOnUiThread {
+                        Log.d("DirectionsAPI", "Decoded points: $decodedPoints")
+                        drawRouteOnMap(decodedPoints)
                     }
+                } else {
+                    Log.e("DirectionsAPI", "No route found.")
                 }
             }
         })
     }
+
+
 
 }

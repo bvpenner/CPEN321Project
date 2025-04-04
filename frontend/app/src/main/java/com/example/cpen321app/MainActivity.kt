@@ -108,6 +108,7 @@ class MainActivity : AppCompatActivity() {
 //                .build()
 //        }
 
+
         fun getOkHttpClientWithCustomCert(context: Context): OkHttpClient {
             val certificateInput: InputStream = context.resources.openRawResource(R.raw.cert)
 
@@ -147,6 +148,35 @@ class MainActivity : AppCompatActivity() {
     private lateinit var securePreferences: SecurePreferences
 
     //HTTPS setup
+
+
+    private fun checkAndPromptLocationSettings() {
+        val locationRequest = com.google.android.gms.location.LocationRequest.create()
+            .setPriority(com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY)
+            .setInterval(10000)
+            .setFastestInterval(5000)
+
+        val builder = com.google.android.gms.location.LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+            .setAlwaysShow(true) // Important: show dialog every time if needed
+
+        val settingsClient = com.google.android.gms.location.LocationServices.getSettingsClient(this)
+        val task = settingsClient.checkLocationSettings(builder.build())
+
+        task.addOnSuccessListener {
+            Log.d("LocationSettings", "Location services are ON")
+        }
+
+        task.addOnFailureListener { exception ->
+            if (exception is com.google.android.gms.common.api.ResolvableApiException) {
+                try {
+                    exception.startResolutionForResult(this, 2001) // 2001 = requestCode
+                } catch (e: Exception) {
+                    Log.e("LocationSettings", "Failed to prompt user: ${e.message}")
+                }
+            }
+        }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -241,7 +271,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun signInSuccess() {
-
+        checkAndPromptLocationSettings()
         // Fetch the initial location and store it in SessionManager.
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
