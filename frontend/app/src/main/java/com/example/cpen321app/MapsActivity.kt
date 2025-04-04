@@ -72,6 +72,20 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
         Log.d("coordListToDraw", coordListToDraw.toString())
     }
 
+    private val periodicLocationHandler = Handler(Looper.getMainLooper())
+    private val periodicLocationRunnable = object : Runnable {
+        override fun run() {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    User_Lat = location.latitude
+                    User_Lng = location.longitude
+                    Log.d("PeriodicUpdate", "Updated: $User_Lat, $User_Lng")
+                }
+            }
+            periodicLocationHandler.postDelayed(this, 10000) // every 10 seconds
+        }
+    }
+
     private val locationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
             MapsFragment.User_Lat = location.latitude
@@ -260,6 +274,7 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
         Log.d(TAG, "Fragment Resumed - Starting background tasks")
         handler.post(geofenceupdateRunnable)
         handler.post(geofencealertRunnable)
+        periodicLocationHandler.post(periodicLocationRunnable)
     }
 
     override fun onPause() {
@@ -267,6 +282,7 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
         Log.d(TAG, "Fragment Paused - Stopping background tasks")
         handler.removeCallbacks(geofenceupdateRunnable)
         handler.removeCallbacks(geofencealertRunnable)
+        periodicLocationHandler.removeCallbacks(periodicLocationRunnable)
     }
 
     private fun startLocationUpdates() {
