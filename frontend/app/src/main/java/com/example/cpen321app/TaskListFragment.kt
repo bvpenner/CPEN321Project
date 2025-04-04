@@ -4,6 +4,8 @@ import FirebaseMessagingService
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -225,9 +227,10 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
 
 
                     requireActivity().runOnUiThread {
-                        val mapsFragment = MapsFragment()
-                        mapsFragment.arguments = Bundle().apply {
-                            putParcelableArrayList("coordList", ArrayList(coordList))
+                        val mapsFragment = MapsFragment().apply {
+                            arguments = Bundle().apply {
+                                putParcelableArrayList("coordList", ArrayList(coordList))
+                            }
                         }
 
                         (requireActivity() as MainActivity).supportFragmentManager.beginTransaction()
@@ -235,11 +238,6 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
                             .addToBackStack(null)
                             .commit()
 
-                        val activity = requireActivity() as MainActivity
-                        val navView = activity.findViewById<BottomNavigationView>(activity.bottomNavId)
-                        navView.selectedItemId = R.id.map_view_button
-
-                        mapsFragment.fetchAndDrawRouteFromPoints(coordList)
                     }
 
                 }

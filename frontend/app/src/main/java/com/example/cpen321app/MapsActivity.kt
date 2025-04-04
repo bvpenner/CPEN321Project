@@ -2,6 +2,8 @@ package com.example.cpen321app
 
 import FirebaseMessagingService
 import android.Manifest
+import android.content.Context
+import android.content.Context.LOCATION_SERVICE
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
@@ -14,6 +16,7 @@ import android.util.Log
 import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import com.example.cpen321app.BuildConfig.MAPS_API_KEY
@@ -38,7 +41,7 @@ import kotlin.math.atan2
 open class MapsFragment : Fragment(), OnMapReadyCallback {
     private lateinit var locationManager: LocationManager
     private val TAG = "MapsFragment"
-    protected lateinit var mMap: GoogleMap
+    lateinit var mMap: GoogleMap
     private var _binding: FragmentMapsBinding? = null
     private val binding get() = _binding!!
     private val handler = Handler(Looper.getMainLooper()) // Runs on main thread
@@ -51,12 +54,56 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
         var User_Lng: Double = 0.0
     }
 
+    private var coordListToDraw: ArrayList<LatLng>? = null
+
     // Holds geofence coordinate lists keyed by task ID.
     protected val geofence_Map = MutableLiveData<MutableMap<String, MutableList<LatLng>>>()
 
     // Lazy initialization of fusedLocationClient.
     private val fusedLocationClient by lazy {
         LocationServices.getFusedLocationProviderClient(requireContext())
+    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        startGlobalLocationUpdates(requireContext())
+        coordListToDraw = arguments?.getParcelableArrayList("coordList")
+        Log.d("coordListToDraw", coordListToDraw.toString())
+    }
+
+    private val locationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {
+            MapsFragment.User_Lat = location.latitude
+            MapsFragment.User_Lng = location.longitude
+            Log.d("MainActivity", "Updated location: ${location.latitude}, ${location.longitude}")
+        }
+
+        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
+    }
+
+    fun startGlobalLocationUpdates(context: Context) {
+        locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        val provider = when {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ->
+                LocationManager.GPS_PROVIDER
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ->
+                LocationManager.NETWORK_PROVIDER
+            else -> null
+        }
+
+        if (provider != null) {
+            locationManager.requestLocationUpdates(
+                provider,
+                2000L, // every 2 seconds
+                1f,    // every 1 meter
+                locationListener,
+                Looper.getMainLooper()
+            )
+        } else {
+            Log.e("MapsFragment", "Location permission not granted.")
+        }
     }
 
     override fun onCreateView(
@@ -147,12 +194,22 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
+    var onMapReadyCallback: (() -> Unit)? = null
+
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+
+        mMap.setOnMapLoadedCallback {
+            coordListToDraw?.let {
+                Log.d("MapsFragment", "Drawing route with ${it.size} points")
+                fetchAndDrawRouteFromPoints(it)
+            }
+        }
+
         mMap.uiSettings.isZoomControlsEnabled = true
         mMap.uiSettings.isZoomGesturesEnabled = true
         locationManager = requireContext().getSystemService(LocationManager::class.java)
-
+        startLocationUpdates()
         if (hasLocationPermission()) {
             startLocationUpdates()
             try {
@@ -192,6 +249,8 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
                 )
             }
         }
+
+        onMapReadyCallback?.invoke()
     }
 
     override fun onResume() {
@@ -435,7 +494,7 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
             Log.w("drawRouteOnMap", "Map not ready or insufficient points.")
             return
         }
-
+        Log.d("drawRouteOnMap", points.toString())
         val polylineOptions = PolylineOptions()
             .addAll(points)
             .color(color)
@@ -493,6 +552,7 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
                         val decodedPoints = PolyUtil.decode(overviewPolyline)
 
                         requireActivity().runOnUiThread {
+                            Log.d("DirectionsAPI", decodedPoints.toString())
                             drawRouteOnMap(decodedPoints)
                         }
                     } else {
