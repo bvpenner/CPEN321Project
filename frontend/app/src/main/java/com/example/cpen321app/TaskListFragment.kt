@@ -15,6 +15,7 @@ import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.cpen321app.BuildConfig.MAPS_API_KEY
 import com.example.cpen321app.MainActivity.Companion.getOkHttpClientWithCustomCert
 import com.example.cpen321app.MapsFragment.Companion.User_Lat
 import com.example.cpen321app.MapsFragment.Companion.User_Lng
@@ -24,6 +25,9 @@ import com.example.cpen321app.TaskViewModel.Companion.server_ip
 import com.example.cpen321app.databinding.FragmentTaskListBinding
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.maps.android.PolyUtil
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -32,6 +36,7 @@ import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.net.URLEncoder
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
@@ -224,29 +229,123 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
 
                     val messagingService = FirebaseMessagingService()
                     messagingService.sendNotification(requireContext(), message)
+//                    val routePoints = listOf(
+//                        LatLng(49.2827, -123.1207), // Vancouver
+//                        LatLng(48.6062, -122.3321),
+//                        LatLng(47.6062, -122.3321)  // Seattle
+//                    )
 
 
-                    requireActivity().runOnUiThread {
-                        val mapsFragment = MapsFragment().apply {
-                            arguments = Bundle().apply {
-                                putParcelableArrayList("coordList", ArrayList(coordList))
+                    fetchAndDrawRouteFromPoints(coordList, onSuccess = { decodedlist ->
+                        requireActivity().runOnUiThread {
+                            val bundle = Bundle().apply {
+                                putParcelableArrayList("coordList", ArrayList(decodedlist))
                             }
+
+                            val mapsFragment = MapsFragment().apply {
+                                arguments = bundle
+                            }
+
+                            val activity = requireActivity() as MainActivity
+                            val navView = activity.findViewById<BottomNavigationView>(activity.bottomNavId)
+                            navView.selectedItemId = R.id.map_view_button
+
+                            activity.supportFragmentManager.beginTransaction()
+                                .replace(activity.fragmentContainerId, mapsFragment)
+                                .addToBackStack(null)
+                                .commit()
                         }
-
-                        val activity = requireActivity() as MainActivity
-                        val navView = activity.findViewById<BottomNavigationView>(activity.bottomNavId)
-                        navView.selectedItemId = R.id.map_view_button
-
-                        (requireActivity() as MainActivity).supportFragmentManager.beginTransaction()
-                            .replace((requireActivity() as MainActivity).fragmentContainerId, mapsFragment)
-                            .addToBackStack(null)
-                            .commit()
-
-
-                    }
-
+                    })
                 }
             }
         })
     }
+
+    fun fetchAndDrawRouteFromPoints(
+        points: List<LatLng>,
+        retryCount: Int = 3,
+        onSuccess: (List<LatLng>) -> Unit = { },
+        onFailure: (() -> Unit)? = null
+    ) {
+        if (points.size < 2) {
+            Log.w("fetchAndDrawRoute", "At least 2 points are required.")
+            onFailure?.invoke()
+            return
+        }
+
+        val origin = points.first()
+        val destination = points.last()
+        val waypoints = points.subList(1, points.size - 1)
+
+        val originStr = "${origin.latitude},${origin.longitude}"
+        val destStr = "${destination.latitude},${destination.longitude}"
+        val waypointsStr = waypoints.joinToString("|") { "${it.latitude},${it.longitude}" }
+
+        val urlBuilder = StringBuilder("https://maps.googleapis.com/maps/api/directions/json?")
+            .append("origin=$originStr")
+            .append("&destination=$destStr")
+            .append("&key=$MAPS_API_KEY")
+
+        if (waypoints.isNotEmpty()) {
+            val encodedWaypoints = URLEncoder.encode(waypointsStr, "UTF-8")
+            urlBuilder.append("&waypoints=$encodedWaypoints")
+        }
+
+        val url = urlBuilder.toString()
+        Log.d("DirectionsAPI", "Request URL: $url")
+
+        val client = OkHttpClient.Builder()
+            .retryOnConnectionFailure(true)
+            .build()
+
+        val request = Request.Builder()
+            .url(url)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("DirectionsAPI", "Failed to fetch route: ${e.message}")
+                if (retryCount > 0) {
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        fetchAndDrawRouteFromPoints(points, retryCount - 1, onSuccess, onFailure)
+                    }, 3000)
+                } else {
+                    onFailure?.invoke()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body?.string()
+                if (!response.isSuccessful || body.isNullOrEmpty()) {
+                    Log.e("DirectionsAPI", "Empty or bad response")
+                    onFailure?.invoke()
+                    return
+                }
+
+                try {
+                    val json = JSONObject(body)
+                    val routes = json.getJSONArray("routes")
+                    if (routes.length() > 0) {
+                        val overviewPolyline = routes.getJSONObject(0)
+                            .getJSONObject("overview_polyline")
+                            .getString("points")
+
+                        val decodedPoints = PolyUtil.decode(overviewPolyline)
+
+                        requireActivity().runOnUiThread {
+                            Log.d("DirectionsAPI", "Decoded points: $decodedPoints")
+                            onSuccess(decodedPoints)
+                        }
+                    } else {
+                        Log.e("DirectionsAPI", "No route found.")
+                        onFailure?.invoke()
+                    }
+                } catch (e: Exception) {
+                    Log.e("DirectionsAPI", "Parsing error: ${e.message}")
+                    onFailure?.invoke()
+                }
+            }
+        })
+    }
+
 }

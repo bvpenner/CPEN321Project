@@ -204,7 +204,7 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
         mMap.setOnMapLoadedCallback {
             coordListToDraw?.let {
                 Log.d("MapsFragment", "Drawing route with ${it.size} points")
-                fetchAndDrawRouteFromPoints(it)
+                drawRouteOnMap(it)
             }
         }
 
@@ -536,8 +536,14 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
         val url = urlBuilder.toString()
         Log.d("DirectionsAPI", "Request URL: $url")
 
-        val client = OkHttpClient()
-        val request = Request.Builder().url(url).build()
+        val client = OkHttpClient.Builder()
+            .retryOnConnectionFailure(true)
+            .build()
+
+        val request = Request.Builder()
+            .url(url)
+            .header("Connection", "close") // Force connection reset if needed
+            .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -545,7 +551,7 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
                 if (retryCount > 0) {
                     Handler(Looper.getMainLooper()).postDelayed({
                         fetchAndDrawRouteFromPoints(points, retryCount - 1)
-                    }, 10000)
+                    }, 10000) // Retry faster
                 }
             }
 
@@ -556,21 +562,25 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
                     return
                 }
 
-                val json = JSONObject(body)
-                val routes = json.getJSONArray("routes")
-                if (routes.length() > 0) {
-                    val overviewPolyline = routes.getJSONObject(0)
-                        .getJSONObject("overview_polyline")
-                        .getString("points")
+                try {
+                    val json = JSONObject(body)
+                    val routes = json.getJSONArray("routes")
+                    if (routes.length() > 0) {
+                        val overviewPolyline = routes.getJSONObject(0)
+                            .getJSONObject("overview_polyline")
+                            .getString("points")
 
-                    val decodedPoints = PolyUtil.decode(overviewPolyline)
+                        val decodedPoints = PolyUtil.decode(overviewPolyline)
 
-                    requireActivity().runOnUiThread {
-                        Log.d("DirectionsAPI", "Decoded points: $decodedPoints")
-                        drawRouteOnMap(decodedPoints)
+                        requireActivity().runOnUiThread {
+                            Log.d("DirectionsAPI", "Decoded points: $decodedPoints")
+                            drawRouteOnMap(decodedPoints)
+                        }
+                    } else {
+                        Log.e("DirectionsAPI", "No route found.")
                     }
-                } else {
-                    Log.e("DirectionsAPI", "No route found.")
+                } catch (e: Exception) {
+                    Log.e("DirectionsAPI", "Parsing error: ${e.message}")
                 }
             }
         })
