@@ -34,6 +34,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.net.URLEncoder
@@ -182,12 +183,17 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
             put("userCurrTime", currentTime)
         }
 
+        Log.d(TAG, "Lat: $User_Lat, Long: $User_Lng")
+
         val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
         val requestBody = jsonBody.toString().toRequestBody(mediaType)
         val request = Request.Builder()
             .url(url)
             .post(requestBody)
             .build()
+
+        Log.d(TAG, "$request, ${request.body}")
+
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: IOException) {
                 Log.e(TAG, "Failed to get tasks: ${e.message}")
@@ -342,7 +348,10 @@ class TaskListFragment : Fragment(), TaskAdapter.OnItemLongClickListener {
                         Log.e("DirectionsAPI", "No route found.")
                         onFailure?.invoke()
                     }
-                } catch (e: Exception) {
+                } catch (e: JSONException) {
+                    Log.e("DirectionsAPI", "Parsing error: ${e.message}")
+                    onFailure?.invoke()
+                } catch (e: IllegalStateException) {
                     Log.e("DirectionsAPI", "Parsing error: ${e.message}")
                     onFailure?.invoke()
                 }

@@ -35,6 +35,7 @@ import com.google.android.gms.maps.model.*
 import com.google.maps.android.PolyUtil
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.net.URLEncoder
@@ -595,7 +596,9 @@ open class MapsFragment : Fragment(), OnMapReadyCallback {
                     } else {
                         Log.e("DirectionsAPI", "No route found.")
                     }
-                } catch (e: Exception) {
+                } catch (e: JSONException) {
+                    Log.e("DirectionsAPI", "Parsing error: ${e.message}")
+                } catch (e: IllegalStateException) {
                     Log.e("DirectionsAPI", "Parsing error: ${e.message}")
                 }
             }

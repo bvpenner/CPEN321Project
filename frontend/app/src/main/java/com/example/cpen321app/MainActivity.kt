@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.IntentSender.SendIntentException
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -171,7 +172,7 @@ class MainActivity : AppCompatActivity() {
             if (exception is com.google.android.gms.common.api.ResolvableApiException) {
                 try {
                     exception.startResolutionForResult(this, 2001) // 2001 = requestCode
-                } catch (e: Exception) {
+                } catch (e: SendIntentException) {
                     Log.e("LocationSettings", "Failed to prompt user: ${e.message}")
                 }
             }
